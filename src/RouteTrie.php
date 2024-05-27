@@ -6,56 +6,105 @@ namespace Denosys\Routing;
 
 class RouteTrie
 {
-    private array $staticRoutes = [];
-    private array $dynamicRoutes = [];
+    private array $root = [];
+    private array $routeCache = [];
 
     public function addRoute(string $method, string $pattern, RouteInterface $route): void
     {
-        if (!str_contains($pattern, '{')) {
-            $this->staticRoutes[$method][$pattern] = $route;
-        } else {
-            $this->dynamicRoutes[$method][] = ['pattern' => $pattern, 'route' => $route];
-        }
-    }
+        $parts = explode('/', trim($pattern, '/'));
+        $currentNode = $this->getOrCreateRootNode($method);
 
-    public function compileDynamicRoutes(): void
-    {
-        foreach ($this->dynamicRoutes as $method => $routes) {
-            $patterns = [];
-            foreach ($routes as $routeInfo) {
-                $pattern = RegexHelper::patternToRegex($routeInfo['pattern']);
-                // Remove the surrounding delimiters and anchors added by patternToRegex
-                $pattern = substr($pattern, 2, -2);
-                $patterns[] = "(?P<{$routeInfo['route']->getIdentifier()}>{$pattern})";
-            }
-            $this->dynamicRoutes[$method]['compiled'] = '#^(' . implode('|', $patterns) . ')$#';
+        foreach ($parts as $part) {
+            $currentNode = $this->getOrCreateChildNode($currentNode, $part);
         }
+
+        $currentNode->route = $route;
     }
 
     public function findRoute(string $method, string $path): ?array
     {
-        // Check static routes first
-        if (isset($this->staticRoutes[$method][$path])) {
-            return [$this->staticRoutes[$method][$path], []];
+        $cacheKey = $method . $path;
+        if (isset($this->routeCache[$cacheKey])) {
+            return $this->routeCache[$cacheKey];
         }
 
-        // Check dynamic routes
-        if (isset($this->dynamicRoutes[$method]['compiled'])) {
-            $regex = $this->dynamicRoutes[$method]['compiled'];
-            if (preg_match($regex, $path, $matches)) {
-                foreach ($matches as $key => $value) {
-                    // Ensure the key is a string and starts with '_route_'
-                    if (is_string($key) && str_starts_with($key, '_route_')) {
-                        $routeId = $key;
-                        foreach ($this->dynamicRoutes[$method] as $routeInfo) {
-                            if ($routeInfo['route']->getIdentifier() === $routeId) {
-                                $params = RegexHelper::extractParameters($routeInfo['pattern'], $path);
-                                return [$routeInfo['route'], $params];
-                            }
-                        }
-                    }
-                }
+        $parts = explode('/', trim($path, '/'));
+        $currentNode = $this->root[$method] ?? null;
+        $params = [];
+
+        foreach ($parts as $part) {
+            $currentNode = $this->getNextNode($currentNode, $part, $params);
+            if ($currentNode === null) {
+                return null;
             }
+        }
+
+        return $this->cacheRoute($method, $path, $currentNode, $params);
+    }
+
+    private function getOrCreateRootNode(string $method): TrieNode
+    {
+        if (!isset($this->root[$method])) {
+            $this->root[$method] = new TrieNode();
+        }
+        return $this->root[$method];
+    }
+
+    private function getOrCreateChildNode(TrieNode $node, string $part): TrieNode
+    {
+        if ($this->isDynamicPart($part)) {
+            return $this->getOrCreateDynamicChildNode($node, $part);
+        }
+        return $this->getOrCreateStaticChildNode($node, $part);
+    }
+
+    private function isDynamicPart(string $part): bool
+    {
+        return $part[0] === '{' && $part[-1] === '}';
+    }
+
+    private function getOrCreateDynamicChildNode(TrieNode $node, string $part): TrieNode
+    {
+        $paramName = trim($part, '{}');
+        if (!isset($node->children[':'])) {
+            $node->children[':'] = new TrieNode($paramName);
+        }
+        return $node->children[':'];
+    }
+
+    private function getOrCreateStaticChildNode(TrieNode $node, string $part): TrieNode
+    {
+        if (!isset($node->children[$part])) {
+            $node->children[$part] = new TrieNode();
+        }
+        return $node->children[$part];
+    }
+
+    private function getNextNode(?TrieNode $node, string $part, array &$params): ?TrieNode
+    {
+        if ($node === null) {
+            return null;
+        }
+
+        if (isset($node->children[$part])) {
+            return $node->children[$part];
+        }
+
+        if (isset($node->children[':'])) {
+            $childNode = $node->children[':'];
+            $params[$childNode->paramName] = $part;
+            return $childNode;
+        }
+
+        return null;
+    }
+
+    private function cacheRoute(string $method, string $path, TrieNode $node, array $params): ?array
+    {
+        if ($node->route) {
+            $result = [$node->route, $params];
+            $this->routeCache[$method . $path] = $result;
+            return $result;
         }
 
         return null;
