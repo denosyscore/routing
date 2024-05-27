@@ -71,12 +71,19 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = array_shift($this->middlewareQueue);
-        if ($middleware === null) {
-            return $this->dispatch($request);
+        if ($middleware = array_shift($this->middlewareQueue)) {
+            return $middleware->process($request, $this);
         }
 
-        return $middleware->process($request, $this);
+        $routeInfo = $this->matchRoute($request);
+
+        if ($routeInfo === null) {
+            throw new NotFoundException();
+        }
+
+        [$route, $params] = $routeInfo;
+
+        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
     }
 
     protected function initializeTrie(): void
@@ -138,6 +145,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             $request = $request->withAttribute($key, $value);
         }
 
-        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
+        return $this->handle($request);
     }
 }

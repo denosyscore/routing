@@ -7,6 +7,7 @@ namespace Denosys\Routing;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Router implements RouterInterface
@@ -71,6 +72,11 @@ class Router implements RouterInterface
     public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
         return $this->routeCollection->add($methods, $pattern, $handler);
+    }
+
+    public function addMiddleware(MiddlewareInterface $middleware): void
+    {
+        $this->dispatcher->addMiddleware($middleware);
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
