@@ -40,19 +40,13 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     {
         $this->initializeTrie();
 
-        $routeInfo = $this->match($request);
+        $routeInfo = $this->matchRoute($request);
 
         if ($routeInfo === null) {
             throw new NotFoundException();
         }
 
-        [$route, $params] = $routeInfo;
-
-        foreach ($params as $key => $value) {
-            $request = $request->withAttribute($key, $value);
-        }
-
-        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
+        return $this->handleRoute($request, $routeInfo);
     }
 
     public function setNotFoundHandler(callable $handler): void
@@ -92,16 +86,20 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         foreach ($this->routeCollection->all() as $route) {
-            foreach ($route->getMethods() as $method) {
-                $this->routeTrie->addRoute($method, $route->getPattern(), $route);
-            }
+            $this->addRouteToTrie($route);
         }
 
-        $this->routeTrie->compileDynamicRoutes();
         $this->isTrieInitialized = true;
     }
 
-    protected function match(ServerRequestInterface $request): ?array
+    protected function addRouteToTrie(RouteInterface $route): void
+    {
+        foreach ($route->getMethods() as $method) {
+            $this->routeTrie->addRoute($method, $route->getPattern(), $route);
+        }
+    }
+
+    protected function matchRoute(ServerRequestInterface $request): ?array
     {
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
@@ -130,5 +128,16 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         return null;
+    }
+
+    protected function handleRoute(ServerRequestInterface $request, array $routeInfo): ResponseInterface
+    {
+        [$route, $params] = $routeInfo;
+
+        foreach ($params as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
+
+        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
     }
 }
