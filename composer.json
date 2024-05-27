@@ -1,0 +1,34 @@
+{
+  "name": "denosyscore/routing",
+  "description": "DenosysCore: Fast PSR-7 Router and Dispatcher PHP package with PSR-15 Middleware support",
+  "license": "MIT",
+  "homepage": "https://github.com/denosyscore/routing",
+  "authors": [
+    {
+      "name": "Deon Okonkwo",
+      "email": "deon@denosys.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "psr/container": "^2.0",
+    "psr/http-factory": "^1.1",
+    "psr/http-message": "^2.0",
+    "psr/http-server-handler": "^1.0",
+    "psr/http-server-middleware": "^1.0"
+  },
+  "require-dev": {
+    "laminas/laminas-diactoros": "^3.3",
+    "laminas/laminas-httphandlerrunner": "^2.10",
+    "php-di/php-di": "^7.0",
+    "symfony/var-dumper": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Denosys\\Routing\\": "src"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
