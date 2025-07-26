@@ -6,25 +6,20 @@ namespace Denosys\Routing;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
 use Denosys\Routing\Strategy\DefaultInvocationStrategy;
 use Denosys\Routing\Strategy\InvocationStrategyInterface;
-use Denosys\Routing\Exceptions\MethodNotAllowedException;
 
 class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 {
+    use HasMiddleware;
+
     protected RouteTrie $routeTrie;
-
-    protected array $middlewareQueue = [];
-
-    protected $notFoundHandler = null;
-
-    protected $methodNotAllowedHandler = null;
-
     protected bool $isTrieInitialized = false;
+    protected $notFoundHandler = null;
+    protected $methodNotAllowedHandler = null;
 
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
@@ -32,7 +27,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         protected ?ContainerInterface $container = null
     ) {
         $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
-
         $this->routeTrie = new RouteTrie();
     }
 
@@ -40,10 +34,12 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     {
         $this->initializeTrie();
 
-        $routeInfo = $this->matchRoute($request);
+        $method = $request->getMethod();
+        $path = $request->getUri()->getPath();
+        $routeInfo = $this->routeTrie->findRoute($method, $path);
 
         if ($routeInfo === null) {
-            throw new NotFoundException();
+            throw new NotFoundException(sprintf('No route found for %s %s', $method, $path), 404);
         }
 
         return $this->handleRoute($request, $routeInfo);
@@ -64,24 +60,23 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         $this->invocationStrategy = $strategy;
     }
 
-    public function addMiddleware(MiddlewareInterface $middleware): void
-    {
-        $this->middlewareQueue[] = $middleware;
-    }
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($middleware = array_shift($this->middlewareQueue)) {
+        if ($middleware = array_shift($this->middlewareStack)) {
             return $middleware->process($request, $this);
         }
 
-        $routeInfo = $this->matchRoute($request);
+        $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $request->getUri()->getPath());
 
         if ($routeInfo === null) {
             throw new NotFoundException();
         }
 
         [$route, $params] = $routeInfo;
+
+        foreach ($params as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
 
         return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
     }
@@ -93,48 +88,12 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         foreach ($this->routeCollection->all() as $route) {
-            $this->addRouteToTrie($route);
+            foreach ($route->getMethods() as $method) {
+                $this->routeTrie->addRoute($method, $route->getPattern(), $route);
+            }
         }
 
         $this->isTrieInitialized = true;
-    }
-
-    protected function addRouteToTrie(RouteInterface $route): void
-    {
-        foreach ($route->getMethods() as $method) {
-            $this->routeTrie->addRoute($method, $route->getPattern(), $route);
-        }
-    }
-
-    protected function matchRoute(ServerRequestInterface $request): ?array
-    {
-        $method = $request->getMethod();
-        $path = $request->getUri()->getPath();
-
-        $routeInfo = $this->routeTrie->findRoute($method, $path);
-
-        if ($routeInfo !== null) {
-            return $routeInfo;
-        }
-
-        $allowedMethods = [];
-
-        foreach (Router::$methods as $methodToCheck) {
-            if ($methodToCheck !== $method) {
-                if ($this->routeTrie->findRoute($methodToCheck, $path) !== null) {
-                    $allowedMethods[] = $methodToCheck;
-                }
-            }
-        }
-
-        if (!empty($allowedMethods)) {
-            if ($this->methodNotAllowedHandler) {
-                return call_user_func($this->methodNotAllowedHandler, $request, $allowedMethods);
-            }
-            throw new MethodNotAllowedException($allowedMethods);
-        }
-
-        return null;
     }
 
     protected function handleRoute(ServerRequestInterface $request, array $routeInfo): ResponseInterface
@@ -144,6 +103,20 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         foreach ($params as $key => $value) {
             $request = $request->withAttribute($key, $value);
         }
+
+        // Add global middleware to the stack
+        $middlewareStack = [];
+        foreach ($this->middlewareStack as $middleware) {
+            $middlewareStack[] = $this->resolveMiddleware($middleware);
+        }
+
+        // Add route-specific middleware to the stack
+        foreach ($route->getMiddlewareStack() as $middleware) {
+            $middlewareStack[] = $this->resolveMiddleware($middleware);
+        }
+
+        // Set the middleware stack for processing
+        $this->middlewareStack = $middlewareStack;
 
         return $this->handle($request);
     }
