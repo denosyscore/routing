@@ -19,11 +19,12 @@ class RouteTrie
         }
 
         $currentNode->route = $route;
+        $this->cacheRoutePattern($method, $pattern, $route);
     }
 
     public function findRoute(string $method, string $path): ?array
     {
-        $cacheKey = $method . $path;
+        $cacheKey = $this->getCacheKey($method, $path);
         if (isset($this->routeCache[$cacheKey])) {
             return $this->routeCache[$cacheKey];
         }
@@ -33,8 +34,17 @@ class RouteTrie
         $params = [];
 
         foreach ($parts as $part) {
-            $currentNode = $this->getNextNode($currentNode, $part, $params);
             if ($currentNode === null) {
+                return null;
+            }
+
+            if (isset($currentNode->children[$part])) {
+                $currentNode = $currentNode->children[$part];
+            } elseif (isset($currentNode->children[':'])) {
+                $childNode = $currentNode->children[':'];
+                $params[$childNode->paramName] = $part;
+                $currentNode = $childNode;
+            } else {
                 return null;
             }
         }
@@ -44,10 +54,7 @@ class RouteTrie
 
     private function getOrCreateRootNode(string $method): TrieNode
     {
-        if (!isset($this->root[$method])) {
-            $this->root[$method] = new TrieNode();
-        }
-        return $this->root[$method];
+        return $this->root[$method] ??= new TrieNode();
     }
 
     private function getOrCreateChildNode(TrieNode $node, string $part): TrieNode
@@ -60,53 +67,39 @@ class RouteTrie
 
     private function isDynamicPart(string $part): bool
     {
-        return $part[0] === '{' && $part[-1] === '}';
+        return strpos($part, '{') === 0 && strrpos($part, '}') === strlen($part) - 1;
     }
 
     private function getOrCreateDynamicChildNode(TrieNode $node, string $part): TrieNode
     {
         $paramName = trim($part, '{}');
-        if (!isset($node->children[':'])) {
-            $node->children[':'] = new TrieNode($paramName);
-        }
-        return $node->children[':'];
+
+        return $node->children[':'] ??= new TrieNode($paramName);
     }
 
     private function getOrCreateStaticChildNode(TrieNode $node, string $part): TrieNode
     {
-        if (!isset($node->children[$part])) {
-            $node->children[$part] = new TrieNode();
-        }
-        return $node->children[$part];
-    }
-
-    private function getNextNode(?TrieNode $node, string $part, array &$params): ?TrieNode
-    {
-        if ($node === null) {
-            return null;
-        }
-
-        if (isset($node->children[$part])) {
-            return $node->children[$part];
-        }
-
-        if (isset($node->children[':'])) {
-            $childNode = $node->children[':'];
-            $params[$childNode->paramName] = $part;
-            return $childNode;
-        }
-
-        return null;
+        return $node->children[$part] ??= new TrieNode();
     }
 
     private function cacheRoute(string $method, string $path, TrieNode $node, array $params): ?array
     {
         if ($node->route) {
             $result = [$node->route, $params];
-            $this->routeCache[$method . $path] = $result;
+            $this->routeCache[$this->getCacheKey($method, $path)] = $result;
             return $result;
         }
 
         return null;
+    }
+
+    private function cacheRoutePattern(string $method, string $pattern, RouteInterface $route): void
+    {
+        $this->routeCache[$this->getCacheKey($method, $pattern)] = [$route, []];
+    }
+
+    private function getCacheKey(string $method, string $path): string
+    {
+        return $method . $path;
     }
 }
