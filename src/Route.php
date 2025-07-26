@@ -6,6 +6,8 @@ namespace Denosys\Routing;
 
 class Route implements RouteInterface
 {
+    use HasMiddleware;
+
     protected string $identifier;
 
     public function __construct(
@@ -27,7 +29,7 @@ class Route implements RouteInterface
 
     public function getMethods(): array
     {
-        return (array) $this->methods;
+        return $this->methods;
     }
 
     public function getPattern(): string
@@ -47,7 +49,7 @@ class Route implements RouteInterface
 
     public function matches(string $method, string $path): bool
     {
-        return in_array($method, (array) $this->methods) && preg_match($this->getPatternRegex(), $path);
+        return in_array($method, $this->methods) && preg_match($this->getPatternRegex(), $path);
     }
 
     public function matchesPattern(string $path): bool
