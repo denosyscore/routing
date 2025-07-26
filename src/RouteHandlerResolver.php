@@ -39,7 +39,9 @@ class RouteHandlerResolver implements RouteHandlerResolverInterface
             return $this->resolveArrayHandler($handler);
         }
 
-        throw new InvalidHandlerException($handler);
+        throw new InvalidHandlerException(
+            "Invalid route handler type: " . gettype($handler)
+        );
     }
 
     /**
@@ -83,10 +85,18 @@ class RouteHandlerResolver implements RouteHandlerResolverInterface
         }
 
         if (isset($handler[0]) && is_object($handler[0]) && isset($handler[1])) {
-            return $handler;
+            if (is_string($handler[1]) && method_exists($handler[0], $handler[1])) {
+                return [$handler[0], $handler[1]];
+            }
+
+            throw new InvalidHandlerException(
+                "Undefined route handler method: " . get_class($handler[0]) . '::' . (is_string($handler[1]) ? $handler[1] : 'unknown') . '()'
+            );
         }
 
-        throw new InvalidHandlerException($handler);
+        throw new InvalidHandlerException(
+            "Invalid route handler array format. Expected [object, method] or [class, method]."
+        );
     }
 
     /**
@@ -107,7 +117,9 @@ class RouteHandlerResolver implements RouteHandlerResolverInterface
             return $instance;
         }
 
-        throw new InvalidHandlerException($instance);
+        throw new InvalidHandlerException(
+            "Resolved handler is not callable: " . get_class($instance)
+        );
     }
 
     /**
