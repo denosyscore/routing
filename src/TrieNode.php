@@ -10,7 +10,20 @@ class TrieNode
 
     public array $children = [];
 
-    public function __construct(public ?string $paramName = null)
+    public function __construct(
+        public ?string $paramName = null,
+        public ?string $constraint = null,
+        public bool $isOptional = false,
+        public bool $isWildcard = false
+    ) {
+    }
+
+    public function matchesConstraint(string $value): bool
     {
+        if ($this->constraint === null) {
+            return true;
+        }
+
+        return preg_match('/^' . $this->constraint . '$/', $value) === 1;
     }
 }
