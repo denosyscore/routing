@@ -7,14 +7,18 @@ namespace Denosys\Routing;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Router implements RouterInterface
 {
+    use HasRouteMethods;
+    use HasMiddleware;
+
     public static array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
     protected Dispatcher $dispatcher;
+
+    protected array $groups = [];
 
     public function __construct(
         protected ?ContainerInterface $container = null,
@@ -29,58 +33,37 @@ class Router implements RouterInterface
         );
     }
 
-    public function get(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute(['GET', 'HEAD'], $pattern, $handler);
-    }
-
-    public function post(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute('POST', $pattern, $handler);
-    }
-
-    public function put(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute('PUT', $pattern, $handler);
-    }
-
-    public function delete(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute('DELETE', $pattern, $handler);
-    }
-
-    public function patch(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute('PATCH', $pattern, $handler);
-    }
-
-    public function options(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute('OPTIONS', $pattern, $handler);
-    }
-
-    public function any(string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute(self::$methods, $pattern, $handler);
-    }
-
-    public function match(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
-    {
-        return $this->addRoute(array_map('strtoupper', (array) $methods), $pattern, $handler);
-    }
-
     public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
-        return $this->routeCollection->add($methods, $pattern, $handler);
-    }
+        $route = $this->routeCollection->add($methods, $pattern, $handler);
 
-    public function addMiddleware(MiddlewareInterface $middleware): void
-    {
-        $this->dispatcher->addMiddleware($middleware);
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $route->middleware($middleware);
+        }
+
+        return $route;
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $this->dispatcher->middleware($middleware);
+        }
+
         return $this->dispatcher->dispatch($request);
+    }
+
+    public function group(string $prefix, Closure $callback): RouteGroupInterface
+    {
+        $routeGroup = new RouteGroup($prefix, $this, $this->container);
+        
+        // Apply router-level middleware to group
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $routeGroup->middleware($middleware);
+        }
+        
+        $callback($routeGroup);
+
+        return $routeGroup;
     }
 }
