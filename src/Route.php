@@ -9,6 +9,8 @@ class Route implements RouteInterface
     use HasMiddleware;
 
     protected string $identifier;
+    protected ?string $name = null;
+    protected array $constraints = [];
 
     public function __construct(
         protected string|array $methods,
@@ -59,11 +61,54 @@ class Route implements RouteInterface
 
     public function getParameters(string $path): array
     {
-        return RegexHelper::extractParameters($this->pattern, $path);
+        return RegexHelper::extractParameters($this->pattern, $path, $this->constraints);
     }
 
     protected function getPatternRegex(): string
     {
-        return RegexHelper::patternToRegex($this->pattern);
+        return RegexHelper::patternToRegex($this->pattern, $this->constraints);
+    }
+
+    public function name(string $name): static
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function where(string $parameter, string $pattern): static
+    {
+        $this->constraints[$parameter] = $pattern;
+        return $this;
+    }
+
+    public function whereIn(string $parameter, array $values): static
+    {
+        $pattern = '(' . implode('|', array_map('preg_quote', $values)) . ')';
+        return $this->where($parameter, $pattern);
+    }
+
+    public function whereNumber(string $parameter): static
+    {
+        return $this->where($parameter, '\\d+');
+    }
+
+    public function whereAlpha(string $parameter): static
+    {
+        return $this->where($parameter, '[a-zA-Z]+');
+    }
+
+    public function whereAlphaNumeric(string $parameter): static
+    {
+        return $this->where($parameter, '[a-zA-Z0-9]+');
+    }
+
+    public function getConstraints(): array
+    {
+        return $this->constraints;
     }
 }
