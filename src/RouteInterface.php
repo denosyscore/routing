@@ -17,4 +17,16 @@ interface RouteInterface
     public function getParameters(string $path): array;
     public function middleware(MiddlewareInterface|array|string $middleware): static;
     public function getMiddlewareStack(): iterable;
+    
+    // Naming
+    public function name(string $name): static;
+    public function getName(): ?string;
+    
+    // Constraints
+    public function where(string $parameter, string $pattern): static;
+    public function whereIn(string $parameter, array $values): static;
+    public function whereNumber(string $parameter): static;
+    public function whereAlpha(string $parameter): static;
+    public function whereAlphaNumeric(string $parameter): static;
+    public function getConstraints(): array;
 }
