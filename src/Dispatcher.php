@@ -27,11 +27,13 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         protected RouteCollectionInterface $routeCollection,
         protected ?InvocationStrategyInterface $invocationStrategy = null,
         protected ?ContainerInterface $container = null,
-        ?MiddlewareManager $middlewareManager = null
+        ?MiddlewareManager $middlewareManager = null,
+        ?string $routeCacheFile = null,
+        ?string $middlewareCacheFile = null
     ) {
         $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
-        $this->routeTrie = new RouteTrie();
-        $manager = $middlewareManager ?? new MiddlewareManager($this->container);
+        $this->routeTrie = new RouteTrie($routeCacheFile);
+        $manager = $middlewareManager ?? new MiddlewareManager($this->container, $middlewareCacheFile);
         $this->setMiddlewareManager($manager);
     }
 
