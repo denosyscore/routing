@@ -70,7 +70,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        // This method is used by middleware pipeline as final handler
         $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $request->getUri()->getPath());
 
         if ($routeInfo === null) {
@@ -94,7 +93,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         foreach ($this->routeCollection->all() as $route) {
-            // Ensure route has middleware manager
             if ($route instanceof HasMiddleware && method_exists($route, 'setMiddlewareManager')) {
                 $route->setMiddlewareManager($this->middlewareManager);
             }
@@ -111,20 +109,16 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     {
         [$route, $params] = $routeInfo;
 
-        // Add route parameters as request attributes
         foreach ($params as $key => $value) {
             $request = $request->withAttribute($key, $value);
         }
 
-        // Build complete middleware stack (global + route-specific)
         $middlewareStack = [];
         
-        // Add global middleware (from dispatcher)
         foreach ($this->getMiddlewareStack() as $middlewareItem) {
             $middlewareStack[] = $middlewareItem;
         }
         
-        // Add route-specific middleware
         if (method_exists($route, 'getMiddlewareStack')) {
             foreach ($route->getMiddlewareStack() as $middlewareItem) {
                 $middlewareStack[] = $middlewareItem;
@@ -142,7 +136,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             }
         }
 
-        // Create and execute middleware pipeline
         $pipeline = new MiddlewarePipeline($resolvedMiddleware);
         return $pipeline->then($this)->handle($request);
     }
