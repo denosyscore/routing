@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\Middleware;
 
-use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Denosys\Routing\Cache;
 
 class MiddlewareManager
 {
     protected array $aliases = [];
     protected array $resolvedCache = [];
+    protected Cache $cache;
     
-    public function __construct(protected ?ContainerInterface $container = null)
+    public function __construct(protected ?ContainerInterface $container = null, ?string $cacheFile = null)
     {
+        $this->cache = new Cache($cacheFile);
     }
 
     public function alias(string $alias, string|MiddlewareInterface $middleware): void
@@ -40,19 +42,26 @@ class MiddlewareManager
             throw new InvalidArgumentException('Array middleware must be resolved individually');
         }
 
-        // Parse middleware with parameters (e.g., "throttle:60,1")
+        // Check cache first
+        $cacheKey = "middleware_" . md5($middleware);
+        $cached = $this->cache->get($cacheKey);
+        if ($cached !== null && $cached instanceof MiddlewareInterface) {
+            return $cached;
+        }
+
+        // Parse middleware with parameters
         [$middlewareName, $parameters] = $this->parseMiddleware($middleware);
         
-        // Create cache key for this middleware + parameters combination
-        $cacheKey = $middlewareName . ':' . serialize($parameters);
-        
-        if (isset($this->resolvedCache[$cacheKey])) {
-            return $this->resolvedCache[$cacheKey];
+        // Check memory cache for resolved middleware
+        $memoryKey = $middlewareName . ':' . serialize($parameters);
+        if (isset($this->resolvedCache[$memoryKey])) {
+            return $this->resolvedCache[$memoryKey];
         }
 
         $resolved = $this->resolveMiddleware($middlewareName, $parameters);
         
-        $this->resolvedCache[$cacheKey] = $resolved;
+        // Cache the resolved middleware (only in memory for instances)
+        $this->resolvedCache[$memoryKey] = $resolved;
         
         return $resolved;
     }
@@ -77,6 +86,21 @@ class MiddlewareManager
         return new MiddlewarePipeline($this->resolveStack($middlewares));
     }
 
+    public function getCacheFile(): ?string
+    {
+        return $this->cache->getCacheFile();
+    }
+
+    public function isCacheEnabled(): bool
+    {
+        return $this->cache->isEnabled();
+    }
+
+    public function getAliases(): array
+    {
+        return $this->aliases;
+    }
+
     protected function parseMiddleware(string $middleware): array
     {
         if (!str_contains($middleware, ':')) {
@@ -97,7 +121,7 @@ class MiddlewareManager
             if (is_string($middleware)) {
                 $middlewareName = $middleware;
             } else {
-                return $middleware;
+                return $this->applyParameters($middleware, $parameters);
             }
         }
 
@@ -126,26 +150,15 @@ class MiddlewareManager
             return $middleware;
         }
 
-        // If middleware supports parameter injection, apply them
+        // Apply parameters if middleware supports it
         if (method_exists($middleware, 'withParameters')) {
             return $middleware->withParameters($parameters);
         }
 
-        // For middlewares that accept parameters in constructor, wrap them
         if (method_exists($middleware, 'setParameters')) {
             $middleware->setParameters($parameters);
         }
 
         return $middleware;
-    }
-
-    public function clearCache(): void
-    {
-        $this->resolvedCache = [];
-    }
-
-    public function getAliases(): array
-    {
-        return $this->aliases;
     }
 }
