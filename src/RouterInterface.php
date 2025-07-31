@@ -19,7 +19,13 @@ interface RouterInterface
     public function options(string $pattern, Closure|array|string $handler): RouteInterface;
     public function any(string $pattern, Closure|array|string $handler): RouteInterface;
     public function match(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface;
-    public function middleware(MiddlewareInterface|array|string $middleware): static;
+    
+    // Middleware methods
+    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static;
+    public function skipMiddleware(string $middlewareClass): static;
     public function dispatch(ServerRequestInterface $request): ResponseInterface;
     public function group(string $prefix, Closure $callback): RouteGroupInterface;
 }
