@@ -6,10 +6,10 @@ namespace Denosys\Routing\Strategy;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionNamedType;
-use ReflectionParameter;
 use Psr\Container\ContainerInterface;
 use Denosys\Routing\Exceptions\InvalidHandlerException;
 
@@ -47,7 +47,67 @@ class DefaultInvocationStrategy implements InvocationStrategyInterface
             $parameters[] = $resolvedParameter;
         }
 
-        return $handler(...$parameters);
+        $result = $handler(...$parameters);
+        
+        return $this->convertToResponse($result);
+    }
+
+    protected function convertToResponse(mixed $result): ResponseInterface
+    {
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
+
+        $response = $this->createResponse();
+
+        // Handle different return types
+        if (is_string($result)) {
+            $response = $this->handleStringResponse($response, $result);
+        } elseif (is_array($result)) {
+            $response = $this->handleJsonResponse($response, $result);
+        } elseif (is_null($result)) {
+            $response = $response->withStatus(204);
+        } elseif (is_int($result)) {
+            $response = $response->withStatus($result);
+        } elseif (is_object($result) && method_exists($result, 'toArray')) {
+            $response = $this->handleJsonResponse($response, $result->toArray());
+        } elseif ($result instanceof \JsonSerializable) {
+            $response = $this->handleJsonResponse($response, $result->jsonSerialize());
+        } elseif (is_object($result) && method_exists($result, '__toString')) {
+            $response = $this->handleStringResponse($response, (string) $result);
+        } else {
+            $response = $this->handleStringResponse($response, (string) $result);
+        }
+
+        return $response;
+    }
+
+    protected function handleStringResponse(ResponseInterface $response, string $content): ResponseInterface
+    {
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'text/plain; charset=utf-8');
+    }
+
+    protected function handleJsonResponse(ResponseInterface $response, array $data): ResponseInterface
+    {
+        $json = json_encode($data, JSON_THROW_ON_ERROR);
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+
+    protected function createResponse(int $status = 200): ResponseInterface
+    {
+        if ($this->container && $this->container->has(ResponseFactoryInterface::class)) {
+            $factory = $this->container->get(ResponseFactoryInterface::class);
+            return $factory->createResponse($status);
+        }
+
+        // Fallback - assume Laminas\Diactoros is available
+        if (class_exists('Laminas\Diactoros\Response')) {
+            return new \Laminas\Diactoros\Response('php://memory', $status);
+        }
+
+        throw new InvalidHandlerException('No ResponseFactoryInterface available and no fallback response class found');
     }
 
     protected function resolveClassParameter(
@@ -62,7 +122,7 @@ class DefaultInvocationStrategy implements InvocationStrategyInterface
         }
 
         if ($typeName === ResponseInterface::class) {
-            return $this->container->get(ResponseInterface::class);
+            return $this->createResponse();
         }
 
         if ($this->container && $this->container->has($typeName)) {
