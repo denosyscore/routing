@@ -12,7 +12,6 @@ interface InvocationStrategyInterface
     public function invoke(
         callable $handler,
         ServerRequestInterface $request,
-//        ResponseInterface $response,
         array $routeArguments,
     ): ResponseInterface;
 }
