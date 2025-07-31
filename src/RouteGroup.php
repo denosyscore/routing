@@ -7,12 +7,13 @@ namespace Denosys\Routing;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Denosys\Routing\Middleware\MiddlewareManager;
 
 class RouteGroup implements RouteGroupInterface
 {
     use HasRouteMethods;
+    use HasMiddleware;
 
-    protected array $middlewareStack = [];
     protected array $constraints = [];
     protected ?string $namePrefix = null;
     protected ?string $namespacePrefix = null;
@@ -37,8 +38,8 @@ class RouteGroup implements RouteGroupInterface
         $route = $this->router->addRoute($methods, $pattern, $handler);
 
         // Apply group middleware
-        foreach ($this->middlewareStack as $middleware) {
-            $route->middleware($middleware);
+        foreach ($this->getMiddlewareStack() as $middlewareItem) {
+            $route->middleware($middlewareItem->middleware, $middlewareItem->priority);
         }
 
         // Apply group constraints to route parameters
@@ -76,21 +77,6 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
-    public function middleware(MiddlewareInterface|array|string $middleware): static
-    {
-        $middlewares = is_array($middleware) ? $middleware : [$middleware];
-
-        foreach ($middlewares as $mw) {
-            $this->middlewareStack[] = $this->resolveMiddleware($mw);
-        }
-
-        return $this;
-    }
-
-    public function getMiddlewareStack(): array
-    {
-        return $this->middlewareStack;
-    }
 
     // Naming and namespacing
     public function name(string $name): static
@@ -162,30 +148,6 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
-    protected function resolveMiddleware(MiddlewareInterface|string $middleware): MiddlewareInterface
-    {
-        if ($middleware instanceof MiddlewareInterface) {
-            return $middleware;
-        }
-
-        // Try container resolution first
-        if ($this->container && $this->container->has($middleware)) {
-            $resolved = $this->container->get($middleware);
-            if ($resolved instanceof MiddlewareInterface) {
-                return $resolved;
-            }
-        }
-
-        // Fall back to class instantiation
-        if (class_exists($middleware)) {
-            $instance = new $middleware();
-            if ($instance instanceof MiddlewareInterface) {
-                return $instance;
-            }
-        }
-
-        throw new \InvalidArgumentException(sprintf('Unable to resolve middleware class: %s', $middleware));
-    }
 
     protected function generateRouteName(string $pattern): string
     {
