@@ -7,7 +7,12 @@ namespace Denosys\Routing;
 class RouteTrie
 {
     private array $root = [];
-    private array $routeCache = [];
+    private Cache $cache;
+
+    public function __construct(?string $cacheFile = null)
+    {
+        $this->cache = new Cache($cacheFile);
+    }
 
     public function addRoute(string $method, string $pattern, RouteInterface $route): void
     {
@@ -19,16 +24,18 @@ class RouteTrie
         }
 
         $currentNode->route = $route;
-        $this->cacheRoutePattern($method, $pattern, $route);
     }
 
     public function findRoute(string $method, string $path): ?array
     {
-        $cacheKey = $this->getCacheKey($method, $path);
-        if (isset($this->routeCache[$cacheKey])) {
-            return $this->routeCache[$cacheKey];
+        // Check cache first
+        $cacheKey = "route_{$method}_{$path}";
+        $cached = $this->cache->get($cacheKey);
+        if ($cached !== null) {
+            return $cached;
         }
 
+        // Parse and find route
         $parts = $this->parsePath($path);
         $currentNode = $this->root[$method] ?? null;
         $params = [];
@@ -47,14 +54,13 @@ class RouteTrie
             elseif (isset($currentNode->children['*'])) {
                 $wildcardNode = $currentNode->children['*'];
                 if ($wildcardNode->isWildcard) {
-                    // Wildcard matches remaining path segments
                     $remainingParts = array_slice($parts, $partIndex);
                     $params[$wildcardNode->paramName] = implode('/', $remainingParts);
                     $currentNode = $wildcardNode;
                     break;
                 }
             }
-            // Try parameter matches (prioritize constrained routes)
+            // Try parameter matches
             else {
                 $constrainedNodes = [];
                 $unconstrainedNodes = [];
@@ -102,7 +108,22 @@ class RouteTrie
             $currentNode = $this->getOptionalChild($currentNode);
         }
 
-        return $this->cacheRoute($method, $path, $currentNode, $params);
+        if ($currentNode && $currentNode->route) {
+            $result = [$currentNode->route, $params];
+            return $result;
+        }
+
+        return null;
+    }
+
+    public function getCacheFile(): ?string
+    {
+        return $this->cache->getCacheFile();
+    }
+
+    public function isCacheEnabled(): bool
+    {
+        return $this->cache->isEnabled();
     }
 
     private function getOrCreateRootNode(string $method): TrieNode
@@ -132,55 +153,36 @@ class RouteTrie
     {
         if ($this->isWildcardPart($part)) {
             $paramName = $part === '*' ? 'wildcard' : rtrim($part, '*');
-            return $node->children['*'] ??= new TrieNode($paramName, null, false, true);
+            if (!isset($node->children['*'])) {
+                $wildcardNode = new TrieNode();
+                $wildcardNode->paramName = $paramName;
+                $wildcardNode->isWildcard = true;
+                $node->children['*'] = $wildcardNode;
+            }
+            return $node->children['*'];
         }
 
         $paramDetails = $this->parseParameterDetails($part);
         
-        // Create unique key for different constraints/optional combinations
         $key = $paramDetails['optional'] ? '?' : ':';
         if ($paramDetails['constraint']) {
             $key .= '_' . $paramDetails['constraint'];
         }
         
-        return $node->children[$key] ??= new TrieNode(
-            $paramDetails['name'],
-            $paramDetails['constraint'],
-            $paramDetails['optional']
-        );
+        if (!isset($node->children[$key])) {
+            $paramNode = new TrieNode();
+            $paramNode->paramName = $paramDetails['name'];
+            $paramNode->constraint = $paramDetails['constraint'];
+            $paramNode->isOptional = $paramDetails['optional'];
+            $node->children[$key] = $paramNode;
+        }
+        
+        return $node->children[$key];
     }
 
     private function getOrCreateStaticChildNode(TrieNode $node, string $part): TrieNode
     {
         return $node->children[$part] ??= new TrieNode();
-    }
-
-    private function cacheRoute(string $method, string $path, TrieNode $node, array $params): ?array
-    {
-        if ($node->route) {
-            $result = [$node->route, $params];
-            $this->routeCache[$this->getCacheKey($method, $path)] = $result;
-            return $result;
-        }
-
-        return null;
-    }
-
-    private function cacheRoutePattern(string $method, string $pattern, RouteInterface $route): void
-    {
-        $this->routeCache[$this->getCacheKey($method, $pattern)] = [$route, []];
-    }
-
-    private function getCacheKey(string $method, string $path): string
-    {
-        $pathLength = strlen($path);
-        
-        // Use hash for long paths to save memory
-        if ($pathLength > 50) {
-            return $method . ':' . hash('xxh3', $path);
-        }
-        
-        return $method . ':' . $path;
     }
 
     private function parsePath(string $path): array
@@ -195,16 +197,13 @@ class RouteTrie
 
     private function parseParameterDetails(string $part): array
     {
-        // Remove braces
         $inner = trim($part, '{}');
         
-        // Check for optional parameter
         $optional = str_ends_with($inner, '?');
         if ($optional) {
             $inner = rtrim($inner, '?');
         }
         
-        // Parse constraint
         $constraint = null;
         $name = $inner;
         
@@ -218,7 +217,6 @@ class RouteTrie
             'optional' => $optional
         ];
     }
-
 
     private function hasOptionalChild(TrieNode $node): bool
     {
