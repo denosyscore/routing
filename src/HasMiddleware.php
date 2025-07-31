@@ -4,46 +4,114 @@ declare(strict_types=1);
 
 namespace Denosys\Routing;
 
-use InvalidArgumentException;
+use Closure;
 use Psr\Http\Server\MiddlewareInterface;
-use Psr\Container\ContainerInterface;
+use Denosys\Routing\Middleware\MiddlewareItem;
+use Denosys\Routing\Middleware\MiddlewareManager;
 
 trait HasMiddleware
 {
     protected array $middlewareStack = [];
+    protected ?MiddlewareManager $middlewareManager = null;
 
-    public function middleware(MiddlewareInterface|array|string $middleware): static
+    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
 
         foreach ($middlewares as $mw) {
-            $this->middlewareStack[] = $this->resolveMiddleware($mw);
+            $this->middlewareStack[] = MiddlewareItem::create($mw, $priority);
         }
 
         return $this;
     }
 
-    public function getMiddlewareStack(): iterable
+    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
     {
-        return $this->middlewareStack;
+        $shouldExecute = is_callable($condition) ? $condition : fn() => $condition;
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+
+        foreach ($middlewares as $mw) {
+            $this->middlewareStack[] = MiddlewareItem::create($mw, $priority, $shouldExecute);
+        }
+
+        return $this;
     }
 
-    protected function resolveMiddleware(
-        MiddlewareInterface|string $middleware,
-        ?ContainerInterface $container = null
-    ): MiddlewareInterface {
-        if ($container === null && is_string($middleware) && class_exists($middleware)) {
-            $middleware = new $middleware();
+    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $shouldSkip = is_callable($condition) ? $condition : fn() => $condition;
+        $shouldExecute = fn() => !$shouldSkip();
+
+        return $this->middlewareWhen($shouldExecute, $middleware, $priority);
+    }
+
+    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static
+    {
+        return $this->middleware($middleware, $priority);
+    }
+
+    public function skipMiddleware(string $middlewareClass): static
+    {
+        $this->middlewareStack = array_filter($this->middlewareStack, function(MiddlewareItem $item) use ($middlewareClass) {
+            return $item->middleware !== $middlewareClass;
+        });
+
+        return $this;
+    }
+
+    public function getMiddlewareStack(): array
+    {
+        // Sort by priority (higher priority first)
+        $stack = $this->middlewareStack;
+        usort($stack, fn(MiddlewareItem $a, MiddlewareItem $b) => $b->priority <=> $a->priority);
+        
+        // Filter out conditional middleware that shouldn't execute
+        return array_filter($stack, fn(MiddlewareItem $item) => $item->shouldExecute());
+    }
+
+    public function getResolvedMiddlewareStack(): array
+    {
+        if (!$this->middlewareManager) {
+            throw new \RuntimeException('MiddlewareManager not set. Call setMiddlewareManager() first.');
         }
 
-        if ($container !== null && is_string($middleware) && $container->has($middleware)) {
-            $middleware = $container->get($middleware);
+        $resolved = [];
+        foreach ($this->getMiddlewareStack() as $item) {
+            $resolved[] = $this->middlewareManager->resolve($item->middleware);
         }
 
-        if ($middleware instanceof MiddlewareInterface) {
-            return $middleware;
-        }
+        return $resolved;
+    }
 
-        throw new InvalidArgumentException(sprintf('Unable to resolve middleware class: %s', $middleware));
+    public function setMiddlewareManager(MiddlewareManager $manager): static
+    {
+        $this->middlewareManager = $manager;
+        return $this;
+    }
+
+    public function getMiddlewareManager(): ?MiddlewareManager
+    {
+        return $this->middlewareManager;
+    }
+
+    public function hasMiddleware(string $middlewareClass): bool
+    {
+        foreach ($this->middlewareStack as $item) {
+            if ($item->middleware === $middlewareClass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function clearMiddleware(): static
+    {
+        $this->middlewareStack = [];
+        return $this;
+    }
+
+    public function getMiddlewareCount(): int
+    {
+        return count($this->getMiddlewareStack());
     }
 }
