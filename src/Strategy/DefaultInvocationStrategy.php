@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\Strategy;
 
+use JsonSerializable;
+use ReflectionMethod;
+use ReflectionFunction;
+use ReflectionNamedType;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
-use ReflectionFunction;
-use ReflectionMethod;
-use ReflectionNamedType;
-use Psr\Container\ContainerInterface;
 use Denosys\Routing\Exceptions\InvalidHandlerException;
 
 class DefaultInvocationStrategy implements InvocationStrategyInterface
@@ -61,17 +62,11 @@ class DefaultInvocationStrategy implements InvocationStrategyInterface
         $response = $this->createResponse();
 
         // Handle different return types
-        if (is_string($result)) {
-            $response = $this->handleStringResponse($response, $result);
-        } elseif (is_array($result)) {
+        if (is_array($result)) {
             $response = $this->handleJsonResponse($response, $result);
-        } elseif (is_null($result)) {
-            $response = $response->withStatus(204);
-        } elseif (is_int($result)) {
-            $response = $response->withStatus($result);
         } elseif (is_object($result) && method_exists($result, 'toArray')) {
             $response = $this->handleJsonResponse($response, $result->toArray());
-        } elseif ($result instanceof \JsonSerializable) {
+        } elseif ($result instanceof JsonSerializable) {
             $response = $this->handleJsonResponse($response, $result->jsonSerialize());
         } elseif (is_object($result) && method_exists($result, '__toString')) {
             $response = $this->handleStringResponse($response, (string) $result);
@@ -85,14 +80,14 @@ class DefaultInvocationStrategy implements InvocationStrategyInterface
     protected function handleStringResponse(ResponseInterface $response, string $content): ResponseInterface
     {
         $response->getBody()->write($content);
-        return $response->withHeader('Content-Type', 'text/plain; charset=utf-8');
+        return $response->withHeader('Content-Type', 'text/html; charset=UTF-8');
     }
 
     protected function handleJsonResponse(ResponseInterface $response, array $data): ResponseInterface
     {
         $json = json_encode($data, JSON_THROW_ON_ERROR);
         $response->getBody()->write($json);
-        return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+        return $response->withHeader('Content-Type', 'application/json; charset=UTF-8');
     }
 
     protected function createResponse(int $status = 200): ResponseInterface
