@@ -19,6 +19,8 @@ class Router implements RouterInterface
     public static array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
     protected Dispatcher $dispatcher;
+    
+    protected array $middleware = [];
 
     public function __construct(
         protected ?ContainerInterface $container = null,
@@ -46,15 +48,17 @@ class Router implements RouterInterface
             $route->setMiddlewareManager($this->getMiddlewareManager());
         }
 
+        foreach ($this->middleware as $middlewareItem) {
+            $route->middleware($middlewareItem['middleware'], $middlewareItem['priority']);
+        }
+
+        $this->middleware = [];
+
         return $route;
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {   
-        foreach ($this->getMiddlewareStack() as $middlewareItem) {
-            $this->dispatcher->middleware($middlewareItem->middleware, $middlewareItem->priority);
-        }
-
         return $this->dispatcher->dispatch($request);
     }
 
@@ -63,7 +67,15 @@ class Router implements RouterInterface
         $routeGroup = new RouteGroup($prefix, $this, $this->container);
         $routeGroup->setMiddlewareManager($this->getMiddlewareManager());
         
+        foreach ($this->middleware as $middlewareItem) {
+            $routeGroup->addGroupMiddleware($middlewareItem['middleware'], $middlewareItem['priority']);
+        }
+        
+        $this->middleware = [];
+        
         $callback($routeGroup);
+
+        $routeGroup->markCallbackFinished();
 
         return $routeGroup;
     }
@@ -83,5 +95,37 @@ class Router implements RouterInterface
     public function getMiddlewareManager(): MiddlewareManager
     {
         return $this->dispatcher->getMiddlewareManager();
+    }
+
+    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+        foreach ($middlewares as $mw) {
+            $this->middleware[] = ['middleware' => $mw, 'priority' => $priority];
+        }
+        return $this;
+    }
+
+    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $shouldExecute = is_callable($condition) ? $condition() : $condition;
+        if ($shouldExecute) {
+            return $this->middleware($middleware, $priority);
+        }
+        return $this;
+    }
+
+    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $shouldNotExecute = is_callable($condition) ? $condition() : $condition;
+        if (!$shouldNotExecute) {
+            return $this->middleware($middleware, $priority);
+        }
+        return $this;
+    }
+
+    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static
+    {
+        return $this->middleware($middleware, $priority);
     }
 }
