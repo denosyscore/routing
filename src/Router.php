@@ -46,13 +46,6 @@ class Router implements RouterInterface
             $route->setMiddlewareManager($this->getMiddlewareManager());
         }
 
-        // Apply router-level middleware to route (these will be merged with route-specific middleware during dispatch)
-        foreach ($this->getMiddlewareStack() as $middlewareItem) {
-            if (method_exists($route, 'middleware')) {
-                $route->middleware($middlewareItem->middleware, $middlewareItem->priority);
-            }
-        }
-
         return $route;
     }
 
@@ -69,10 +62,6 @@ class Router implements RouterInterface
     {
         $routeGroup = new RouteGroup($prefix, $this, $this->container);
         $routeGroup->setMiddlewareManager($this->getMiddlewareManager());
-        
-        foreach ($this->getMiddlewareStack() as $middlewareItem) {
-            $routeGroup->middleware($middlewareItem->middleware, $middlewareItem->priority);
-        }
         
         $callback($routeGroup);
 
