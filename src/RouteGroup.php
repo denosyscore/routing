@@ -34,7 +34,8 @@ class RouteGroup implements RouteGroupInterface
 
     public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
-        $pattern = $this->prefix . $pattern;
+        $pattern = rtrim($this->prefix, '/') . '/' . ltrim($pattern, '/');
+
         $route = $this->router->addRoute($methods, $pattern, $handler);
 
         // Apply group middleware
