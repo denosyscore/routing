@@ -11,8 +11,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
 use Denosys\Routing\Strategy\DefaultInvocationStrategy;
 use Denosys\Routing\Strategy\InvocationStrategyInterface;
+use Denosys\Routing\Middleware\MiddlewareManager;
+use Denosys\Routing\Middleware\MiddlewarePipeline;
 
-class Dispatcher implements DispatcherInterface, RequestHandlerInterface
+class Dispatcher implements DispatcherInterface, RequestHandlerInterface  
 {
     use HasMiddleware;
 
@@ -24,10 +26,13 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
         protected ?InvocationStrategyInterface $invocationStrategy = null,
-        protected ?ContainerInterface $container = null
+        protected ?ContainerInterface $container = null,
+        ?MiddlewareManager $middlewareManager = null
     ) {
         $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
         $this->routeTrie = new RouteTrie();
+        $manager = $middlewareManager ?? new MiddlewareManager($this->container);
+        $this->setMiddlewareManager($manager);
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
@@ -39,6 +44,9 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         $routeInfo = $this->routeTrie->findRoute($method, $path);
 
         if ($routeInfo === null) {
+            if ($this->notFoundHandler) {
+                return ($this->notFoundHandler)($request);
+            }
             throw new NotFoundException(sprintf('No route found for %s %s', $method, $path), 404);
         }
 
@@ -62,10 +70,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($middleware = array_shift($this->middlewareStack)) {
-            return $middleware->process($request, $this);
-        }
-
+        // This method is used by middleware pipeline as final handler
         $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $request->getUri()->getPath());
 
         if ($routeInfo === null) {
@@ -74,8 +79,9 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
         [$route, $params] = $routeInfo;
 
+        // Add route parameters as request attributes
         foreach ($params as $key => $value) {
-            $request = $request->withAttribute($key, $value);
+            $request = $request->withAttribute($key, $value);  
         }
 
         return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
@@ -88,6 +94,11 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         foreach ($this->routeCollection->all() as $route) {
+            // Ensure route has middleware manager
+            if ($route instanceof HasMiddleware && method_exists($route, 'setMiddlewareManager')) {
+                $route->setMiddlewareManager($this->middlewareManager);
+            }
+            
             foreach ($route->getMethods() as $method) {
                 $this->routeTrie->addRoute($method, $route->getPattern(), $route);
             }
@@ -100,24 +111,49 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     {
         [$route, $params] = $routeInfo;
 
+        // Add route parameters as request attributes
         foreach ($params as $key => $value) {
             $request = $request->withAttribute($key, $value);
         }
 
-        // Add global middleware to the stack
+        // Build complete middleware stack (global + route-specific)
         $middlewareStack = [];
-        foreach ($this->middlewareStack as $middleware) {
-            $middlewareStack[] = $this->resolveMiddleware($middleware);
+        
+        // Add global middleware (from dispatcher)
+        foreach ($this->getMiddlewareStack() as $middlewareItem) {
+            $middlewareStack[] = $middlewareItem;
+        }
+        
+        // Add route-specific middleware
+        if (method_exists($route, 'getMiddlewareStack')) {
+            foreach ($route->getMiddlewareStack() as $middlewareItem) {
+                $middlewareStack[] = $middlewareItem;
+            }
         }
 
-        // Add route-specific middleware to the stack
-        foreach ($route->getMiddlewareStack() as $middleware) {
-            $middlewareStack[] = $this->resolveMiddleware($middleware);
+        // Sort all middleware by priority
+        usort($middlewareStack, fn($a, $b) => $b->priority <=> $a->priority);
+
+        // Filter out conditional middleware and resolve to instances
+        $resolvedMiddleware = [];
+        foreach ($middlewareStack as $item) {
+            if ($item->shouldExecute()) {
+                $resolvedMiddleware[] = $this->getMiddlewareManager()->resolve($item->middleware);
+            }
         }
 
-        // Set the middleware stack for processing
-        $this->middlewareStack = $middlewareStack;
+        // Create and execute middleware pipeline
+        $pipeline = new MiddlewarePipeline($resolvedMiddleware);
+        return $pipeline->then($this)->handle($request);
+    }
 
-        return $this->handle($request);
+    public function getMiddlewareManager(): MiddlewareManager
+    {
+        return $this->middlewareManager ?? throw new \RuntimeException('MiddlewareManager not initialized');
+    }
+
+    public function setMiddlewareAliases(array $aliases): void
+    {
+        $this->getMiddlewareManager()->aliasMany($aliases);
     }
 }
