@@ -7,7 +7,6 @@ namespace Denosys\Routing;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Denosys\Routing\Middleware\MiddlewareManager;
 
 class RouteGroup implements RouteGroupInterface
 {
@@ -18,6 +17,7 @@ class RouteGroup implements RouteGroupInterface
     protected ?string $namePrefix = null;
     protected ?string $namespacePrefix = null;
     protected ?string $domain = null;
+    protected array $groupRoutes = [];
     
     public function __construct(
         protected string $prefix,
@@ -37,6 +37,8 @@ class RouteGroup implements RouteGroupInterface
         $pattern = rtrim($this->prefix, '/') . '/' . ltrim($pattern, '/');
 
         $route = $this->router->addRoute($methods, $pattern, $handler);
+
+        $this->groupRoutes[] = $route;
 
         // Apply group middleware
         foreach ($this->getMiddlewareStack() as $middlewareItem) {
@@ -92,7 +94,6 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
-    // Constraints
     public function domain(string $domain): static
     {
         $this->domain = $domain;
@@ -126,7 +127,6 @@ class RouteGroup implements RouteGroupInterface
         return $this->where($parameter, '[a-zA-Z0-9]+');
     }
 
-    // Conditional registration
     public function when(bool|Closure $condition, Closure $callback): static
     {
         $shouldExecute = is_callable($condition) ? $condition() : $condition;
@@ -149,6 +149,64 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
+    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+        foreach ($middlewares as $mw) {
+            $this->middlewareStack[] = \Denosys\Routing\Middleware\MiddlewareItem::create($mw, $priority);
+        }
+        
+        foreach ($this->groupRoutes as $route) {
+            $route->middleware($middleware, $priority);
+        }
+        
+        return $this;
+    }
+
+    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $shouldExecute = is_callable($condition) ? $condition : fn() => $condition;
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+        foreach ($middlewares as $mw) {
+            $this->middlewareStack[] = \Denosys\Routing\Middleware\MiddlewareItem::create($mw, $priority, $shouldExecute);
+        }
+        
+        foreach ($this->groupRoutes as $route) {
+            $route->middlewareWhen($condition, $middleware, $priority);
+        }
+        
+        return $this;
+    }
+
+    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    {
+        $shouldNotExecute = is_callable($condition) ? $condition : fn() => $condition;
+        $shouldExecute = fn() => !$shouldNotExecute();
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+        foreach ($middlewares as $mw) {
+            $this->middlewareStack[] = \Denosys\Routing\Middleware\MiddlewareItem::create($mw, $priority, $shouldExecute);
+        }
+        
+        foreach ($this->groupRoutes as $route) {
+            $route->middlewareUnless($condition, $middleware, $priority);
+        }
+        
+        return $this;
+    }
+
+    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static
+    {
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+        foreach ($middlewares as $mw) {
+            $this->middlewareStack[] = \Denosys\Routing\Middleware\MiddlewareItem::create($mw, $priority);
+        }
+        
+        foreach ($this->groupRoutes as $route) {
+            $route->prependMiddleware($middleware, $priority);
+        }
+        
+        return $this;
+    }
 
     protected function generateRouteName(string $pattern): string
     {
