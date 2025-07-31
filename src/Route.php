@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Denosys\Routing;
 
-use Denosys\Routing\Middleware\MiddlewareManager;
-
 class Route implements RouteInterface
 {
     use HasMiddleware;
