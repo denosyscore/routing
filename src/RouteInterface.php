@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Denosys\Routing;
 
+use Closure;
 use Psr\Http\Server\MiddlewareInterface;
 
 interface RouteInterface
@@ -15,7 +16,13 @@ interface RouteInterface
     public function matches(string $method, string $path): bool;
     public function matchesPattern(string $path): bool;
     public function getParameters(string $path): array;
-    public function middleware(MiddlewareInterface|array|string $middleware): static;
+    
+    // Middleware methods
+    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
+    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static;
+    public function skipMiddleware(string $middlewareClass): static;
     public function getMiddlewareStack(): iterable;
     
     // Naming
