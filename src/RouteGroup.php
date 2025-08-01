@@ -28,6 +28,8 @@ class RouteGroup implements RouteGroupInterface
 
     protected bool $callbackFinished = false;
     
+    protected ?RouteGroup $lastNestedGroup = null;
+    
     public function __construct(
         protected string $prefix,
         protected Router $router,
@@ -98,6 +100,8 @@ class RouteGroup implements RouteGroupInterface
         $callback($routeGroup);
 
         $routeGroup->markCallbackFinished();
+        
+        $this->lastNestedGroup = $routeGroup;
 
         return $this;
     }
@@ -177,6 +181,12 @@ class RouteGroup implements RouteGroupInterface
             return $this->addGroupMiddleware($middleware, $priority);
         }
         
+        if ($this->lastNestedGroup !== null) {
+            $this->lastNestedGroup->addGroupMiddleware($middleware, $priority);
+            $this->lastNestedGroup = null;
+            return $this;
+        }
+        
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
         foreach ($middlewares as $mw) {
             $this->middleware[] = ['middleware' => $mw, 'priority' => $priority];
@@ -213,7 +223,7 @@ class RouteGroup implements RouteGroupInterface
         return $this->middleware($middleware, $priority);
     }
 
-    public function addGroupMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    public function addGroupMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 10): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
         foreach ($middlewares as $mw) {
