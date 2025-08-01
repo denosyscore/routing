@@ -14,7 +14,7 @@ A highly efficient and flexible routing package for PHP, designed to support mod
 
 ## Requirements
 
-- PHP 8.1 or later
+- PHP 8.2 or later
 
 ## Usage
 
