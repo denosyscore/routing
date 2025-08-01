@@ -39,6 +39,8 @@ class DefaultInvocationStrategy implements InvocationStrategyInterface
                 $resolvedParameter = $this->resolveClassParameter($type, $request, $routeArguments);
             } elseif (array_key_exists($name, $routeArguments)) {
                 $resolvedParameter = $routeArguments[$name];
+            } elseif ($name === 'request') {
+                $resolvedParameter = $request;
             } elseif ($parameter->isDefaultValueAvailable()) {
                 $resolvedParameter = $parameter->getDefaultValue();
             } else {
