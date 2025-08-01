@@ -33,6 +33,11 @@ trait HasRouteMethods
         return $this->addRoute('PATCH', $pattern, $handler);
     }
 
+    public function head(string $pattern, Closure|array|string $handler): RouteInterface
+    {
+        return $this->addRoute('HEAD', $pattern, $handler);
+    }
+
     public function options(string $pattern, Closure|array|string $handler): RouteInterface
     {
         return $this->addRoute('OPTIONS', $pattern, $handler);
