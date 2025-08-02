@@ -41,6 +41,32 @@ class RouteCollection implements RouteCollectionInterface
         return null;
     }
 
+    public function findByName(string $name): ?RouteInterface
+    {
+        foreach ($this->routes as $route) {
+            if ($route->getName() === $name) {
+                return $route;
+            }
+        }
+
+        return null;
+    }
+
+    public function getNamedRoutes(): array
+    {
+        $namedRoutes = [];
+
+        foreach ($this->routes as $route) {
+            $name = $route->getName();
+
+            if ($name !== null) {
+                $namedRoutes[$name] = $route;
+            }
+        }
+        
+        return $namedRoutes;
+    }
+
     protected function createRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
         return new Route(
