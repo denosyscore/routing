@@ -68,11 +68,9 @@ class RouteGroup implements RouteGroupInterface
             }
         }
 
-        // Apply naming if set
-        if ($this->namePrefix) {
-            // Generate a default name based on the pattern
-            $routeName = $this->generateRouteName($pattern);
-            $route->name($this->namePrefix . '.' . $routeName);
+        // Apply name prefix if set
+        if ($this->namePrefix && method_exists($route, 'setNamePrefix')) {
+            $route->setNamePrefix($this->namePrefix);
         }
 
         return $route;
@@ -235,16 +233,5 @@ class RouteGroup implements RouteGroupInterface
         }
         
         return $this;
-    }
-
-    protected function generateRouteName(string $pattern): string
-    {
-        // Remove leading slash and parameters, convert to dot notation
-        $name = trim($pattern, '/');
-        $name = preg_replace('/\{[^}]+\}/', '', $name); // Remove parameters
-        $name = preg_replace('/\/+/', '.', $name); // Convert slashes to dots
-        $name = trim($name, '.');
-        
-        return $name ?: 'index';
     }
 }
