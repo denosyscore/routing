@@ -11,4 +11,6 @@ interface RouteCollectionInterface
     public function add(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface;
     public function all(): array;
     public function get(string $method, string $path): ?RouteInterface;
+    public function findByName(string $name): ?RouteInterface;
+    public function getNamedRoutes(): array;
 }
