@@ -498,4 +498,28 @@ describe('Router', function () {
             }
         });
     });
+
+    describe('URL Generation', function () {
+        
+        it('can get URL generator from router', function () {
+            $urlGenerator = $this->router->getUrlGenerator();
+            
+            expect($urlGenerator)->toBeInstanceOf(\Denosys\Routing\UrlGeneratorInterface::class);
+        });
+
+        it('can get URL generator with base URL', function () {
+            $urlGenerator = $this->router->getUrlGenerator('https://example.com');
+            
+            expect($urlGenerator->getBaseUrl())->toBe('https://example.com');
+        });
+
+        it('can generate URLs using router URL generator', function () {
+            $this->router->get('/users/{id}', fn($id) => "user $id")->name('users.show');
+            
+            $urlGenerator = $this->router->getUrlGenerator('https://example.com');
+            $url = $urlGenerator->route('users.show', ['id' => 123]);
+            
+            expect($url)->toBe('https://example.com/users/123');
+        });
+    });
 });
