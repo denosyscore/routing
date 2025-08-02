@@ -57,3 +57,21 @@ function createJsonResponse(array $data, int $status = 200): \Psr\Http\Message\R
 {
     return new \Laminas\Diactoros\Response\JsonResponse($data, $status);
 }
+
+function route(string $name, array $parameters = []): string
+{
+    static $urlGenerator;
+    static $lastRouter;
+    
+    if (!isset($GLOBALS['router'])) {
+        throw new RuntimeException('Global router not set. Set $GLOBALS[\'router\'] before using route() helper.');
+    }
+    
+    // Recreate UrlGenerator if router changed
+    if ($lastRouter !== $GLOBALS['router']) {
+        $urlGenerator = new \Denosys\Routing\UrlGenerator($GLOBALS['router']->getRouteCollection());
+        $lastRouter = $GLOBALS['router'];
+    }
+    
+    return $urlGenerator->route($name, $parameters);
+}
