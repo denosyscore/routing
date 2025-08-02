@@ -10,6 +10,7 @@ class Route implements RouteInterface
 
     protected string $identifier;
     protected ?string $name = null;
+    protected ?string $namePrefix = null;
     protected array $constraints = [];
 
     public function __construct(
@@ -71,7 +72,17 @@ class Route implements RouteInterface
 
     public function name(string $name): static
     {
-        $this->name = $name;
+        if ($this->namePrefix) {
+            $this->name = $this->namePrefix . '.' . $name;
+        } else {
+            $this->name = $name;
+        }
+        return $this;
+    }
+
+    public function setNamePrefix(?string $namePrefix): static
+    {
+        $this->namePrefix = $namePrefix;
         return $this;
     }
 
