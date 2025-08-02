@@ -128,4 +128,14 @@ class Router implements RouterInterface
     {
         return $this->middleware($middleware, $priority);
     }
+
+    public function getRouteCollection(): RouteCollectionInterface
+    {
+        return $this->routeCollection;
+    }
+
+    public function getUrlGenerator(string $baseUrl = ''): UrlGeneratorInterface
+    {
+        return new UrlGenerator($this->routeCollection, $baseUrl);
+    }
 }
