@@ -136,6 +136,12 @@ class Router implements RouterInterface
 
     public function getUrlGenerator(string $baseUrl = ''): UrlGeneratorInterface
     {
-        return new UrlGenerator($this->routeCollection, $baseUrl);
+        $urlGenerator = new UrlGenerator($this->routeCollection);
+        
+        if ($baseUrl) {
+            $urlGenerator->setBaseUrl($baseUrl);
+        }
+        
+        return $urlGenerator;
     }
 }
