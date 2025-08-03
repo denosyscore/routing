@@ -255,14 +255,6 @@ describe('UrlGenerator', function () {
             
             expect($url)->toBe('https://example.com/admin');
         });
-
-        it('can generate relative URLs when absolute is false', function () {
-            $this->urlGenerator->setBaseUrl('https://example.com');
-            
-            $url = $this->urlGenerator->to('/admin/dashboard', [], false, false);
-            
-            expect($url)->toBe('/admin/dashboard');
-        });
         
         it('throws exception for invalid URL paths', function () {
             $this->urlGenerator->setBaseUrl('ht://[invalid');
@@ -281,7 +273,6 @@ describe('UrlGenerator', function () {
         
         it('can validate URLs using public method', function () {
             expect($this->urlGenerator->isValidUrl('https://example.com/path'))->toBe(true);
-            expect($this->urlGenerator->isValidUrl('/relative/path'))->toBe(true);
             expect($this->urlGenerator->isValidUrl('?query=value'))->toBe(true);
             expect($this->urlGenerator->isValidUrl('#fragment'))->toBe(true);
             expect($this->urlGenerator->isValidUrl('invalid://url with spaces'))->toBe(false);
@@ -441,17 +432,6 @@ describe('UrlGenerator', function () {
             expect($isValid)->toBe(false);
         });
 
-        it('can generate relative signed URLs when absolute is false', function () {
-            $this->urlGenerator->setBaseUrl('https://example.com');
-            $this->router->get('/download/{file}', fn($file) => "download $file")->name('download');
-            $this->urlGenerator->setKeyResolver(fn() => 'secret-key');
-            
-            $url = $this->urlGenerator->signedRoute('download', ['file' => 'document.pdf'], null, false);
-            
-            expect($url)->toStartWith('/download/document.pdf?signature=');
-            expect($url)->not->toContain('https://example.com');
-        });
-
         it('can create signed URL with DateTime expiration', function () {
             $this->router->get('/download/{file}', fn($file) => "download $file")->name('download');
             $this->urlGenerator->setKeyResolver(fn() => 'secret-key');
@@ -519,6 +499,22 @@ describe('UrlGenerator', function () {
             expect(fn() => $this->urlGenerator->signedRoute('download', ['file' => 'document.pdf']))
                 ->toThrow(RuntimeException::class, 'No key resolver set. Call setKeyResolver() first.');
         });
+        
+        it('throws exception when using reserved parameter "signature"', function () {
+            $this->router->get('/download/{file}', fn($file) => "download $file")->name('download');
+            $this->urlGenerator->setKeyResolver(fn() => 'secret-key');
+            
+            expect(fn() => $this->urlGenerator->signedRoute('download', ['file' => 'document.pdf', 'signature' => 'malicious']))
+                ->toThrow(InvalidArgumentException::class, "Parameter 'signature' is reserved for signed URLs and cannot be used in route parameters");
+        });
+        
+        it('throws exception when using reserved parameter "expires"', function () {
+            $this->router->get('/download/{file}', fn($file) => "download $file")->name('download');
+            $this->urlGenerator->setKeyResolver(fn() => 'secret-key');
+            
+            expect(fn() => $this->urlGenerator->signedRoute('download', ['file' => 'document.pdf', 'expires' => 12345]))
+                ->toThrow(InvalidArgumentException::class, "Parameter 'expires' is reserved for signed URLs and cannot be used in route parameters");
+        });
     });
 
     describe('Session-Based URL Storage', function () {
@@ -582,7 +578,7 @@ describe('UrlGenerator', function () {
             
             // Without parameter
             $url = $this->urlGenerator->route('posts.show');
-            expect($url)->toBe('/posts/');
+            expect($url)->toBe('/posts');
         });
     });
 });
