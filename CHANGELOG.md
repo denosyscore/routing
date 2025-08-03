@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] – 2025-08-03
+
+### Added
+
+- BackedEnum support for route names across the entire URL generation system
+- Callable key resolver pattern for secure and flexible signed URL key management
+- Consistent $absolute parameter support across all URL generation methods (route(), to(), asset(), signedRoute())
+- full() method to get complete URL from PSR-7 request
+- Comprehensive URL validation with isValidUrl() method supporting mailto, tel, and sms URI schemes
+- Reserved parameter protection preventing override of 'signature' and 'expires' parameters in signed URLs
+- Flexible expiration type support: DateTimeInterface|DateInterval|int|null for signed URLs
+- Simplified UrlGenerator architecture removing over-engineered container-based services
+
+### Fixed
+
+- Trailing slash removal across all URL generation methods for clean, consistent URLs
+- Optional parameter handling for routes like /posts/{slug?} now correctly removes trailing slashes
+- URI scheme validation now properly supports modern web standards
+
+### Changed
+
+- Complete UrlGenerator architectural overhaul to self-contained design
+- Removed complex service dependencies in favor of simple properties and methods
+- Simplified signed URL generation with callable key resolver instead of parameter-based keys
+- Enhanced type safety with BackedEnum integration throughout the system
+- Removed backwards compatibility code for cleaner, more maintainable codebase
+
+### Security
+
+- Added validation to prevent use of reserved parameters ('signature', 'expires') in signed URL generation
+- Improved signed URL security with callable key resolver pattern
+
 ## [0.2.0] – 2025-08-01
 
 ### Added
