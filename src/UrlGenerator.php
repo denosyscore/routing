@@ -52,7 +52,7 @@ class UrlGenerator implements UrlGeneratorInterface
         
         $finalUrl = $absolute ? $this->baseUrl . $url : $url;
         $this->validateUrl($finalUrl);
-        return $finalUrl;
+        return $this->formatUrl($finalUrl);
     }
 
     public function hasRoute(BackedEnum|string $name): bool
@@ -132,10 +132,10 @@ class UrlGenerator implements UrlGeneratorInterface
         return $fallback ?: $this->current();
     }
 
-    public function to(string $path, array $query = [], bool $secure = false, bool $absolute = true): string
+    public function to(string $path, array $query = [], bool $secure = false): string
     {
         $path = '/' . ltrim($path, '/');
-        $url = $absolute ? $this->baseUrl . $path : $path;
+        $url = $this->formatUrl($this->baseUrl . $path);
         
         if (!empty($query)) {
             $queryString = $this->buildQueryString($query);
@@ -155,6 +155,8 @@ class UrlGenerator implements UrlGeneratorInterface
         $path = '/' . ltrim($path, '/');
         $baseUrl = $absolute ? $this->getAssetUrl() : '';
         $url = $baseUrl . $path;
+        
+        $url = $this->formatUrl($url);
         
         if ($version !== null) {
             $url .= '?v=' . $version;
@@ -179,6 +181,8 @@ class UrlGenerator implements UrlGeneratorInterface
 
     public function signedRoute(BackedEnum|string $name, array $parameters = [], DateTimeInterface|DateInterval|int|null $expiration = null, bool $absolute = true): string
     {
+        $this->preventUseOfReservedParameters($parameters);
+
         $routeName = $name instanceof BackedEnum ? $name->value : $name;
         $url = $this->route($routeName, $parameters, $absolute);
         $signingKey = $this->getSigningKey();
@@ -196,7 +200,7 @@ class UrlGenerator implements UrlGeneratorInterface
         }
         
         $this->validateUrl($finalUrl);
-        return $finalUrl;
+        return $this->formatUrl($finalUrl);
     }
 
     public function hasValidSignature(string $url): bool
@@ -262,6 +266,19 @@ class UrlGenerator implements UrlGeneratorInterface
         return $expiration;
     }
 
+    protected function preventUseOfReservedParameters(array $parameters): void
+    {
+        $reservedParameters = ['signature', 'expires'];
+
+        foreach ($reservedParameters as $reserved) {
+            if (array_key_exists($reserved, $parameters)) {
+                throw new InvalidArgumentException(
+                    "Parameter '{$reserved}' is reserved for signed URLs and cannot be used in route parameters"
+                );
+            }
+        }
+    }
+
     public function setIntendedUrl(string $url): static
     {
         $this->intendedUrl = $url;
@@ -298,7 +315,7 @@ class UrlGenerator implements UrlGeneratorInterface
         }
         
         // Handle optional parameters that weren't provided
-        $pattern = preg_replace('/\{[^}]*\?\}/', '', $pattern);
+        $pattern = preg_replace('/\/\{[^}]*\?\}/', '', $pattern);
         
         return $pattern;
     }
@@ -362,5 +379,13 @@ class UrlGenerator implements UrlGeneratorInterface
         if (!$this->isValidUrl($url)) {
             throw new InvalidArgumentException("Invalid URL format: {$url}");
         }
+    }
+
+    protected function formatUrl(string $url): string
+    {
+        if (strlen($url) > 1) {
+            $url = rtrim($url, '/');
+        }
+        return $url;
     }
 }
