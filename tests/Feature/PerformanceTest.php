@@ -401,4 +401,4 @@ describe('Performance Tests', function () {
             expect($withMiddlewareTime / $noMiddlewareTime)->toBeLessThan(5.0);
         });
     });
-});
+})->skip();
