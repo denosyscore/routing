@@ -29,7 +29,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
     public function route(BackedEnum|string $name, array $parameters = [], bool $absolute = true): string
     {
-        $routeName = $name instanceof BackedEnum ? $name->value : $name;
+        $routeName = $this->resolveRouteName($name);
         $route = $this->routeCollection->findByName($routeName);
         
         if (!$route) {
@@ -57,7 +57,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
     public function hasRoute(BackedEnum|string $name): bool
     {
-        $routeName = $name instanceof BackedEnum ? $name->value : $name;
+        $routeName = $this->resolveRouteName($name);
         return $this->routeCollection->findByName($routeName) !== null;
     }
 
@@ -102,9 +102,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
     public function current(bool $includeQuery = true): string
     {
-        if (!$this->request) {
-            throw new RuntimeException('No request set. Call setRequest() first.');
-        }
+        $this->requiresRequest();
         
         $uri = $this->request->getUri();
         $url = (string) $uri->withFragment('');
@@ -135,16 +133,7 @@ class UrlGenerator implements UrlGeneratorInterface
     public function to(string $path, array $query = [], bool $secure = false): string
     {
         $path = '/' . ltrim($path, '/');
-        $url = $this->formatUrl($this->baseUrl . $path);
-        
-        if (!empty($query)) {
-            $queryString = $this->buildQueryString($query);
-            $url .= '?' . $queryString;
-        }
-        
-        if (($secure || $this->secure) && str_starts_with($url, 'http://')) {
-            $url = 'https://' . substr($url, 7);
-        }
+        $url = $this->buildUrl($path, $query, $secure, absolute: true);
         
         $this->validateUrl($url);
         return $url;
@@ -153,28 +142,33 @@ class UrlGenerator implements UrlGeneratorInterface
     public function asset(string $path, ?string $version = null, bool $secure = false, bool $absolute = true): string
     {
         $path = '/' . ltrim($path, '/');
-        $baseUrl = $absolute ? $this->getAssetUrl() : '';
-        $url = $baseUrl . $path;
+        $query = $version !== null ? ['v' => $version] : [];
         
-        $url = $this->formatUrl($url);
-        
-        if ($version !== null) {
-            $url .= '?v=' . $version;
+        if ($absolute) {
+            $assetUrl = $this->getAssetUrl() . $path;
+            $assetUrl = $this->formatUrl($assetUrl);
+            
+            if (!empty($query)) {
+                $queryString = $this->buildQueryString($query);
+                $assetUrl .= '?' . $queryString;
+            }
+            
+            if (($secure || $this->secure) && str_starts_with($assetUrl, 'http://')) {
+                $assetUrl = 'https://' . substr($assetUrl, 7);
+            }
+            
+            $this->validateUrl($assetUrl);
+            return $assetUrl;
         }
         
-        if (($secure || $this->secure) && str_starts_with($url, 'http://')) {
-            $url = 'https://' . substr($url, 7);
-        }
-        
+        $url = $this->buildUrl($path, $query, $secure, absolute: false);
         $this->validateUrl($url);
         return $url;
     }
 
     public function full(): string
     {
-        if (!$this->request) {
-            throw new RuntimeException('No request set. Call setRequest() first.');
-        }
+        $this->requiresRequest();
         
         return (string) $this->request->getUri();
     }
@@ -183,7 +177,7 @@ class UrlGenerator implements UrlGeneratorInterface
     {
         $this->preventUseOfReservedParameters($parameters);
 
-        $routeName = $name instanceof BackedEnum ? $name->value : $name;
+        $routeName = $this->resolveRouteName($name);
         $url = $this->route($routeName, $parameters, $absolute);
         $signingKey = $this->getSigningKey();
         
@@ -386,6 +380,35 @@ class UrlGenerator implements UrlGeneratorInterface
         if (strlen($url) > 1) {
             $url = rtrim($url, '/');
         }
+        return $url;
+    }
+
+    protected function resolveRouteName(BackedEnum|string $name): string
+    {
+        return $name instanceof BackedEnum ? $name->value : $name;
+    }
+
+    protected function requiresRequest(): void
+    {
+        if (!$this->request) {
+            throw new RuntimeException('No request set. Call setRequest() first.');
+        }
+    }
+
+    protected function buildUrl(string $path, array $query = [], bool $secure = false, bool $absolute = true): string
+    {
+        $url = $absolute ? $this->baseUrl . $path : $path;
+        $url = $this->formatUrl($url);
+
+        if (!empty($query)) {
+            $queryString = $this->buildQueryString($query);
+            $url .= '?' . $queryString;
+        }
+
+        if (($secure || $this->secure) && str_starts_with($url, 'http://')) {
+            $url = 'https://' . substr($url, 7);
+        }
+
         return $url;
     }
 }
