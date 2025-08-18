@@ -1,7 +1,7 @@
 <?php
 
 use Denosys\Routing\Router;
-use Denosys\Routing\Middleware\MiddlewareManager;
+use Denosys\Routing\Exceptions\NotFoundException;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -300,15 +300,13 @@ describe('Integration Tests', function () {
             expect($data['type'])->toBe('download');
             expect($data['id'])->toBe('12345');
             
-            // Test invalid image extension (constraint not working properly - temporarily expecting 200)
             $request = new ServerRequest([], [], '/files/images/photo.exe', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
             
-            // Test invalid download ID (constraint not working properly - temporarily expecting 200)
             $request = new ServerRequest([], [], '/files/download/abc', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
     });
 
