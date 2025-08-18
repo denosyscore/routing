@@ -1,15 +1,14 @@
 <?php
 
 use Denosys\Routing\Router;
-use Denosys\Routing\RouteGroup;
 use Denosys\Routing\RouteGroupInterface;
+use Denosys\Routing\Exceptions\NotFoundException;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-// Test middleware for group tests
 class GroupTestMiddleware implements MiddlewareInterface
 {
     public static array $executed = [];
@@ -206,10 +205,9 @@ describe('RouteGroup', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('user 123');
             
-            // Constraint not working properly - temporarily expecting 200
             $request = new ServerRequest([], [], '/api/users/abc', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
 
         it('can apply group-level constraints', function () {
@@ -228,10 +226,9 @@ describe('RouteGroup', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('post 456');
             
-            // Non-numeric IDs should fail (constraint not working - temporarily expecting 200)
             $request = new ServerRequest([], [], '/api/users/abc', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
     });
 
