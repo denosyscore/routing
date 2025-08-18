@@ -20,7 +20,7 @@ class RouteTrie
         $currentNode = $this->getOrCreateRootNode($method);
 
         foreach ($parts as $part) {
-            $currentNode = $this->getOrCreateChildNode($currentNode, $part);
+            $currentNode = $this->getOrCreateChildNode($currentNode, $part, $route->getConstraints());
         }
 
         $currentNode->route = $route;
@@ -85,8 +85,7 @@ class RouteTrie
                     }
                 }
                 
-                // Fall back to unconstrained nodes
-                if (!$matched) {
+                if (!$matched && empty($constrainedNodes)) {
                     foreach ($unconstrainedNodes as $childNode) {
                         $params[$childNode->paramName] = $part;
                         $currentNode = $childNode;
@@ -131,10 +130,10 @@ class RouteTrie
         return $this->root[$method] ??= new TrieNode();
     }
 
-    private function getOrCreateChildNode(TrieNode $node, string $part): TrieNode
+    private function getOrCreateChildNode(TrieNode $node, string $part, array $routeConstraints = []): TrieNode
     {
         if ($this->isDynamicPart($part)) {
-            return $this->getOrCreateDynamicChildNode($node, $part);
+            return $this->getOrCreateDynamicChildNode($node, $part, $routeConstraints);
         }
         return $this->getOrCreateStaticChildNode($node, $part);
     }
@@ -149,7 +148,7 @@ class RouteTrie
         return $part === '*' || str_ends_with($part, '*');
     }
 
-    private function getOrCreateDynamicChildNode(TrieNode $node, string $part): TrieNode
+    private function getOrCreateDynamicChildNode(TrieNode $node, string $part, array $routeConstraints = []): TrieNode
     {
         if ($this->isWildcardPart($part)) {
             $paramName = $part === '*' ? 'wildcard' : rtrim($part, '*');
@@ -164,15 +163,17 @@ class RouteTrie
 
         $paramDetails = $this->parseParameterDetails($part);
         
+        $constraint = $routeConstraints[$paramDetails['name']] ?? $paramDetails['constraint'];
+        
         $key = $paramDetails['optional'] ? '?' : ':';
-        if ($paramDetails['constraint']) {
-            $key .= '_' . $paramDetails['constraint'];
+        if ($constraint) {
+            $key .= '_' . $constraint;
         }
         
         if (!isset($node->children[$key])) {
             $paramNode = new TrieNode();
             $paramNode->paramName = $paramDetails['name'];
-            $paramNode->constraint = $paramDetails['constraint'];
+            $paramNode->constraint = $constraint;
             $paramNode->isOptional = $paramDetails['optional'];
             $node->children[$key] = $paramNode;
         }
