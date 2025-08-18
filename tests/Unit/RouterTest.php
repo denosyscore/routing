@@ -2,8 +2,8 @@
 
 use Denosys\Routing\Router;
 use Denosys\Routing\RouteInterface;
+use Denosys\Routing\Exceptions\NotFoundException;
 use Laminas\Diactoros\ServerRequest;
-use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Exception\InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -212,10 +212,9 @@ describe('Router', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('user 123');
             
-            // Constraint not working properly - temporarily expecting 200
             $request = new ServerRequest([], [], '/users/abc', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
 
         it('can apply whereNumber constraints', function () {
@@ -226,10 +225,9 @@ describe('Router', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('post 456');
             
-            // Constraint not working properly - temporarily expecting 200
             $request = new ServerRequest([], [], '/posts/invalid', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
 
         it('can apply whereAlpha constraints', function () {
@@ -240,10 +238,9 @@ describe('Router', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('category books');
             
-            // Constraint not working properly - temporarily expecting 200
             $request = new ServerRequest([], [], '/categories/123', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
 
         it('can apply whereIn constraints', function () {
@@ -254,10 +251,9 @@ describe('Router', function () {
             $response = $this->router->dispatch($request);
             expect((string) $response->getBody())->toBe('status active');
             
-            // Constraint not working properly - temporarily expecting 200
             $request = new ServerRequest([], [], '/status/invalid', 'GET');
-            $response = $this->router->dispatch($request);
-            expect($response->getStatusCode())->toBe(200);
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
         });
     });
 
