@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Routes with `whereNumber('id')` will now throw 404 for non-numeric input instead of matching
 - **BREAKING**: Routes with `whereAlpha('name')` will now throw 404 for non-alphabetic input instead of matching
 - **BREAKING**: Routes with `whereIn('status', ['active', 'inactive'])` will now throw 404 for invalid values instead of matching
+- Extracted common URL generation logic into shared helper methods in UrlGenerator
 - Improved RouteTrie constraint matching logic to prioritize constrained nodes
 - Enhanced TrieNode regex constraint handling with proper forward slash escaping
 
