@@ -24,6 +24,7 @@ class TrieNode
             return true;
         }
 
-        return preg_match('/^' . $this->constraint . '$/', $value) === 1;
+        $escapedConstraint = str_replace('/', '\/', $this->constraint);
+        return preg_match('/^' . $escapedConstraint . '$/', $value) === 1;
     }
 }
