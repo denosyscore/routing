@@ -276,4 +276,115 @@ describe('Dispatcher', function () {
             expect((string) $response->getBody())->toBe('closure result');
         });
     });
+
+    describe('Constraint Enforcement', function () {
+        
+        it('should match valid numeric parameter', function () {
+            $route = $this->routeCollection->add('GET', '/users/{id}', function($id) {
+                return "User: $id";
+            });
+            $route->whereNumber('id');
+            
+            $request = new ServerRequest([], [], '/users/123', 'GET');
+            $response = $this->dispatcher->dispatch($request);
+            
+            expect((string) $response->getBody())->toBe('User: 123');
+        });
+        
+        it('should throw 404 for non-numeric parameter', function () {
+            $route = $this->routeCollection->add('GET', '/users/{id}', function($id) {
+                return "User: $id";
+            });
+            $route->whereNumber('id');
+            
+            $request = new ServerRequest([], [], '/users/john', 'GET');
+            
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+        
+        it('should throw 404 for alphanumeric string when number expected', function () {
+            $route = $this->routeCollection->add('GET', '/users/{id}', function($id) {
+                return "User: $id";
+            });
+            $route->whereNumber('id');
+            
+            $request = new ServerRequest([], [], '/users/123abc', 'GET');
+            
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+        
+        it('should match valid alphabetic parameter', function () {
+            $route = $this->routeCollection->add('GET', '/categories/{name}', function($name) {
+                return "Category: $name";
+            });
+            $route->whereAlpha('name');
+            
+            $request = new ServerRequest([], [], '/categories/technology', 'GET');
+            $response = $this->dispatcher->dispatch($request);
+            
+            expect((string) $response->getBody())->toBe('Category: technology');
+        });
+        
+        it('should throw 404 for numeric parameter when alpha expected', function () {
+            $route = $this->routeCollection->add('GET', '/categories/{name}', function($name) {
+                return "Category: $name";
+            });
+            $route->whereAlpha('name');
+            
+            $request = new ServerRequest([], [], '/categories/123', 'GET');
+            
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+        
+        it('should match parameter in allowed values', function () {
+            $route = $this->routeCollection->add('GET', '/posts/{status}', function($status) {
+                return "Posts: $status";
+            });
+            $route->whereIn('status', ['draft', 'published', 'archived']);
+            
+            $request = new ServerRequest([], [], '/posts/published', 'GET');
+            $response = $this->dispatcher->dispatch($request);
+            
+            expect((string) $response->getBody())->toBe('Posts: published');
+        });
+        
+        it('should throw 404 for parameter not in allowed values', function () {
+            $route = $this->routeCollection->add('GET', '/posts/{status}', function($status) {
+                return "Posts: $status";
+            });
+            $route->whereIn('status', ['draft', 'published', 'archived']);
+            
+            $request = new ServerRequest([], [], '/posts/deleted', 'GET');
+            
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+        
+        it('should enforce multiple constraints', function () {
+            $route = $this->routeCollection->add('GET', '/users/{id}/posts/{slug}', function($id, $slug) {
+                return "User $id, Post: $slug";
+            });
+            $route->whereNumber('id')->whereAlphaNumeric('slug');
+            
+            $request = new ServerRequest([], [], '/users/123/posts/mypost123', 'GET');
+            $response = $this->dispatcher->dispatch($request);
+            
+            expect((string) $response->getBody())->toBe('User 123, Post: mypost123');
+        });
+        
+        it('should throw 404 if any constraint fails', function () {
+            $route = $this->routeCollection->add('GET', '/users/{id}/posts/{slug}', function($id, $slug) {
+                return "User $id, Post: $slug";
+            });
+            $route->whereNumber('id')->whereAlphaNumeric('slug');
+            
+            $request = new ServerRequest([], [], '/users/john/posts/mypost123', 'GET');
+            
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+    });
 });
