@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] – 2025-08-18
+
+### Added
+
+- Constraint enforcement tests covering all constraint types
+- Strict validation for route parameter constraints (whereNumber, whereAlpha, whereAlphaNumeric, whereIn)
+- Enhanced regex constraint handling with proper delimiter escaping
+- 404 NotFoundException thrown for constraint violations instead of fallback behavior
+
+### Changed
+
+- **BREAKING**: Route constraints now strictly enforce validation rules
+- **BREAKING**: Routes with `whereNumber('id')` will now throw 404 for non-numeric input instead of matching
+- **BREAKING**: Routes with `whereAlpha('name')` will now throw 404 for non-alphabetic input instead of matching
+- **BREAKING**: Routes with `whereIn('status', ['active', 'inactive'])` will now throw 404 for invalid values instead of matching
+- Improved RouteTrie constraint matching logic to prioritize constrained nodes
+- Enhanced TrieNode regex constraint handling with proper forward slash escaping
+
+### Fixed
+
+- Route constraints now properly enforce validation instead of falling back to unconstrained matches
+- Regex constraints with forward slashes now work correctly (e.g., file extension patterns)
+- Constraint violation edge cases now properly return 404 responses
+
+### Security
+
+- Route parameter validation is now strictly enforced, preventing potential security issues from invalid input matching
+
 ## [0.3.0] – 2025-08-03
 
 ### Added
