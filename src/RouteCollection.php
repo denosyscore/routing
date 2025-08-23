@@ -31,6 +31,11 @@ class RouteCollection implements RouteCollectionInterface
         return $this->routes;
     }
 
+    public function count(): int
+    {
+        return count($this->routes);
+    }
+
     public function get(string $method, string $path): ?RouteInterface
     {
         foreach ($this->routes as $route) {
