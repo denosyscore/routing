@@ -238,7 +238,7 @@ class AttributeRouteScanner
         // Build name
         $name = $routeAttribute->getName();
         if ($classRouteGroup && $classRouteGroup->getName() && $name) {
-            $name = $classRouteGroup->getName() . '.' . $name;
+            $name = rtrim($classRouteGroup->getName(), '.') . '.' . $name;
         }
 
         // Combine middleware
