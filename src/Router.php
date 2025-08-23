@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Denosys\Routing\Middleware\MiddlewareManager;
+use Denosys\Routing\Attributes\AttributeRouteScanner;
 
 class Router implements RouterInterface
 {
@@ -132,6 +133,65 @@ class Router implements RouterInterface
     public function getRouteCollection(): RouteCollectionInterface
     {
         return $this->routeCollection;
+    }
+
+    public function loadAttributeRoutes(array $controllerClasses): static
+    {
+        $scanner = new AttributeRouteScanner();
+        
+        foreach ($controllerClasses as $controllerClass) {
+            $routes = $scanner->scanClass($controllerClass);
+            
+            foreach ($routes as $routeData) {
+                $route = $this->addRoute(
+                    $routeData['methods'],
+                    $routeData['path'],
+                    $routeData['action']
+                );
+                
+                if ($routeData['name']) {
+                    $route->name($routeData['name']);
+                }
+                
+                foreach ($routeData['where'] as $param => $pattern) {
+                    $route->where($param, $pattern);
+                }
+                
+                foreach ($routeData['middleware'] as $middleware) {
+                    $route->middleware($middleware);
+                }
+            }
+        }
+        
+        return $this;
+    }
+
+    public function loadAttributeRoutesFromDirectory(string $directory): static
+    {
+        $scanner = new AttributeRouteScanner();
+        $routes = $scanner->scanDirectory($directory);
+        
+        foreach ($routes as $routeData) {
+            $route = $this->addRoute(
+                $routeData['methods'],
+                $routeData['path'],
+                $routeData['action']
+            );
+            
+            if ($routeData['name']) {
+                $route->name($routeData['name']);
+            }
+            
+            foreach ($routeData['where'] as $param => $pattern) {
+                $route->where($param, $pattern);
+            }
+            
+            foreach ($routeData['middleware'] as $middleware) {
+                $route->middleware($middleware);
+            }
+        }
+        
+        return $this;
     }
 
     public function getUrlGenerator(string $baseUrl = ''): UrlGeneratorInterface
