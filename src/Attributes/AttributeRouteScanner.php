@@ -149,28 +149,23 @@ class AttributeRouteScanner
 
     private function getRouteGroupFromClass(ReflectionClass $class): ?RouteGroup
     {
-        $attributes = $class->getAttributes(RouteGroup::class);
-        return !empty($attributes) ? $attributes[0]->newInstance() : null;
+        return $this->getFirstAttributeInstance($class, RouteGroup::class);
     }
 
     private function getMiddlewareFromClass(ReflectionClass $class): array
     {
-        $middleware = [];
-        $attributes = $class->getAttributes(Middleware::class);
-        
-        foreach ($attributes as $attribute) {
-            $middlewareInstance = $attribute->newInstance();
-            $middleware = array_merge($middleware, $middlewareInstance->getMiddleware());
-        }
-
-        return $middleware;
+        return $this->extractMiddleware($class->getAttributes(Middleware::class))['middleware'];
     }
 
     private function getMiddlewareFromMethod(ReflectionMethod $method): array
     {
+        return $this->extractMiddleware($method->getAttributes(Middleware::class));
+    }
+
+    private function extractMiddleware(array $attributes): array
+    {
         $middleware = [];
         $middlewareExcept = [];
-        $attributes = $method->getAttributes(Middleware::class);
         
         foreach ($attributes as $attribute) {
             $middlewareInstance = $attribute->newInstance();
@@ -185,12 +180,13 @@ class AttributeRouteScanner
 
     private function getResourceFromClass(ReflectionClass $class): ?Resource
     {
-        $attributes = $class->getAttributes(Resource::class);
-        if (!empty($attributes)) {
-            return $attributes[0]->newInstance();
-        }
+        return $this->getFirstAttributeInstance($class, Resource::class) 
+            ?? $this->getFirstAttributeInstance($class, ApiResource::class);
+    }
 
-        $attributes = $class->getAttributes(ApiResource::class);
+    private function getFirstAttributeInstance(ReflectionClass $class, string $attributeClass): mixed
+    {
+        $attributes = $class->getAttributes($attributeClass);
         return !empty($attributes) ? $attributes[0]->newInstance() : null;
     }
 
@@ -229,19 +225,41 @@ class AttributeRouteScanner
         array $classMiddleware,
         array $methodMiddleware
     ): array {
-        // Build path
-        $path = $routeAttribute->getPath();
-        if ($classRouteGroup) {
-            $path = rtrim($classRouteGroup->getPrefix(), '/') . '/' . ltrim($path, '/');
-        }
+        return [
+            'methods' => $routeAttribute->getMethods(),
+            'path' => $this->buildPath($routeAttribute->getPath(), $classRouteGroup),
+            'name' => $this->buildName($routeAttribute->getName(), $classRouteGroup),
+            'action' => [$className, $methodName],
+            'middleware' => $this->combineMiddleware($classMiddleware, $classRouteGroup, $routeAttribute, $methodMiddleware),
+            'where' => $routeAttribute->getWhere(),
+            'middlewareExcept' => $methodMiddleware['except'] ?? []
+        ];
+    }
 
-        // Build name
-        $name = $routeAttribute->getName();
-        if ($classRouteGroup && $classRouteGroup->getName() && $name) {
-            $name = rtrim($classRouteGroup->getName(), '.') . '.' . $name;
+    private function buildPath(string $path, ?RouteGroup $classRouteGroup): string
+    {
+        if (!$classRouteGroup) {
+            return $path;
         }
+        
+        return rtrim($classRouteGroup->getPrefix(), '/') . '/' . ltrim($path, '/');
+    }
 
-        // Combine middleware
+    private function buildName(?string $name, ?RouteGroup $classRouteGroup): ?string
+    {
+        if (!$classRouteGroup || !$classRouteGroup->getName() || !$name) {
+            return $name;
+        }
+        
+        return rtrim($classRouteGroup->getName(), '.') . '.' . $name;
+    }
+
+    private function combineMiddleware(
+        array $classMiddleware,
+        ?RouteGroup $classRouteGroup,
+        Route $routeAttribute,
+        array $methodMiddleware
+    ): array {
         $middleware = array_merge(
             $classMiddleware,
             $classRouteGroup ? $classRouteGroup->getMiddleware() : [],
@@ -249,14 +267,6 @@ class AttributeRouteScanner
             $methodMiddleware['middleware'] ?? []
         );
 
-        return [
-            'methods' => $routeAttribute->getMethods(),
-            'path' => $path,
-            'name' => $name,
-            'action' => [$className, $methodName],
-            'middleware' => array_unique($middleware),
-            'where' => $routeAttribute->getWhere(),
-            'middlewareExcept' => $methodMiddleware['except'] ?? []
-        ];
+        return array_unique($middleware);
     }
 }
