@@ -52,8 +52,76 @@ class AttributeRouteScanner
 
     public function scanDirectory(string $directory): array
     {
-        // TODO: Scan directory for PHP files and extract controller classes
-        return [];
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("Directory {$directory} does not exist");
+        }
+
+        $allRoutes = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->getExtension() === 'php') {
+                $classes = $this->extractClassesFromFile($file->getPathname());
+                foreach ($classes as $className) {
+                    if ($this->isControllerClass($className)) {
+                        $routes = $this->scanClass($className);
+                        $allRoutes = array_merge($allRoutes, $routes);
+                    }
+                }
+            }
+        }
+
+        return $allRoutes;
+    }
+
+    private function extractClassesFromFile(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+        $classes = [];
+        
+        // Extract namespace
+        $namespace = '';
+        if (preg_match('/namespace\s+([^;]+);/', $content, $matches)) {
+            $namespace = trim($matches[1]) . '\\';
+        }
+        
+        // Extract class names
+        if (preg_match_all('/class\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/i', $content, $matches)) {
+            foreach ($matches[1] as $className) {
+                $fullClassName = $namespace . $className;
+                if (class_exists($fullClassName)) {
+                    $classes[] = $fullClassName;
+                }
+            }
+        }
+        
+        return $classes;
+    }
+
+    private function isControllerClass(string $className): bool
+    {
+        $reflectionClass = new ReflectionClass($className);
+        
+        // Check if class has any route attributes
+        if (!empty($reflectionClass->getAttributes(RouteGroup::class)) ||
+            !empty($reflectionClass->getAttributes(Resource::class)) ||
+            !empty($reflectionClass->getAttributes(ApiResource::class))) {
+            return true;
+        }
+        
+        // Check if any methods have route attributes
+        foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            foreach ($method->getAttributes() as $attribute) {
+                $attributeInstance = $attribute->newInstance();
+                if ($attributeInstance instanceof Route) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     private function scanMethod(string $className, ReflectionMethod $method, ?RouteGroup $classRouteGroup, array $classMiddleware): array
