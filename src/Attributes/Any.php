@@ -7,10 +7,7 @@ namespace Denosys\Routing\Attributes;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class Any extends Route
+class Any extends HttpMethodRoute
 {
-    public function getMethods(): array
-    {
-        return ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
-    }
+    protected static array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 }
