@@ -6,8 +6,6 @@ namespace Denosys\Routing;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Denosys\Routing\Middleware\MiddlewareItem;
 
 class RouteGroup implements RouteGroupInterface
 {
@@ -24,10 +22,10 @@ class RouteGroup implements RouteGroupInterface
 
     protected array $groupRoutes = [];
 
-    protected array $middleware = [];
+    protected array $pendingMiddleware = [];
 
     protected bool $callbackFinished = false;
-    
+
     protected ?RouteGroup $lastNestedGroup = null;
     
     public function __construct(
@@ -45,21 +43,21 @@ class RouteGroup implements RouteGroupInterface
 
     public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
-        $pattern = rtrim($this->prefix, '/') . '/' . ltrim($pattern, '/');
+        $pattern = '/' . trim(rtrim($this->prefix, '/') . '/' . ltrim($pattern, '/'), '/');
 
         $route = $this->router->addRoute($methods, $pattern, $handler);
 
         $this->groupRoutes[] = $route;
 
-        foreach ($this->getMiddlewareStack() as $middlewareItem) {
-            $route->middleware($middlewareItem->middleware, $middlewareItem->priority);
+        foreach ($this->getMiddleware() as $middlewareItem) {
+            $route->middleware($middlewareItem);
         }
 
-        foreach ($this->middleware as $middlewareItem) {
-            $route->middleware($middlewareItem['middleware'], $middlewareItem['priority']);
+        foreach ($this->pendingMiddleware as $middlewareItem) {
+            $route->middleware($middlewareItem);
         }
 
-        $this->middleware = [];
+        $this->pendingMiddleware = [];
 
         // Apply group constraints to route parameters
         foreach ($this->constraints as $param => $constraint) {
@@ -79,33 +77,31 @@ class RouteGroup implements RouteGroupInterface
     public function group(string $prefix, Closure $callback): self
     {
         $newPrefix = rtrim($this->prefix, '/') . '/' . ltrim($prefix, '/');
-        
+
         $routeGroup = new self($newPrefix, $this->router, $this->container);
-        
+
         // Inherit group properties
-        $routeGroup->middlewareStack = $this->middlewareStack;
+        $routeGroup->middleware = $this->middleware;
         $routeGroup->constraints = $this->constraints;
         $routeGroup->namePrefix = $this->namePrefix;
         $routeGroup->namespacePrefix = $this->namespacePrefix;
         $routeGroup->domain = $this->domain;
 
-        foreach ($this->middleware as $middlewareItem) {
-            $routeGroup->middleware($middlewareItem['middleware'], $middlewareItem['priority']);
+        foreach ($this->pendingMiddleware as $middlewareItem) {
+            $routeGroup->middleware($middlewareItem);
         }
-        
-        $this->middleware = [];
+
+        $this->pendingMiddleware = [];
 
         $callback($routeGroup);
 
         $routeGroup->markCallbackFinished();
-        
+
         $this->lastNestedGroup = $routeGroup;
 
         return $this;
     }
 
-
-    // Naming and namespacing
     public function name(string $name): static
     {
         $this->namePrefix = $this->namePrefix ? $this->namePrefix . '.' . $name : $name;
@@ -173,23 +169,23 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
-    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    public function middleware(string|array $middleware): static
     {
         if ($this->callbackFinished) {
-            return $this->addGroupMiddleware($middleware, $priority);
+            return $this->addGroupMiddleware($middleware);
         }
-        
+
         if ($this->lastNestedGroup !== null) {
-            $this->lastNestedGroup->addGroupMiddleware($middleware, $priority);
+            $this->lastNestedGroup->addGroupMiddleware($middleware);
             $this->lastNestedGroup = null;
             return $this;
         }
-        
+
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
         foreach ($middlewares as $mw) {
-            $this->middleware[] = ['middleware' => $mw, 'priority' => $priority];
+            $this->pendingMiddleware[] = $mw;
         }
-        
+
         return $this;
     }
 
@@ -198,40 +194,17 @@ class RouteGroup implements RouteGroupInterface
         $this->callbackFinished = true;
     }
 
-    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
-    {
-        $shouldExecute = is_callable($condition) ? $condition() : $condition;
-        if ($shouldExecute) {
-            return $this->middleware($middleware, $priority);
-        }
-        return $this;
-    }
-
-    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
-    {
-        $shouldNotExecute = is_callable($condition) ? $condition() : $condition;
-        if (!$shouldNotExecute) {
-            return $this->middleware($middleware, $priority);
-        }
-        return $this;
-    }
-
-    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static
-    {
-        return $this->middleware($middleware, $priority);
-    }
-
-    public function addGroupMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 10): static
+    public function addGroupMiddleware(string|array $middleware): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
         foreach ($middlewares as $mw) {
-            $this->middlewareStack[] = MiddlewareItem::create($mw, $priority);
+            $this->middleware[] = $mw;
         }
-        
+
         foreach ($this->groupRoutes as $route) {
-            $route->middleware($middleware, $priority);
+            $route->middleware($middleware);
         }
-        
+
         return $this;
     }
 }
