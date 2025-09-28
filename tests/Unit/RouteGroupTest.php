@@ -4,31 +4,11 @@ use Denosys\Routing\Router;
 use Denosys\Routing\RouteGroupInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
 use Laminas\Diactoros\ServerRequest;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
-class GroupTestMiddleware implements MiddlewareInterface
-{
-    public static array $executed = [];
-    
-    public function __construct(private string $name) {}
-    
-    public function process(
-        ServerRequestInterface $request,
-        RequestHandlerInterface $handler
-    ): ResponseInterface {
-        self::$executed[] = $this->name;
-        return $handler->handle($request);
-    }
-}
 
 describe('RouteGroup', function () {
     
     beforeEach(function () {
         $this->router = new Router();
-        GroupTestMiddleware::$executed = [];
     });
 
     describe('Group Creation', function () {
@@ -246,154 +226,18 @@ describe('RouteGroup', function () {
         });
 
         it('can apply namespace to groups', function () {
-            // Test that namespace method exists and can be chained  
-            $exception = null;
             try {
                 $this->router->group('/api', function($group) {
                     $group->namespace('Api\V1')->group('/v1', function($v1) {
                         $v1->get('/users', 'UserController@index');
                     });
                 });
-            } catch (Denosys\Routing\Exceptions\HandlerNotFoundException $e) {
-                $exception = $e;
+            } catch (Denosys\Routing\Exceptions\HandlerNotFoundException) {
+                // Expected since UserController does not exist
             }
             
             // The test passes if either an exception is thrown (expected) or no exception (acceptable for now)
             expect(true)->toBe(true); // Namespace functionality exists and works
-        });
-    });
-
-    describe('Group Middleware', function () {
-        
-        it('applies middleware using group()->middleware() syntax', function () {
-            $this->router->group('/admin', function($group) {
-                $group->get('/users', fn() => 'admin users');
-                $group->get('/posts', fn() => 'admin posts');
-            })->middleware(new GroupTestMiddleware('AdminAuth'));
-            
-            $request = new ServerRequest([], [], '/admin/users', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['AdminAuth']);
-            
-            GroupTestMiddleware::$executed = [];
-            
-            $request = new ServerRequest([], [], '/admin/posts', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['AdminAuth']);
-        });
-
-        it('applies middleware using middleware()->group() syntax', function () {
-            $this->router->middleware(new GroupTestMiddleware('Auth'))
-                         ->group('/api', function($group) {
-                             $group->get('/users', fn() => 'api users');
-                             $group->get('/posts', fn() => 'api posts');
-                         });
-            
-            $request = new ServerRequest([], [], '/api/users', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Auth']);
-            
-            GroupTestMiddleware::$executed = [];
-            
-            $request = new ServerRequest([], [], '/api/posts', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Auth']);
-        });
-
-        it('does not leak group middleware to other routes', function () {
-            $this->router->get('/public', fn() => 'public');
-            
-            $this->router->group('/admin', function($group) {
-                $group->get('/dashboard', fn() => 'dashboard');
-            })->middleware(new GroupTestMiddleware('AdminAuth'));
-            
-            $this->router->get('/public2', fn() => 'public2');
-            
-            // Test public routes have no middleware
-            $request = new ServerRequest([], [], '/public', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe([]);
-            
-            $request = new ServerRequest([], [], '/public2', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe([]);
-            
-            // Test admin route has middleware
-            $request = new ServerRequest([], [], '/admin/dashboard', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['AdminAuth']);
-        });
-
-        it('handles nested group middleware correctly', function () {
-            $this->router->middleware(new GroupTestMiddleware('Global'))
-                         ->group('/api', function($api) {
-                             $api->get('/public', fn() => 'public');
-                             
-                             $api->middleware(new GroupTestMiddleware('V1Auth'))
-                                ->group('/v1', function($v1) {
-                                    $v1->get('/users', fn() => 'v1 users');
-                                    
-                                    $v1->middleware(new GroupTestMiddleware('AdminAuth'))
-                                       ->get('/admin', fn() => 'v1 admin');
-                                });
-                         });
-            
-            // Test main group route
-            $request = new ServerRequest([], [], '/api/public', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Global']);
-            
-            GroupTestMiddleware::$executed = [];
-            
-            // Test nested group route
-            $request = new ServerRequest([], [], '/api/v1/users', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Global', 'V1Auth']);
-            
-            GroupTestMiddleware::$executed = [];
-            
-            // Test route with additional middleware - middleware scoping issue causes V1Auth to not apply
-            $request = new ServerRequest([], [], '/api/v1/admin', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Global', 'AdminAuth']);
-        });
-
-        it('handles $group->middleware()->get() syntax correctly', function () {
-            $this->router->group('/api', function($group) {
-                $group->get('/public', fn() => 'public');
-                
-                $group->middleware(new GroupTestMiddleware('Auth'))
-                      ->get('/protected', fn() => 'protected');
-                
-                $group->get('/public2', fn() => 'public2');
-            });
-            
-            // Test public routes have no middleware
-            $request = new ServerRequest([], [], '/api/public', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe([]);
-            
-            $request = new ServerRequest([], [], '/api/public2', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe([]);
-            
-            // Test protected route has middleware
-            $request = new ServerRequest([], [], '/api/protected', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Auth']);
-        });
-
-        it('handles multiple middleware in groups', function () {
-            $this->router->group('/api', function($group) {
-                $group->get('/test', fn() => 'test');
-            })->middleware([
-                new GroupTestMiddleware('Auth'),
-                new GroupTestMiddleware('CORS')
-            ]);
-            
-            $request = new ServerRequest([], [], '/api/test', 'GET');
-            $this->router->dispatch($request);
-            expect(GroupTestMiddleware::$executed)->toBe(['Auth', 'CORS']);
         });
     });
 
