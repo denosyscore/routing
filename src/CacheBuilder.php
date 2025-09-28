@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Denosys\Routing;
 
-use Denosys\Routing\Middleware\MiddlewareManager;
-
 class CacheBuilder
 {
     public function buildRouteCache(RouteCollectionInterface $routeCollection, string $cacheFile): void
@@ -31,27 +29,6 @@ class CacheBuilder
         }
 
         $this->writePHPCache($cacheFile, $routeCache);
-    }
-
-    public function buildMiddlewareCache(array $middlewareList, ?MiddlewareManager $middlewareManager, string $cacheFile): void
-    {
-        $middlewareCache = [];
-        $manager = $middlewareManager ?? new MiddlewareManager();
-
-        foreach ($middlewareList as $middleware) {
-            try {
-                // Only cache simple middleware strings without parameters
-                if (is_string($middleware) && !str_contains($middleware, ':')) {
-                    $resolved = $manager->resolve($middleware);
-                    $middlewareCache["middleware_" . md5($middleware)] = $resolved;
-                }
-            } catch (\Exception $e) {
-                // Skip middleware that can't be resolved during cache build
-                continue;
-            }
-        }
-
-        $this->writePHPCache($cacheFile, $middlewareCache);
     }
 
     private function writePHPCache(string $cacheFile, array $data): void
