@@ -8,52 +8,42 @@ use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Denosys\Routing\Middleware\MiddlewareManager;
 use Denosys\Routing\Attributes\AttributeRouteScanner;
 
 class Router implements RouterInterface
 {
     use HasRouteMethods;
-    use HasMiddleware;
 
     public static array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
     protected Dispatcher $dispatcher;
-    
-    protected array $middleware = [];
+
+    protected array $pendingMiddleware = [];
+
+    protected ?string $cachePath = null;
 
     public function __construct(
         protected ?ContainerInterface $container = null,
         protected ?RouteCollectionInterface $routeCollection = null,
-        protected ?RouteHandlerResolverInterface $routeHandlerResolver = null,
-        ?MiddlewareManager $middlewareManager = null
+        protected ?RouteHandlerResolverInterface $routeHandlerResolver = null
     ) {
         $this->routeHandlerResolver = $routeHandlerResolver ?? new RouteHandlerResolver($this->container);
         $this->routeCollection = $routeCollection ?? new RouteCollection($this->routeHandlerResolver);
-        $middlewareManager = $middlewareManager ?? new MiddlewareManager($this->container);
         $this->dispatcher = new Dispatcher(
             routeCollection: $this->routeCollection,
-            container: $this->container,
-            middlewareManager: $middlewareManager
+            container: $this->container
         );
-        
-        $this->setMiddlewareManager($middlewareManager);
     }
 
     public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
         $route = $this->routeCollection->add($methods, $pattern, $handler);
 
-        if (method_exists($route, 'setMiddlewareManager')) {
-            $route->setMiddlewareManager($this->getMiddlewareManager());
+        foreach ($this->pendingMiddleware as $middlewareItem) {
+            $route->middleware($middlewareItem);
         }
 
-        foreach ($this->middleware as $middlewareItem) {
-            $route->middleware($middlewareItem['middleware'], $middlewareItem['priority']);
-        }
-
-        $this->middleware = [];
+        $this->pendingMiddleware = [];
 
         return $route;
     }
@@ -66,14 +56,13 @@ class Router implements RouterInterface
     public function group(string $prefix, Closure $callback): RouteGroupInterface
     {
         $routeGroup = new RouteGroup($prefix, $this, $this->container);
-        $routeGroup->setMiddlewareManager($this->getMiddlewareManager());
-        
-        foreach ($this->middleware as $middlewareItem) {
-            $routeGroup->addGroupMiddleware($middlewareItem['middleware'], $middlewareItem['priority']);
+
+        foreach ($this->pendingMiddleware as $middlewareItem) {
+            $routeGroup->addGroupMiddleware($middlewareItem);
         }
-        
-        $this->middleware = [];
-        
+
+        $this->pendingMiddleware = [];
+
         $callback($routeGroup);
 
         $routeGroup->markCallbackFinished();
@@ -81,53 +70,13 @@ class Router implements RouterInterface
         return $routeGroup;
     }
 
-    public function aliasMiddleware(string $alias, string|MiddlewareInterface $middleware): static
-    {
-        $this->getMiddlewareManager()->alias($alias, $middleware);
-        return $this;
-    }
-
-    public function aliasMiddlewares(array $aliases): static
-    {
-        $this->getMiddlewareManager()->aliasMany($aliases);
-        return $this;
-    }
-
-    public function getMiddlewareManager(): MiddlewareManager
-    {
-        return $this->dispatcher->getMiddlewareManager();
-    }
-
-    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static
+    public function middleware(string|array $middleware): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
         foreach ($middlewares as $mw) {
-            $this->middleware[] = ['middleware' => $mw, 'priority' => $priority];
+            $this->pendingMiddleware[] = $mw;
         }
         return $this;
-    }
-
-    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
-    {
-        $shouldExecute = is_callable($condition) ? $condition() : $condition;
-        if ($shouldExecute) {
-            return $this->middleware($middleware, $priority);
-        }
-        return $this;
-    }
-
-    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static
-    {
-        $shouldNotExecute = is_callable($condition) ? $condition() : $condition;
-        if (!$shouldNotExecute) {
-            return $this->middleware($middleware, $priority);
-        }
-        return $this;
-    }
-
-    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static
-    {
-        return $this->middleware($middleware, $priority);
     }
 
     public function getRouteCollection(): RouteCollectionInterface
@@ -135,42 +84,37 @@ class Router implements RouterInterface
         return $this->routeCollection;
     }
 
-    public function loadAttributeRoutes(array $controllerClasses): static
+    public function setCachePath(string $cachePath): static
     {
+        $this->cachePath = $cachePath;
+        return $this;
+    }
+
+    public function getCachePath(): ?string
+    {
+        return $this->cachePath;
+    }
+
+    public function loadAttributeRoutes(array $controllerClasses, ?string $cacheFilePath = null): static
+    {
+        $cacheFile = $cacheFilePath ?? $this->cachePath;
+        
+        if ($cacheFile && file_exists($cacheFile)) {
+            return $this->loadAttributeRoutesFromCache($cacheFile);
+        }
+        
         $scanner = new AttributeRouteScanner();
         
         foreach ($controllerClasses as $controllerClass) {
             $routes = $scanner->scanClass($controllerClass);
-            
-            foreach ($routes as $routeData) {
-                $route = $this->addRoute(
-                    $routeData['methods'],
-                    $routeData['path'],
-                    $routeData['action']
-                );
-                
-                if ($routeData['name']) {
-                    $route->name($routeData['name']);
-                }
-                
-                foreach ($routeData['where'] as $param => $pattern) {
-                    $route->where($param, $pattern);
-                }
-                
-                foreach ($routeData['middleware'] as $middleware) {
-                    $route->middleware($middleware);
-                }
-            }
+            $this->registerRoutesFromData($routes);
         }
         
         return $this;
     }
 
-    public function loadAttributeRoutesFromDirectory(string $directory): static
+    private function registerRoutesFromData(array $routes): void
     {
-        $scanner = new AttributeRouteScanner();
-        $routes = $scanner->scanDirectory($directory);
-        
         foreach ($routes as $routeData) {
             $route = $this->addRoute(
                 $routeData['methods'],
@@ -190,6 +134,83 @@ class Router implements RouterInterface
                 $route->middleware($middleware);
             }
         }
+    }
+
+    public function loadAttributeRoutesFromDirectory(string $directory, ?string $cacheFilePath = null): static
+    {
+        $cacheFile = $cacheFilePath ?? $this->cachePath;
+        
+        if ($cacheFile && file_exists($cacheFile)) {
+            return $this->loadAttributeRoutesFromCache($cacheFile);
+        }
+        
+        $scanner = new AttributeRouteScanner();
+        $routes = $scanner->scanDirectory($directory);
+        $this->registerRoutesFromData($routes);
+        
+        return $this;
+    }
+
+    public function loadAttributeRoutesFromCache(string $cacheFilePath): static
+    {
+        $scanner = new AttributeRouteScanner();
+        $routes = $scanner->loadCachedRoutes($cacheFilePath);
+        
+        if ($routes === null) {
+            throw new \RuntimeException("Failed to load routes from cache file: {$cacheFilePath}");
+        }
+        
+        $this->registerRoutesFromData($routes);
+        
+        return $this;
+    }
+
+    public function cacheAttributeRoutes(array $controllerClasses, ?string $cacheFilePath = null): static
+    {
+        $cacheFile = $cacheFilePath ?? $this->cachePath;
+        
+        if (!$cacheFile) {
+            throw new \InvalidArgumentException('Cache file path must be provided either as parameter or via setCachePath()');
+        }
+        
+        $scanner = new AttributeRouteScanner();
+        $allRoutes = [];
+        
+        foreach ($controllerClasses as $controllerClass) {
+            $routes = $scanner->scanClass($controllerClass);
+            $allRoutes = array_merge($allRoutes, $routes);
+        }
+        
+        $scanner->cacheRoutes($allRoutes, $cacheFile);
+        
+        return $this;
+    }
+
+    public function cacheAttributeRoutesFromDirectory(string $directory, ?string $cacheFilePath = null): static
+    {
+        $cacheFile = $cacheFilePath ?? $this->cachePath;
+        
+        if (!$cacheFile) {
+            throw new \InvalidArgumentException('Cache file path must be provided either as parameter or via setCachePath()');
+        }
+        
+        $scanner = new AttributeRouteScanner();
+        $routes = $scanner->scanDirectory($directory);
+        $scanner->cacheRoutes($routes, $cacheFile);
+        
+        return $this;
+    }
+
+    public function clearAttributeRoutesCache(?string $cacheFilePath = null): static
+    {
+        $cacheFile = $cacheFilePath ?? $this->cachePath;
+        
+        if (!$cacheFile) {
+            throw new \InvalidArgumentException('Cache file path must be provided either as parameter or via setCachePath()');
+        }
+        
+        $scanner = new AttributeRouteScanner();
+        $scanner->clearCache($cacheFile);
         
         return $this;
     }
@@ -203,5 +224,10 @@ class Router implements RouterInterface
         }
         
         return $urlGenerator;
+    }
+    
+    public function getPerformanceStats(): array
+    {
+        return $this->dispatcher->getPerformanceStats();
     }
 }
