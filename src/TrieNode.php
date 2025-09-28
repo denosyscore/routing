@@ -7,24 +7,62 @@ namespace Denosys\Routing;
 class TrieNode
 {
     public ?RouteInterface $route = null;
+    
+    public array $staticChildren = [];
+    public ?TrieNode $parameterNode = null;
+    public ?TrieNode $wildcardNode = null;
 
-    public array $children = [];
+    public ?string $paramName = null;
+    public ?string $compiledConstraint = null;
+    public bool $isOptional = false;
+    public bool $isWildcard = false;
+    
+    private static array $constraintCache = [];
 
     public function __construct(
-        public ?string $paramName = null,
+        ?string $paramName = null,
         public ?string $constraint = null,
-        public bool $isOptional = false,
-        public bool $isWildcard = false
+        bool $isOptional = false,
+        bool $isWildcard = false
     ) {
+        $this->paramName = $paramName;
+        $this->isOptional = $isOptional;
+        $this->isWildcard = $isWildcard;
+        
+        if ($constraint !== null) {
+            $this->compiledConstraint = $this->compileConstraint($constraint);
+        }
+    }
+
+    public function findChild(string $segment): ?TrieNode
+    {
+        if (isset($this->staticChildren[$segment])) {
+            return $this->staticChildren[$segment];
+        }
+        
+        if ($this->parameterNode !== null && $this->parameterNode->matchesConstraint($segment)) {
+            return $this->parameterNode;
+        }
+        
+        return $this->wildcardNode;
     }
 
     public function matchesConstraint(string $value): bool
     {
-        if ($this->constraint === null) {
+        if ($this->compiledConstraint === null) {
             return true;
         }
+        
+        return preg_match($this->compiledConstraint, $value) === 1;
+    }
 
-        $escapedConstraint = str_replace('/', '\/', $this->constraint);
-        return preg_match('/^' . $escapedConstraint . '$/', $value) === 1;
+    private function compileConstraint(string $constraint): string
+    {
+        if (!isset(self::$constraintCache[$constraint])) {
+            $escapedConstraint = str_replace('/', '\/', $constraint);
+            self::$constraintCache[$constraint] = '/^' . $escapedConstraint . '$/';
+        }
+        
+        return self::$constraintCache[$constraint];
     }
 }
