@@ -74,6 +74,12 @@ class RouteCollection implements RouteCollectionInterface
 
     protected function createRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
+        if ($pattern === '' || $pattern === '/') {
+            $pattern = '/';
+        } elseif ($pattern !== '/' && str_ends_with($pattern, '/')) {
+            $pattern = rtrim($pattern, '/');
+        }
+        
         return new Route(
             $methods,
             $pattern,
