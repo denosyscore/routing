@@ -6,8 +6,14 @@ namespace Denosys\Routing;
 
 class RouteTrie
 {
+    private array $staticRoutes = [];
+    private array $compiledRoutes = [];
     private array $root = [];
     private Cache $cache;
+    
+    private int $staticHits = 0;
+    private int $compiledHits = 0;
+    private int $trieHits = 0;
 
     public function __construct(?string $cacheFile = null)
     {
@@ -16,14 +22,22 @@ class RouteTrie
 
     public function addRoute(string $method, string $pattern, RouteInterface $route): void
     {
-        $parts = $this->parsePath($pattern);
-        $currentNode = $this->getOrCreateRootNode($method);
-
-        foreach ($parts as $part) {
-            $currentNode = $this->getOrCreateChildNode($currentNode, $part, $route->getConstraints());
+        if ($this->isStaticRoute($pattern)) {
+            $this->staticRoutes[$method][$pattern] = $route;
+            return;
         }
-
-        $currentNode->route = $route;
+        
+        if ($this->isSimpleParameterRoute($pattern)) {
+            $compiled = $this->compileSimpleRoute($pattern, $route->getConstraints());
+            $this->compiledRoutes[$method][] = [
+                'pattern' => $compiled['regex'],
+                'params' => $compiled['params'],
+                'route' => $route
+            ];
+            return;
+        }
+        
+        $this->addToTrie($method, $pattern, $route);
     }
 
     public function findRoute(string $method, string $path): ?array
@@ -34,85 +48,29 @@ class RouteTrie
         if ($cached !== null) {
             return $cached;
         }
-
-        // Parse and find route
-        $parts = $this->parsePath($path);
-        $currentNode = $this->root[$method] ?? null;
-        $params = [];
-        $partIndex = 0;
-
-        while ($partIndex < count($parts) && $currentNode !== null) {
-            $part = $parts[$partIndex];
-            $matched = false;
-
-            // Try exact match first
-            if (isset($currentNode->children[$part])) {
-                $currentNode = $currentNode->children[$part];
-                $matched = true;
-            }
-            // Try wildcard match
-            elseif (isset($currentNode->children['*'])) {
-                $wildcardNode = $currentNode->children['*'];
-                if ($wildcardNode->isWildcard) {
-                    $remainingParts = array_slice($parts, $partIndex);
-                    $params[$wildcardNode->paramName] = implode('/', $remainingParts);
-                    $currentNode = $wildcardNode;
-                    break;
-                }
-            }
-            // Try parameter matches
-            else {
-                $constrainedNodes = [];
-                $unconstrainedNodes = [];
-                
-                foreach ($currentNode->children as $key => $childNode) {
-                    if (str_starts_with($key, ':') || str_starts_with($key, '?')) {
-                        if ($childNode->constraint !== null) {
-                            $constrainedNodes[] = $childNode;
-                        } else {
-                            $unconstrainedNodes[] = $childNode;
-                        }
-                    }
-                }
-                
-                // Try constrained nodes first
-                foreach ($constrainedNodes as $childNode) {
-                    if ($childNode->matchesConstraint($part)) {
-                        $params[$childNode->paramName] = $part;
-                        $currentNode = $childNode;
-                        $matched = true;
-                        break;
-                    }
-                }
-                
-                if (!$matched && empty($constrainedNodes)) {
-                    foreach ($unconstrainedNodes as $childNode) {
-                        $params[$childNode->paramName] = $part;
-                        $currentNode = $childNode;
-                        $matched = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!$matched) {
-                return null;
-            }
-
-            $partIndex++;
+        
+        $result = null;
+        
+        if (isset($this->staticRoutes[$method][$path])) {
+            $result = [$this->staticRoutes[$method][$path], []];
+            $this->staticHits++;
         }
-
-        // Handle optional parameters at the end
-        while ($currentNode && !$currentNode->route && $this->hasOptionalChild($currentNode)) {
-            $currentNode = $this->getOptionalChild($currentNode);
+        
+        elseif (isset($this->compiledRoutes[$method])) {
+            $result = $this->matchCompiledRoutes($method, $path);
+            if ($result) $this->compiledHits++;
         }
-
-        if ($currentNode && $currentNode->route) {
-            $result = [$currentNode->route, $params];
-            return $result;
+        
+        if ($result === null) {
+            $result = $this->matchTrie($method, $path);
+            if ($result) $this->trieHits++;
         }
-
-        return null;
+        
+        if ($result !== null) {
+            $this->cache->set($cacheKey, $result);
+        }
+        
+        return $result;
     }
 
     public function getCacheFile(): ?string
@@ -124,6 +82,127 @@ class RouteTrie
     {
         return $this->cache->isEnabled();
     }
+    
+    public function getPerformanceStats(): array
+    {
+        $total = $this->staticHits + $this->compiledHits + $this->trieHits;
+        
+        return [
+            'static_hits' => $this->staticHits,
+            'compiled_hits' => $this->compiledHits,
+            'trie_hits' => $this->trieHits,
+            'static_percentage' => $total > 0 ? round(($this->staticHits / $total) * 100, 2) : 0,
+            'compiled_percentage' => $total > 0 ? round(($this->compiledHits / $total) * 100, 2) : 0,
+            'trie_percentage' => $total > 0 ? round(($this->trieHits / $total) * 100, 2) : 0,
+        ];
+    }
+
+    private function isStaticRoute(string $pattern): bool
+    {
+        return strpos($pattern, '{') === false && strpos($pattern, '*') === false;
+    }
+    
+    private function isSimpleParameterRoute(string $pattern): bool
+    {
+        // Routes with simple {param} or {param?} patterns (no wildcards)
+        return preg_match('/^[^{]*(\{[^{}*]+\??}[^{]*)+$/', $pattern) === 1 && strpos($pattern, '*') === false;
+    }
+    
+    private function compileSimpleRoute(string $pattern, array $constraints): array
+    {
+        $params = [];
+        $parts = explode('/', trim($pattern, '/'));
+        $regexParts = [];
+        
+        foreach ($parts as $part) {
+            if (preg_match('/\{([^}]+)\}/', $part, $matches)) {
+                $param = $matches[1];
+                $isOptional = str_ends_with($param, '?');
+                if ($isOptional) {
+                    $param = rtrim($param, '?');
+                }
+                $params[] = $param;
+                
+                if (isset($constraints[$param])) {
+                    $constraint = str_replace('/', '\/', $constraints[$param]);
+                    $regexParts[] = $isOptional ? "(?:\/($constraint))?" : "\/($constraint)";
+                } else {
+                    $regexParts[] = $isOptional ? "(?:\/([^\/]+))?" : "\/([^\/]+)";
+                }
+            } else {
+                $regexParts[] = '\/' . preg_quote($part, '/');
+            }
+        }
+        
+        $regex = '/^' . implode('', $regexParts) . '$/';
+        
+        return [
+            'regex' => $regex,
+            'params' => $params
+        ];
+    }
+    
+    private function matchCompiledRoutes(string $method, string $path): ?array
+    {
+        foreach ($this->compiledRoutes[$method] as $compiledRoute) {
+            if (preg_match($compiledRoute['pattern'], $path, $matches)) {
+                $params = [];
+                for ($i = 1; $i < count($matches); $i++) {
+                    $paramIndex = $i - 1;
+                    if (isset($matches[$i]) && $matches[$i] !== '' && isset($compiledRoute['params'][$paramIndex])) {
+                        $params[$compiledRoute['params'][$paramIndex]] = $matches[$i];
+                    }
+                }
+                
+                return [$compiledRoute['route'], $params];
+            }
+        }
+        
+        return null;
+    }
+
+    private function addToTrie(string $method, string $pattern, RouteInterface $route): void
+    {
+        $parts = $this->parsePath($pattern);
+        $currentNode = $this->getOrCreateRootNode($method);
+
+        foreach ($parts as $part) {
+            $currentNode = $this->getOrCreateChildNode($currentNode, $part, $route->getConstraints());
+        }
+
+        $currentNode->route = $route;
+    }
+    
+    private function matchTrie(string $method, string $path): ?array
+    {
+        $parts = $this->parsePath($path);
+        $currentNode = $this->root[$method] ?? null;
+        $params = [];
+
+        foreach ($parts as $index => $part) {
+            if ($currentNode === null) {
+                return null;
+            }
+            
+            $nextNode = $currentNode->findChild($part);
+            if ($nextNode === null) {
+                return null;
+            }
+            
+            if ($nextNode->isWildcard) {
+                $remaining = array_slice($parts, $index);
+                $params[$nextNode->paramName ?? 'wildcard'] = implode('/', $remaining);
+                $currentNode = $nextNode;
+                break;
+            } elseif ($nextNode->paramName !== null) {
+                $params[$nextNode->paramName] = $part;
+            }
+            
+            $currentNode = $nextNode;
+        }
+
+        return ($currentNode && $currentNode->route) ? [$currentNode->route, $params] : null;
+    }
 
     private function getOrCreateRootNode(string $method): TrieNode
     {
@@ -132,15 +211,47 @@ class RouteTrie
 
     private function getOrCreateChildNode(TrieNode $node, string $part, array $routeConstraints = []): TrieNode
     {
-        if ($this->isDynamicPart($part)) {
-            return $this->getOrCreateDynamicChildNode($node, $part, $routeConstraints);
+        if (!$this->isDynamicPart($part)) {
+            return $node->staticChildren[$part] ??= new TrieNode();
         }
-        return $this->getOrCreateStaticChildNode($node, $part);
+        
+        if ($this->isWildcardPart($part)) {
+            if ($node->wildcardNode === null) {
+                $paramName = $part === '*' ? 'wildcard' : rtrim($part, '*');
+                $node->wildcardNode = new TrieNode($paramName, null, false, true);
+            }
+            return $node->wildcardNode;
+        }
+        
+        $paramDetails = $this->parseParameterDetails($part);
+        $constraint = $routeConstraints[$paramDetails['name']] ?? $paramDetails['constraint'];
+        
+        if ($paramDetails['wildcard']) {
+            if ($node->wildcardNode === null) {
+                $node->wildcardNode = new TrieNode(
+                    $paramDetails['name'],
+                    $constraint,
+                    $paramDetails['optional'],
+                    true
+                );
+            }
+            return $node->wildcardNode;
+        } else {
+            if ($node->parameterNode === null) {
+                $node->parameterNode = new TrieNode(
+                    $paramDetails['name'],
+                    $constraint,
+                    $paramDetails['optional'],
+                    false
+                );
+            }
+            return $node->parameterNode;
+        }
     }
 
     private function isDynamicPart(string $part): bool
     {
-        return $this->isWildcardPart($part) || preg_match('/^{[^}]+}$/', $part) === 1;
+        return $part[0] === '{' || $part[-1] === '*';
     }
 
     private function isWildcardPart(string $part): bool
@@ -148,52 +259,14 @@ class RouteTrie
         return $part === '*' || str_ends_with($part, '*');
     }
 
-    private function getOrCreateDynamicChildNode(TrieNode $node, string $part, array $routeConstraints = []): TrieNode
-    {
-        if ($this->isWildcardPart($part)) {
-            $paramName = $part === '*' ? 'wildcard' : rtrim($part, '*');
-            if (!isset($node->children['*'])) {
-                $wildcardNode = new TrieNode();
-                $wildcardNode->paramName = $paramName;
-                $wildcardNode->isWildcard = true;
-                $node->children['*'] = $wildcardNode;
-            }
-            return $node->children['*'];
-        }
-
-        $paramDetails = $this->parseParameterDetails($part);
-        
-        $constraint = $routeConstraints[$paramDetails['name']] ?? $paramDetails['constraint'];
-        
-        $key = $paramDetails['optional'] ? '?' : ':';
-        if ($constraint) {
-            $key .= '_' . $constraint;
-        }
-        
-        if (!isset($node->children[$key])) {
-            $paramNode = new TrieNode();
-            $paramNode->paramName = $paramDetails['name'];
-            $paramNode->constraint = $constraint;
-            $paramNode->isOptional = $paramDetails['optional'];
-            $node->children[$key] = $paramNode;
-        }
-        
-        return $node->children[$key];
-    }
-
-    private function getOrCreateStaticChildNode(TrieNode $node, string $part): TrieNode
-    {
-        return $node->children[$part] ??= new TrieNode();
-    }
-
     private function parsePath(string $path): array
     {
-        $trimmed = trim($path, '/');
-        if ($trimmed === '') {
+        if ($path === '' || $path === '/') {
             return [];
         }
         
-        return preg_split('/\//', $trimmed, -1, PREG_SPLIT_NO_EMPTY);
+        $trimmed = trim($path, '/');
+        return $trimmed === '' ? [] : explode('/', $trimmed);
     }
 
     private function parseParameterDetails(string $part): array
@@ -203,6 +276,11 @@ class RouteTrie
         $optional = str_ends_with($inner, '?');
         if ($optional) {
             $inner = rtrim($inner, '?');
+        }
+        
+        $wildcard = str_ends_with($inner, '*');
+        if ($wildcard) {
+            $inner = rtrim($inner, '*');
         }
         
         $constraint = null;
@@ -215,17 +293,8 @@ class RouteTrie
         return [
             'name' => $name,
             'constraint' => $constraint,
-            'optional' => $optional
+            'optional' => $optional,
+            'wildcard' => $wildcard
         ];
-    }
-
-    private function hasOptionalChild(TrieNode $node): bool
-    {
-        return isset($node->children['?']) && $node->children['?']->isOptional;
-    }
-
-    private function getOptionalChild(TrieNode $node): ?TrieNode
-    {
-        return $node->children['?'] ?? null;
     }
 }
