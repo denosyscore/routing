@@ -10,6 +10,13 @@ use ReflectionMethod;
 
 class AttributeRouteScanner
 {
+    private ?RouteCacheInterface $cache = null;
+
+    public function __construct(?RouteCacheInterface $cache = null)
+    {
+        $this->cache = $cache ?? new RouteCache();
+    }
+
     public function scanClass(string $className): array
     {
         if (!class_exists($className)) {
@@ -74,6 +81,27 @@ class AttributeRouteScanner
         }
 
         return $allRoutes;
+    }
+
+
+    public function cacheRoutes(array $routes, string $cacheFilePath): bool
+    {
+        return $this->cache->cacheRoutes($routes, $cacheFilePath);
+    }
+
+    public function loadCachedRoutes(string $cacheFilePath): ?array
+    {
+        return $this->cache->loadCachedRoutes($cacheFilePath);
+    }
+
+    public function clearCache(string $cacheFilePath): bool
+    {
+        return $this->cache->clearCache($cacheFilePath);
+    }
+
+    public function isCacheValid(string $cacheFilePath, array $sourceFiles = []): bool
+    {
+        return $this->cache->isCacheValid($cacheFilePath, $sourceFiles);
     }
 
     private function extractClassesFromFile(string $filePath): array
@@ -268,5 +296,21 @@ class AttributeRouteScanner
         );
 
         return array_unique($middleware);
+    }
+
+    private function getSourceFiles(string $directory): array
+    {
+        $sourceFiles = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->getExtension() === 'php') {
+                $sourceFiles[] = $file->getPathname();
+            }
+        }
+
+        return $sourceFiles;
     }
 }
