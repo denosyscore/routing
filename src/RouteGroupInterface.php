@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Denosys\Routing;
 
 use Closure;
-use Psr\Http\Server\MiddlewareInterface;
 
 interface RouteGroupInterface
 {
@@ -21,12 +20,10 @@ interface RouteGroupInterface
     public function group(string $prefix, Closure $callback): self;
     
     // Middleware methods
-    public function middleware(MiddlewareInterface|array|string $middleware, int $priority = 0): static;
-    public function middlewareWhen(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
-    public function middlewareUnless(bool|Closure $condition, MiddlewareInterface|array|string $middleware, int $priority = 0): static;
-    public function prependMiddleware(MiddlewareInterface|array|string $middleware, int $priority = 1000): static;
-    public function skipMiddleware(string $middlewareClass): static;
-    public function getMiddlewareStack(): array;
+    public function middleware(string|array $middleware): static;
+    public function getMiddleware(): array;
+    public function hasMiddleware(string $middlewareClass): bool;
+    public function clearMiddleware(): static;
     
     // Naming and namespacing
     public function name(string $name): static;
