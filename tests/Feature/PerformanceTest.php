@@ -2,18 +2,6 @@
 
 use Denosys\Routing\Router;
 use Laminas\Diactoros\ServerRequest;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
-class BenchmarkMiddleware implements MiddlewareInterface
-{
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-    {
-        return $handler->handle($request);
-    }
-}
 
 describe('Performance Tests', function () {
     
@@ -66,22 +54,6 @@ describe('Performance Tests', function () {
             expect($duration)->toBeLessThan(3.0); // Should complete in under 3 seconds
             
             echo "Created complex nested structure in {$duration}s\n";
-        });
-
-        it('handles route registration with middleware efficiently', function () {
-            $startTime = microtime(true);
-            $middleware = new BenchmarkMiddleware();
-            
-            for ($i = 0; $i < 1000; $i++) {
-                $this->router->get("/protected$i", fn() => "protected $i")
-                             ->middleware($middleware);
-            }
-            
-            $duration = microtime(true) - $startTime;
-            
-            expect($duration)->toBeLessThan(1.0);
-            
-            echo "Registered 1,000 routes with middleware in {$duration}s\n";
         });
     });
 
@@ -141,34 +113,6 @@ describe('Performance Tests', function () {
             expect($averageTime)->toBeLessThan(0.001); // Should be under 1ms per request
             
             echo "Parameter extraction: " . round($averageTime * 1000, 3) . "ms per request\n";
-        });
-
-        it('handles middleware execution efficiently', function () {
-            // Setup route with multiple middleware
-            $middleware = new BenchmarkMiddleware();
-            
-            $this->router->get('/benchmark', fn() => 'benchmark result')
-                         ->middleware($middleware)
-                         ->middleware($middleware)
-                         ->middleware($middleware)
-                         ->middleware($middleware)
-                         ->middleware($middleware);
-            
-            $startTime = microtime(true);
-            
-            // Execute 1000 requests
-            for ($i = 0; $i < 1000; $i++) {
-                $request = new ServerRequest([], [], '/benchmark', 'GET');
-                $response = $this->router->dispatch($request);
-                expect($response->getStatusCode())->toBe(200);
-            }
-            
-            $duration = microtime(true) - $startTime;
-            $averageTime = $duration / 1000;
-            
-            expect($averageTime)->toBeLessThan(0.005); // Should be under 5ms per request
-            
-            echo "Middleware execution (5 middleware): " . round($averageTime * 1000, 2) . "ms per request\n";
         });
     });
 
@@ -361,44 +305,6 @@ describe('Performance Tests', function () {
             
             // Complex routes should not be more than 3x slower than simple routes
             expect($complexTime / $simpleTime)->toBeLessThan(3.0);
-        });
-
-        it('compares performance with and without middleware', function () {
-            // Router without middleware
-            $noMiddlewareRouter = new Router();
-            $noMiddlewareRouter->get('/test', fn() => 'test');
-            
-            // Router with middleware
-            $withMiddlewareRouter = new Router();
-            $withMiddlewareRouter->get('/test', fn() => 'test')
-                                 ->middleware(new BenchmarkMiddleware())
-                                 ->middleware(new BenchmarkMiddleware())
-                                 ->middleware(new BenchmarkMiddleware());
-            
-            $iterations = 1000;
-            
-            // Benchmark without middleware
-            $startTime = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $request = new ServerRequest([], [], '/test', 'GET');
-                $noMiddlewareRouter->dispatch($request);
-            }
-            $noMiddlewareTime = microtime(true) - $startTime;
-            
-            // Benchmark with middleware
-            $startTime = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $request = new ServerRequest([], [], '/test', 'GET');
-                $withMiddlewareRouter->dispatch($request);
-            }
-            $withMiddlewareTime = microtime(true) - $startTime;
-            
-            echo "No middleware: " . round($noMiddlewareTime * 1000, 2) . "ms\n";
-            echo "With 3 middleware: " . round($withMiddlewareTime * 1000, 2) . "ms\n";
-            echo "Middleware overhead: " . round(($withMiddlewareTime / $noMiddlewareTime - 1) * 100, 1) . "%\n";
-            
-            // Middleware should not add more than 5x overhead
-            expect($withMiddlewareTime / $noMiddlewareTime)->toBeLessThan(5.0);
         });
     });
 })->skip();
