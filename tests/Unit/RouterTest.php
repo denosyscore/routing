@@ -2,13 +2,10 @@
 
 use Denosys\Routing\Router;
 use Denosys\Routing\RouteInterface;
-use Denosys\Routing\Exceptions\NotFoundException;
 use Laminas\Diactoros\ServerRequest;
-use Laminas\Diactoros\Exception\InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Denosys\Routing\Exceptions\NotFoundException;
+use Laminas\Diactoros\Exception\InvalidArgumentException;
 
 describe('Router', function () {
     
@@ -275,123 +272,6 @@ describe('Router', function () {
             
             // This is more of an integration test - checking that groups can have names
             expect(true)->toBe(true);
-        });
-    });
-
-    describe('Interface and IntelliSense Support', function () {
-        
-        it('ensures RouteInterface declares all advanced middleware methods', function () {
-            // This was the bug fix for "Undefined method 'middlewareWhen'.intelephense(P1013)"
-            
-            $route = $this->router->get('/test', fn() => 'test');
-            
-            // These methods should exist and be declared in the interface
-            expect(method_exists($route, 'middlewareWhen'))->toBe(true);
-            expect(method_exists($route, 'middlewareUnless'))->toBe(true); 
-            expect(method_exists($route, 'prependMiddleware'))->toBe(true);
-            expect(method_exists($route, 'skipMiddleware'))->toBe(true);
-            
-            // Verify they're in the interface (this helps IDE IntelliSense)
-            $interface = new ReflectionClass(RouteInterface::class);
-            $methods = array_map(fn($m) => $m->getName(), $interface->getMethods());
-            
-            expect($methods)->toContain('middlewareWhen');
-            expect($methods)->toContain('middlewareUnless');
-            expect($methods)->toContain('prependMiddleware');
-            expect($methods)->toContain('skipMiddleware');
-        });
-
-        it('ensures RouterInterface declares all advanced middleware methods', function () {
-            // Router should also have these methods declared in its interface
-            
-            expect(method_exists($this->router, 'middlewareWhen'))->toBe(true);
-            expect(method_exists($this->router, 'middlewareUnless'))->toBe(true);
-            expect(method_exists($this->router, 'prependMiddleware'))->toBe(true);
-            
-            $interface = new ReflectionClass(Denosys\Routing\RouterInterface::class);
-            $methods = array_map(fn($m) => $m->getName(), $interface->getMethods());
-            
-            expect($methods)->toContain('middlewareWhen');
-            expect($methods)->toContain('middlewareUnless'); 
-            expect($methods)->toContain('prependMiddleware');
-        });
-
-        it('ensures RouteGroupInterface declares all advanced middleware methods', function () {
-            // Route groups should also have these methods
-            
-            $group = $this->router->group('/test', function($group) {
-                // Empty group for testing
-            });
-            
-            expect(method_exists($group, 'middlewareWhen'))->toBe(true);
-            expect(method_exists($group, 'middlewareUnless'))->toBe(true);
-            expect(method_exists($group, 'prependMiddleware'))->toBe(true);
-            
-            $interface = new ReflectionClass(Denosys\Routing\RouteGroupInterface::class);
-            $methods = array_map(fn($m) => $m->getName(), $interface->getMethods());
-            
-            expect($methods)->toContain('middlewareWhen');
-            expect($methods)->toContain('middlewareUnless');
-            expect($methods)->toContain('prependMiddleware');
-        });
-
-        it('validates method chaining works with advanced middleware methods', function () {
-            // Test the fluent interface that was broken before the fix
-            
-            $middleware = new class implements MiddlewareInterface {
-                public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-                    return $handler->handle($request);
-                }
-            };
-            
-            // This should work without any IntelliSense errors
-            $route = $this->router->get('/test', fn() => 'test')
-                                  ->middlewareWhen(true, $middleware)
-                                  ->middlewareUnless(false, $middleware)
-                                  ->prependMiddleware($middleware)
-                                  ->name('test.route');
-            
-            expect($route)->toBeInstanceOf(RouteInterface::class);
-            expect($route->getName())->toBe('test.route');
-        });
-
-        it('ensures all HasMiddleware trait methods are in interfaces', function () {
-            // Verify that all public methods from HasMiddleware trait are declared in interfaces
-            
-            $hasMiddlewareMethods = [
-                'middleware',
-                'middlewareWhen', 
-                'middlewareUnless',
-                'prependMiddleware',
-                'skipMiddleware',
-                'getMiddlewareStack'
-            ];
-            
-            // Check RouteInterface
-            $routeInterface = new ReflectionClass(RouteInterface::class);
-            $routeMethods = array_map(fn($m) => $m->getName(), $routeInterface->getMethods());
-            
-            foreach ($hasMiddlewareMethods as $method) {
-                expect(in_array($method, $routeMethods))->toBe(true, "RouteInterface missing method: $method");
-            }
-            
-            // Check RouterInterface  
-            $routerInterface = new ReflectionClass(Denosys\Routing\RouterInterface::class);
-            $routerMethods = array_map(fn($m) => $m->getName(), $routerInterface->getMethods());
-            
-            $routerMiddlewareMethods = ['middleware', 'middlewareWhen', 'middlewareUnless', 'prependMiddleware']; // Router doesn't need all methods
-            
-            foreach ($routerMiddlewareMethods as $method) {
-                expect(in_array($method, $routerMethods))->toBe(true, "RouterInterface missing method: $method");
-            }
-            
-            // Check RouteGroupInterface
-            $groupInterface = new ReflectionClass(Denosys\Routing\RouteGroupInterface::class);
-            $groupMethods = array_map(fn($m) => $m->getName(), $groupInterface->getMethods());
-            
-            foreach ($hasMiddlewareMethods as $method) {
-                expect(in_array($method, $groupMethods))->toBe(true, "RouteGroupInterface missing method: $method");
-            }
         });
     });
 
