@@ -11,12 +11,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
 use Denosys\Routing\Strategy\DefaultInvocationStrategy;
 use Denosys\Routing\Strategy\InvocationStrategyInterface;
-use Denosys\Routing\Middleware\MiddlewareManager;
-use Denosys\Routing\Middleware\MiddlewarePipeline;
 
-class Dispatcher implements DispatcherInterface, RequestHandlerInterface  
+class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 {
-    use HasMiddleware;
 
     protected RouteTrie $routeTrie;
     protected bool $isTrieInitialized = false;
@@ -27,14 +24,10 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         protected RouteCollectionInterface $routeCollection,
         protected ?InvocationStrategyInterface $invocationStrategy = null,
         protected ?ContainerInterface $container = null,
-        ?MiddlewareManager $middlewareManager = null,
-        ?string $routeCacheFile = null,
-        ?string $middlewareCacheFile = null
+        ?string $routeCacheFile = null
     ) {
         $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
         $this->routeTrie = new RouteTrie($routeCacheFile);
-        $manager = $middlewareManager ?? new MiddlewareManager($this->container, $middlewareCacheFile);
-        $this->setMiddlewareManager($manager);
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
@@ -43,6 +36,13 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
+        
+        if ($path === '') {
+            $path = '/';
+        } elseif ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/');
+        }
+        
         $routeInfo = $this->routeTrie->findRoute($method, $path);
 
         if ($routeInfo === null) {
@@ -72,7 +72,15 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $request->getUri()->getPath());
+        $path = $request->getUri()->getPath();
+        
+        if ($path === '') {
+            $path = '/';
+        } elseif ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/');
+        }
+        
+        $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $path);
 
         if ($routeInfo === null) {
             throw new NotFoundException();
@@ -95,10 +103,6 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         foreach ($this->routeCollection->all() as $route) {
-            if ($route instanceof HasMiddleware && method_exists($route, 'setMiddlewareManager')) {
-                $route->setMiddlewareManager($this->middlewareManager);
-            }
-            
             foreach ($route->getMethods() as $method) {
                 $this->routeTrie->addRoute($method, $route->getPattern(), $route);
             }
@@ -115,40 +119,11 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             $request = $request->withAttribute($key, $value);
         }
 
-        $middlewareStack = [];
-        
-        foreach ($this->getMiddlewareStack() as $middlewareItem) {
-            $middlewareStack[] = $middlewareItem;
-        }
-        
-        if (method_exists($route, 'getMiddlewareStack')) {
-            foreach ($route->getMiddlewareStack() as $middlewareItem) {
-                $middlewareStack[] = $middlewareItem;
-            }
-        }
-
-        // Sort all middleware by priority
-        usort($middlewareStack, fn($a, $b) => $b->priority <=> $a->priority);
-
-        // Filter out conditional middleware and resolve to instances
-        $resolvedMiddleware = [];
-        foreach ($middlewareStack as $item) {
-            if ($item->shouldExecute()) {
-                $resolvedMiddleware[] = $this->getMiddlewareManager()->resolve($item->middleware);
-            }
-        }
-
-        $pipeline = new MiddlewarePipeline($resolvedMiddleware);
-        return $pipeline->then($this)->handle($request);
+        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
     }
 
-    public function getMiddlewareManager(): MiddlewareManager
+    public function getPerformanceStats(): array
     {
-        return $this->middlewareManager ?? throw new \RuntimeException('MiddlewareManager not initialized');
-    }
-
-    public function setMiddlewareAliases(array $aliases): void
-    {
-        $this->getMiddlewareManager()->aliasMany($aliases);
+        return $this->routeTrie->getPerformanceStats();
     }
 }
