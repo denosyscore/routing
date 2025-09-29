@@ -14,7 +14,6 @@ use Denosys\Routing\Strategy\InvocationStrategyInterface;
 
 class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 {
-
     protected RouteTrie $routeTrie;
     protected bool $isTrieInitialized = false;
     protected $notFoundHandler = null;
@@ -36,14 +35,16 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
-        
+        $host = $this->extractHost($request);
+        $scheme = $request->getUri()->getScheme();
+
         if ($path === '') {
             $path = '/';
         } elseif ($path !== '/' && str_ends_with($path, '/')) {
             $path = rtrim($path, '/');
         }
-        
-        $routeInfo = $this->routeTrie->findRoute($method, $path);
+
+        $routeInfo = $this->findMatchingRoute($method, $path, $host, $scheme);
 
         if ($routeInfo === null) {
             if ($this->notFoundHandler) {
@@ -52,7 +53,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             throw new NotFoundException(sprintf('No route found for %s %s', $method, $path), 404);
         }
 
-        return $this->handleRoute($request, $routeInfo);
+        return $this->handleRoute($request, $routeInfo, $host, $scheme);
     }
 
     public function setNotFoundHandler(callable $handler): void
@@ -73,27 +74,22 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $path = $request->getUri()->getPath();
-        
+        $host = $this->extractHost($request);
+        $scheme = $request->getUri()->getScheme();
+
         if ($path === '') {
             $path = '/';
         } elseif ($path !== '/' && str_ends_with($path, '/')) {
             $path = rtrim($path, '/');
         }
-        
-        $routeInfo = $this->routeTrie->findRoute($request->getMethod(), $path);
+
+        $routeInfo = $this->findMatchingRoute($request->getMethod(), $path, $host, $scheme);
 
         if ($routeInfo === null) {
             throw new NotFoundException();
         }
 
-        [$route, $params] = $routeInfo;
-
-        // Add route parameters as request attributes
-        foreach ($params as $key => $value) {
-            $request = $request->withAttribute($key, $value);  
-        }
-
-        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
+        return $this->handleRoute($request, $routeInfo, $host, $scheme);
     }
 
     protected function initializeTrie(): void
@@ -111,15 +107,93 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         $this->isTrieInitialized = true;
     }
 
-    protected function handleRoute(ServerRequestInterface $request, array $routeInfo): ResponseInterface
+    protected function handleRoute(ServerRequestInterface $request, array $routeInfo, ?string $host, ?string $scheme = null): ResponseInterface
     {
         [$route, $params] = $routeInfo;
+
+        if ($host !== null && method_exists($route, 'getHostParameters')) {
+            $hostParams = $route->getHostParameters($host);
+            $params = array_merge($hostParams, $params);
+        }
+
+        if ($host !== null && method_exists($route, 'getPortParameters')) {
+            $portParams = $route->getPortParameters($host, $scheme);
+            $params = array_merge($portParams, $params);
+        }
+
+        if ($scheme !== null && method_exists($route, 'getSchemeParameters')) {
+            $schemeParams = $route->getSchemeParameters($scheme);
+            $params = array_merge($schemeParams, $params);
+        }
 
         foreach ($params as $key => $value) {
             $request = $request->withAttribute($key, $value);
         }
 
         return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
+    }
+
+    protected function findMatchingRoute(string $method, string $path, ?string $host, ?string $scheme = null): ?array
+    {
+        $allRoutes = $this->routeTrie->findAllRoutes($method, $path);
+
+        if (empty($allRoutes)) {
+            $routeInfo = $this->routeTrie->findRoute($method, $path);
+
+            if ($routeInfo === null) {
+                return null;
+            }
+
+            [$route, $params] = $routeInfo;
+
+            if (!$this->routeMatchesConditions($route, $host, $scheme)) {
+                return null;
+            }
+
+            return $routeInfo;
+        }
+
+        foreach ($allRoutes as $routeInfo) {
+            [$route, $params] = $routeInfo;
+
+            if ($this->routeMatchesConditions($route, $host, $scheme)) {
+                return $routeInfo;
+            }
+        }
+
+        return null;
+    }
+
+    protected function routeMatchesConditions(RouteInterface $route, ?string $host, ?string $scheme): bool
+    {
+        if (method_exists($route, 'matchesHost') && !$route->matchesHost($host)) {
+            return false;
+        }
+
+        if (method_exists($route, 'matchesPort') && !$route->matchesPort($host, $scheme)) {
+            return false;
+        }
+
+        if (method_exists($route, 'matchesScheme') && !$route->matchesScheme($scheme)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function extractHost(ServerRequestInterface $request): ?string
+    {
+        $hostHeaders = $request->getHeader('Host');
+
+        if (empty($hostHeaders)) {
+            return null;
+        }
+
+        $host = $hostHeaders[0];
+
+        // The Host header may include port (e.g., "example.com:8080")
+        // We return the full value so routes can match ports if needed
+        return $host;
     }
 
     public function getPerformanceStats(): array
