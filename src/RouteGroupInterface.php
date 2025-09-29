@@ -30,7 +30,6 @@ interface RouteGroupInterface
     public function namespace(string $namespace): static;
     
     // Constraints
-    public function domain(string $domain): static;
     public function where(string $parameter, string $pattern): static;
     public function whereIn(string $parameter, array $values): static;
     public function whereNumber(string $parameter): static;
