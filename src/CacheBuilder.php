@@ -8,12 +8,13 @@ class CacheBuilder
 {
     public function buildRouteCache(RouteCollectionInterface $routeCollection, string $cacheFile): void
     {
-        $routeTrie = new RouteTrie();
+        $routeManager = new RouteManager();
         $routeCache = [];
 
+        /** @var RouteInterface $route */
         foreach ($routeCollection->all() as $route) {
             foreach ($route->getMethods() as $method) {
-                $routeTrie->addRoute($method, $route->getPattern(), $route);
+                $routeManager->addRoute($method, $route->getPattern(), $route);
             }
         }
 
@@ -21,7 +22,8 @@ class CacheBuilder
         
         foreach ($commonPaths as $method => $paths) {
             foreach ($paths as $path) {
-                $result = $routeTrie->findRoute($method, $path);
+                $result = $routeManager->findRoute($method, $path);
+
                 if ($result !== null) {
                     $routeCache["route_{$method}_{$path}"] = $result;
                 }
@@ -34,6 +36,7 @@ class CacheBuilder
     private function writePHPCache(string $cacheFile, array $data): void
     {
         $dir = dirname($cacheFile);
+        
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
