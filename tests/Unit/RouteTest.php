@@ -87,9 +87,18 @@ describe('Route', function () {
 
         it('handles encoded parameters', function () {
             $route = new Route('GET', '/search/{query}', fn($query) => "search: $query", $this->resolver);
-            
+
             $params = $route->getParameters('/search/hello%20world');
             expect($params)->toBe(['query' => 'hello%20world']);
+        });
+
+        it('matchesPattern method checks path without HTTP method', function () {
+            $route = new Route('POST', '/users/{id}', fn($id) => "user $id", $this->resolver);
+
+            expect($route->matchesPattern('/users/123'))->toBe(true);
+            expect($route->matchesPattern('/users/abc'))->toBe(true);
+            expect($route->matchesPattern('/posts/123'))->toBe(false);
+            expect($route->matchesPattern('/users'))->toBe(false);
         });
     });
 
