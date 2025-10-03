@@ -14,19 +14,17 @@ use Denosys\Routing\Strategy\InvocationStrategyInterface;
 
 class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 {
-    protected RouteTrie $routeTrie;
     protected bool $isTrieInitialized = false;
     protected $notFoundHandler = null;
     protected $methodNotAllowedHandler = null;
 
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
+        protected RouteManagerInterface $routeManager,
         protected ?InvocationStrategyInterface $invocationStrategy = null,
-        protected ?ContainerInterface $container = null,
-        ?string $routeCacheFile = null
+        protected ?ContainerInterface $container = null
     ) {
         $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
-        $this->routeTrie = new RouteTrie($routeCacheFile);
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
@@ -50,6 +48,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             if ($this->notFoundHandler) {
                 return ($this->notFoundHandler)($request);
             }
+
             throw new NotFoundException(sprintf('No route found for %s %s', $method, $path), 404);
         }
 
@@ -100,7 +99,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
         foreach ($this->routeCollection->all() as $route) {
             foreach ($route->getMethods() as $method) {
-                $this->routeTrie->addRoute($method, $route->getPattern(), $route);
+                $this->routeManager->addRoute($method, $route->getPattern(), $route);
             }
         }
 
@@ -109,6 +108,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     protected function handleRoute(ServerRequestInterface $request, array $routeInfo, ?string $host, ?string $scheme = null): ResponseInterface
     {
+        /** @var RouteInterface $route */
         [$route, $params] = $routeInfo;
 
         if ($host !== null && method_exists($route, 'getHostParameters')) {
@@ -135,10 +135,10 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 
     protected function findMatchingRoute(string $method, string $path, ?string $host, ?string $scheme = null): ?array
     {
-        $allRoutes = $this->routeTrie->findAllRoutes($method, $path);
+        $allRoutes = $this->routeManager->findAllRoutes($method, $path);
 
         if (empty($allRoutes)) {
-            $routeInfo = $this->routeTrie->findRoute($method, $path);
+            $routeInfo = $this->routeManager->findRoute($method, $path);
 
             if ($routeInfo === null) {
                 return null;
@@ -194,10 +194,5 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         // The Host header may include port (e.g., "example.com:8080")
         // We return the full value so routes can match ports if needed
         return $host;
-    }
-
-    public function getPerformanceStats(): array
-    {
-        return $this->routeTrie->getPerformanceStats();
     }
 }
