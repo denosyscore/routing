@@ -25,12 +25,15 @@ class Router implements RouterInterface
     public function __construct(
         protected ?ContainerInterface $container = null,
         protected ?RouteCollectionInterface $routeCollection = null,
-        protected ?RouteHandlerResolverInterface $routeHandlerResolver = null
+        protected ?RouteHandlerResolverInterface $routeHandlerResolver = null,
+        protected ?RouteManagerInterface $routeManager = null
     ) {
         $this->routeHandlerResolver = $routeHandlerResolver ?? new RouteHandlerResolver($this->container);
         $this->routeCollection = $routeCollection ?? new RouteCollection($this->routeHandlerResolver);
+        $this->routeManager = $routeManager ?? new RouteManager();
         $this->dispatcher = new Dispatcher(
             routeCollection: $this->routeCollection,
+            routeManager: $this->routeManager,
             container: $this->container
         );
     }
@@ -87,6 +90,28 @@ class Router implements RouterInterface
     public function setCachePath(string $cachePath): static
     {
         $this->cachePath = $cachePath;
+        return $this;
+    }
+
+    public function enableRouteCache(?string $cacheFile = null): static
+    {
+        $file = $cacheFile ?? $this->cachePath;
+
+        if (!$file) {
+            throw new \InvalidArgumentException('Cache file path must be provided');
+        }
+
+        // Wrap the current route manager with caching decorator
+        $cache = new Cache($file);
+        $cachedManager = new CachedRouteMatcher($this->routeManager, $cache);
+
+        // Update the dispatcher with the cached manager
+        $this->dispatcher = new Dispatcher(
+            routeCollection: $this->routeCollection,
+            routeManager: $cachedManager,
+            container: $this->container
+        );
+
         return $this;
     }
 
@@ -224,10 +249,5 @@ class Router implements RouterInterface
         }
         
         return $urlGenerator;
-    }
-    
-    public function getPerformanceStats(): array
-    {
-        return $this->dispatcher->getPerformanceStats();
     }
 }
