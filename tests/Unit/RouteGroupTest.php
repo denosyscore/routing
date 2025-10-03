@@ -363,4 +363,93 @@ describe('RouteGroup', function () {
             expect((string) $response->getBody())->toBeString();
         });
     });
+
+    describe('Additional RouteGroup Methods', function () {
+
+        it('can use __invoke to create group with fluent interface', function () {
+            $group = $this->router->group('/api', function() {});
+            $group(function($g) {
+                $g->get('/test', fn() => 'invoked');
+            });
+
+            $request = new ServerRequest([], [], '/api/test', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('invoked');
+        });
+
+        it('can set host constraint on group', function () {
+            $group = $this->router->group('/api', function($g) {
+                $g->host('api.example.com');
+                $g->get('/users', fn() => 'api users');
+            });
+
+            // Host constraint set but not enforced in basic routing
+            expect($group)->toBeInstanceOf(RouteGroupInterface::class);
+        });
+
+        it('can use whereIn constraint for group routes', function () {
+            $this->router->group('/api', function($group) {
+                $group->whereIn('status', ['active', 'inactive']);
+                $group->get('/users/{status}', fn($status) => "users: $status");
+            });
+
+            $request = new ServerRequest([], [], '/api/users/active', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('users: active');
+
+            $request = new ServerRequest([], [], '/api/users/deleted', 'GET');
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+
+        it('can use whereNumber constraint for group', function () {
+            $this->router->group('/api', function($group) {
+                $group->whereNumber('id');
+                $group->get('/users/{id}', fn($id) => "user: $id");
+                $group->get('/posts/{id}', fn($id) => "post: $id");
+            });
+
+            $request = new ServerRequest([], [], '/api/users/123', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('user: 123');
+
+            $request = new ServerRequest([], [], '/api/posts/456', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('post: 456');
+
+            $request = new ServerRequest([], [], '/api/users/abc', 'GET');
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+
+        it('can use whereAlpha constraint for group', function () {
+            $this->router->group('/api', function($group) {
+                $group->whereAlpha('name');
+                $group->get('/categories/{name}', fn($name) => "category: $name");
+            });
+
+            $request = new ServerRequest([], [], '/api/categories/books', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('category: books');
+
+            $request = new ServerRequest([], [], '/api/categories/123', 'GET');
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+
+        it('can use whereAlphaNumeric constraint for group', function () {
+            $this->router->group('/api', function($group) {
+                $group->whereAlphaNumeric('code');
+                $group->get('/items/{code}', fn($code) => "item: $code");
+            });
+
+            $request = new ServerRequest([], [], '/api/items/abc123', 'GET');
+            $response = $this->router->dispatch($request);
+            expect((string) $response->getBody())->toBe('item: abc123');
+
+            $request = new ServerRequest([], [], '/api/items/abc-123', 'GET');
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(NotFoundException::class);
+        });
+    });
 });
