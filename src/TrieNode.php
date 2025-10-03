@@ -6,7 +6,8 @@ namespace Denosys\Routing;
 
 class TrieNode
 {
-    public ?RouteInterface $route = null;
+    /** @var RouteInterface[] */
+    public array $routes = [];
     
     public array $staticChildren = [];
     public ?TrieNode $parameterNode = null;
