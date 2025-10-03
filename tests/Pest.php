@@ -11,8 +11,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->in('Feature', 'Unit');
+pest()->extend(Tests\TestCase::class)->in('Unit', 'Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -62,16 +61,16 @@ function route(string $name, array $parameters = []): string
 {
     static $urlGenerator;
     static $lastRouter;
-    
+
     if (!isset($GLOBALS['router'])) {
         throw new RuntimeException('Global router not set. Set $GLOBALS[\'router\'] before using route() helper.');
     }
-    
+
     // Recreate UrlGenerator if router changed
     if ($lastRouter !== $GLOBALS['router']) {
         $urlGenerator = new \Denosys\Routing\UrlGenerator($GLOBALS['router']->getRouteCollection());
         $lastRouter = $GLOBALS['router'];
     }
-    
+
     return $urlGenerator->route($name, $parameters);
 }
