@@ -1,13 +1,17 @@
 <?php
 
+use DI\Container;
+use GuzzleHttp\Psr7\Response;
 use Denosys\Routing\Dispatcher;
-use Denosys\Routing\RouteCollection;
-use Denosys\Routing\RouteHandlerResolver;
 use Denosys\Routing\RouteManager;
-use Denosys\Routing\Exceptions\NotFoundException;
-use Denosys\Routing\Exceptions\HandlerNotFoundException;
+use Denosys\Routing\RouteCollection;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
+use Denosys\Routing\RouteHandlerResolver;
+use Psr\Http\Message\ServerRequestInterface;
+use Denosys\Routing\Exceptions\NotFoundException;
+use Denosys\Routing\Exceptions\HandlerNotFoundException;
+use Denosys\Routing\Strategy\InvocationStrategyInterface;
 
 describe('Dispatcher', function () {
 
@@ -16,6 +20,7 @@ describe('Dispatcher', function () {
         $this->routeCollection = new RouteCollection($this->routeHandlerResolver);
         $this->routeManager = new RouteManager();
         $this->dispatcher = new Dispatcher($this->routeCollection, $this->routeManager);
+        $this->container = new Container();
     });
 
     describe('Route Dispatching', function () {
@@ -249,18 +254,31 @@ describe('Dispatcher', function () {
 
             // This test depends on the router implementation
             // For now, we'll just test that the method exists
+            // TODO: Make a real test here
             expect(method_exists($this->dispatcher, 'setMethodNotAllowedHandler'))->toBe(true);
         });
 
         it('can set custom invocation strategy', function () {
-            $customStrategy = new \Denosys\Routing\Strategy\DefaultInvocationStrategy($this->container);
+            $customStrategy = new class implements InvocationStrategyInterface {
+                public function invoke(
+                    callable $handler,
+                    ServerRequestInterface $request,
+                    array $routeArguments
+                ): ResponseInterface {
+                    return new Response(body: 'Custom Invocation');
+                }
+            };
+
             $this->dispatcher->setInvocationStrategy($customStrategy);
 
-            $this->routeCollection->add('GET', '/test', fn() => 'custom');
+            $this->routeCollection->add('GET', '/test', function () {
+                // Does nothing...
+            });
+
             $request = new ServerRequest([], [], '/test', 'GET');
             $response = $this->dispatcher->dispatch($request);
 
-            expect((string) $response->getBody())->toBe('custom');
+            expect((string) $response->getBody())->toBe('Custom Invocation');
         });
 
         it('handle method works as PSR-15 RequestHandler', function () {
