@@ -90,7 +90,31 @@ it('can create RouteMatch attribute with single method', function () {
 
 it('can create RouteMatch attribute with multiple methods', function () {
     $matchRoute = new RouteMatch(['GET', 'POST'], '/search');
-    
+
     expect($matchRoute->getPath())->toBe('/search')
         ->and($matchRoute->getMethods())->toBe(['GET', 'POST']);
+});
+
+it('can create FromRoute attribute', function () {
+    $fromRoute = new \Denosys\Routing\Attributes\FromRoute('id');
+
+    expect($fromRoute->name)->toBe('id');
+});
+
+it('FromRoute attribute can be applied to parameters', function () {
+    $reflectionAttr = new ReflectionClass(\Denosys\Routing\Attributes\FromRoute::class);
+    $attributes = $reflectionAttr->getAttributes(Attribute::class);
+
+    expect($attributes)->toHaveCount(1);
+
+    $attrInstance = $attributes[0]->newInstance();
+    expect($attrInstance->flags & Attribute::TARGET_PARAMETER)->toBeGreaterThan(0);
+});
+
+it('FromRoute attribute stores parameter name', function () {
+    $attr1 = new \Denosys\Routing\Attributes\FromRoute('userId');
+    $attr2 = new \Denosys\Routing\Attributes\FromRoute('postId');
+
+    expect($attr1->name)->toBe('userId')
+        ->and($attr2->name)->toBe('postId');
 });
