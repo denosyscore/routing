@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
-class JsonResponseConverter implements ResponseConverterInterface
+readonly class JsonResponseConverter implements ResponseConverterInterface
 {
     public function __construct(
         private ?ResponseFactoryInterface $responseFactory = null,

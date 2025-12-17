@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
-class StringResponseConverter implements ResponseConverterInterface
+readonly class StringResponseConverter implements ResponseConverterInterface
 {
     public function __construct(
         private ?ResponseFactoryInterface $responseFactory = null,

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\ParameterResolvers;
 
+use ReflectionException;
 use Denosys\Routing\Priority;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,8 +15,9 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
+use Psr\Container\ContainerExceptionInterface;
 
-class TypeBasedResolver implements ParameterResolverInterface
+readonly class TypeBasedResolver implements ParameterResolverInterface
 {
     public function __construct(
         private ?ContainerInterface $container = null,
@@ -25,7 +28,7 @@ class TypeBasedResolver implements ParameterResolverInterface
     public function canResolve(ReflectionParameter $parameter, array $routeArguments): bool
     {
         $type = $parameter->getType();
-     
+
         if ($type === null) {
             return false;
         }
@@ -47,6 +50,11 @@ class TypeBasedResolver implements ParameterResolverInterface
         return false;
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function resolve(
         ReflectionParameter $parameter,
         ServerRequestInterface $request,
