@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\Strategy;
 
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

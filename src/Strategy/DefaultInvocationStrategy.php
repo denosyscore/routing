@@ -8,6 +8,7 @@ use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
+use ReflectionException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -35,8 +36,8 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
     private array $responseConverters = [];
 
     public function __construct(
-        private ?ContainerInterface $container = null,
-        private ?ResponseFactoryInterface $responseFactory = null
+        private readonly ?ContainerInterface $container = null,
+        private readonly ?ResponseFactoryInterface $responseFactory = null
     ) {
         $this->initializeResolvers();
     }
@@ -63,25 +64,28 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
         usort($this->responseConverters, fn($a, $b) => $b->getPriority() - $a->getPriority());
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function invoke(
         callable $handler,
         ServerRequestInterface $request,
         array $routeArguments
     ): ResponseInterface {
-        $cacheKey = $this->callableCacheKey($handler);
+        $cacheKey = $this->cacheKey($handler);
 
         if (!isset($this->parameterResolversCache[$cacheKey])) {
             $this->parameterResolversCache[$cacheKey] = $this->buildParameterResolvers($handler, $routeArguments);
         }
 
         $arguments = [];
-        
+
         foreach ($this->parameterResolversCache[$cacheKey] as $resolver) {
             $arguments[] = $resolver($request, $routeArguments);
         }
 
         $result = $handler(...$arguments);
-        
+
         return $this->convertToResponse($result);
     }
 
@@ -89,12 +93,11 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
      * Prepares per-parameter resolver closures (no reflection at invoke-time).
      *
      * @return array<int, callable(ServerRequestInterface, array): mixed>
+     * @throws ReflectionException
      */
     private function buildParameterResolvers(callable $handler, array $routeArguments): array
     {
-        $reflection = is_array($handler)
-            ? new ReflectionMethod($handler[0], $handler[1])
-            : new ReflectionFunction($handler);
+        $reflection = $this->createReflection($handler);
 
         $resolvers = [];
 
@@ -103,6 +106,23 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
         }
 
         return $resolvers;
+    }
+
+    private function createReflection(callable $handler): ReflectionFunction|ReflectionMethod
+    {
+        if (is_array($handler)) {
+            return new ReflectionMethod($handler[0], $handler[1]);
+        }
+
+        if ($handler instanceof Closure) {
+            return new ReflectionFunction($handler);
+        }
+
+        if (is_string($handler)) {
+            return new ReflectionFunction($handler);
+        }
+
+        return new ReflectionMethod($handler, '__invoke');
     }
 
     private function createResolverForParameter(ReflectionParameter $parameter, array $placeholderOrder): callable
@@ -116,7 +136,7 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
 
             // No resolver could handle this parameter
             $hint = "Ensure the route defines parameter '{$parameter->getName()}' or provide a default value.";
-            
+
             throw $this->cannotResolve($parameter, $hint);
         };
     }
@@ -132,7 +152,7 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
         throw new InvalidHandlerException('No response converter could handle the result');
     }
 
-    private function callableCacheKey(callable $handler): string
+    private function cacheKey(callable $handler): string
     {
         if ($handler instanceof Closure) {
             return 'closure:' . spl_object_hash($handler);
@@ -147,13 +167,17 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
             return $class . '::' . $handler[1];
         }
 
+        if (is_object($handler)) {
+            return 'object:' . spl_object_hash($handler);
+        }
+
         return 'callable:' . md5(serialize($handler));
     }
 
     private function cannotResolve(ReflectionParameter $parameter, string $hint): InvalidHandlerException
     {
         $function = $parameter->getDeclaringFunction();
-        
+
         $owner = $function instanceof ReflectionMethod
             ? $function->getDeclaringClass()->getName() . '::' . $function->getName()
             : $function->getName();

@@ -12,8 +12,8 @@ trait HasMiddleware
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
 
-        foreach ($middlewares as $mw) {
-            $this->middleware[] = $mw;
+        foreach ($middlewares as $middlewareItem) {
+            $this->middleware[] = $middlewareItem;
         }
 
         return $this;
@@ -32,6 +32,7 @@ trait HasMiddleware
     public function clearMiddleware(): static
     {
         $this->middleware = [];
+        
         return $this;
     }
 }
