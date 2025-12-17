@@ -35,6 +35,7 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     protected RequestContextExtractor $contextExtractor;
     protected RouteMatcher $routeMatcher;
     protected MiddlewarePipelineBuilder $middlewarePipelineBuilder;
+    protected MiddlewareRegistryInterface $middlewareRegistry;
 
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
@@ -44,13 +45,18 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         protected ?ContainerInterface $container = null,
         ?RequestContextExtractor $contextExtractor = null,
         ?RouteMatcher $routeMatcher = null,
-        ?MiddlewarePipelineBuilder $middlewarePipelineBuilder = null
+        ?MiddlewarePipelineBuilder $middlewarePipelineBuilder = null,
+        ?MiddlewareRegistryInterface $middlewareRegistry = null
     ) {
         $this->invocationStrategy = $invocationStrategy;
         $this->routeHandlerResolver = $routeHandlerResolver;
         $this->contextExtractor = $contextExtractor ?? new RequestContextExtractor();
         $this->routeMatcher = $routeMatcher ?? new RouteMatcher($this->contextExtractor);
-        $this->middlewarePipelineBuilder = $middlewarePipelineBuilder ?? new MiddlewarePipelineBuilder($this->container);
+        $this->middlewareRegistry = $middlewareRegistry ?? new MiddlewareRegistry();
+        $this->middlewarePipelineBuilder = $middlewarePipelineBuilder ?? new MiddlewarePipelineBuilder(
+            $this->container,
+            $this->middlewareRegistry
+        );
     }
 
     public static function withDefaults(
@@ -58,12 +64,23 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         RouteManagerInterface $routeManager,
         ?ContainerInterface $container = null,
         ?InvocationStrategyInterface $invocationStrategy = null,
-        ?RouteHandlerResolverInterface $routeHandlerResolver = null
+        ?RouteHandlerResolverInterface $routeHandlerResolver = null,
+        ?MiddlewareRegistryInterface $middlewareRegistry = null
     ): self {
         $strategy = $invocationStrategy ?? new DefaultInvocationStrategy($container);
         $resolver = $routeHandlerResolver ?? new RouteHandlerResolver($container);
 
-        return new self($routeCollection, $routeManager, $strategy, $resolver, $container);
+        return new self(
+            $routeCollection,
+            $routeManager,
+            $strategy,
+            $resolver,
+            $container,
+            null,
+            null,
+            null,
+            $middlewareRegistry
+        );
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface

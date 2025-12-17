@@ -17,20 +17,25 @@ class Router implements RouterInterface
 
     protected DispatcherInterface $dispatcher;
 
+    protected MiddlewareRegistryInterface $middlewareRegistry;
+
     protected array $pendingMiddleware = [];
 
     public function __construct(
         protected ?ContainerInterface $container = null,
         protected ?RouteCollectionInterface $routeCollection = null,
         protected ?RouteManagerInterface $routeManager = null,
-        ?DispatcherInterface $dispatcher = null
+        ?DispatcherInterface $dispatcher = null,
+        ?MiddlewareRegistryInterface $middlewareRegistry = null
     ) {
         $this->routeCollection = $routeCollection ?? new RouteCollection();
         $this->routeManager = $routeManager ?? new RouteManager();
+        $this->middlewareRegistry = $middlewareRegistry ?? new MiddlewareRegistry();
         $this->dispatcher = $dispatcher ?? Dispatcher::withDefaults(
             routeCollection: $this->routeCollection,
             routeManager: $this->routeManager,
-            container: $this->container
+            container: $this->container,
+            middlewareRegistry: $this->middlewareRegistry
         );
     }
 
@@ -85,5 +90,59 @@ class Router implements RouterInterface
     public function getRouteCollection(): RouteCollectionInterface
     {
         return $this->routeCollection;
+    }
+
+    /**
+     * Get the middleware registry.
+     */
+    public function getMiddlewareRegistry(): MiddlewareRegistryInterface
+    {
+        return $this->middlewareRegistry;
+    }
+
+    /**
+     * Register a middleware alias.
+     * 
+     * @param string $name The alias name (e.g., 'auth')
+     * @param string $class The middleware class name
+     */
+    public function aliasMiddleware(string $name, string $class): static
+    {
+        $this->middlewareRegistry->alias($name, $class);
+
+        return $this;
+    }
+
+    /**
+     * Register a middleware group.
+     * 
+     * @param string $name The group name (e.g., 'web')
+     * @param array<string> $middleware Array of middleware names/classes
+     */
+    public function middlewareGroup(string $name, array $middleware): static
+    {
+        $this->middlewareRegistry->group($name, $middleware);
+
+        return $this;
+    }
+
+    /**
+     * Add middleware to the beginning of an existing group.
+     */
+    public function prependMiddlewareToGroup(string $group, string|array $middleware): static
+    {
+        $this->middlewareRegistry->prependToGroup($group, $middleware);
+
+        return $this;
+    }
+
+    /**
+     * Add middleware to the end of an existing group.
+     */
+    public function appendMiddlewareToGroup(string $group, string|array $middleware): static
+    {
+        $this->middlewareRegistry->appendToGroup($group, $middleware);
+
+        return $this;
     }
 }
