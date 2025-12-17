@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0-alpha.1] – 2025-12-17
+
+### Added
+
+- **PSR-15 Support**: `Dispatcher` now implements `RequestHandlerInterface` for direct use as PSR-15 handler
+- **Named Middleware Groups**: New `MiddlewareRegistry` class for managing middleware aliases and groups
+  - `aliasMiddleware('auth', AuthMiddleware::class)` - register single middleware aliases
+  - `middlewareGroup('web', ['session', 'csrf', 'cookies'])` - register middleware groups
+  - `prependMiddlewareToGroup()` / `appendMiddlewareToGroup()` - modify existing groups
+  - Nested groups support (groups can reference other groups)
+  - Circular reference protection
+- **New Cache Architecture**: `FileCache`, `ApcuCache`, `NullCache` implementations with `CacheInterface`
+- **Contracts Namespace**: Route interfaces following Interface Segregation Principle
+  - `RouteInfoInterface`, `RouteMatcherInterface`, `RouteNamingInterface`
+  - `RouteMiddlewareInterface`, `RouteConstraintInterface`
+  - `HostMatchingInterface`, `PortMatchingInterface`, `SchemeMatchingInterface`
+- **Strategies Namespace**: Pattern/host/port/scheme matching strategies
+  - `PatternMatchingStrategyInterface`, `HostMatchingStrategyInterface`
+  - `PortMatchingStrategyInterface`, `SchemeMatchingStrategyInterface`
+  - Default implementations for each strategy
+- **Factories Namespace**: `CacheFactory`, `RouteFactory` for object creation
+- **AttributeRouteLoader**: Convenient loader for scanning and registering attribute-based routes
+- **Priority Enum**: Handler and parameter resolver priority management
+
+### Changed
+
+- Moved PSR-7 implementations (`laminas/laminas-diactoros`, `slim/psr7`, `nyholm/psr7-server`) from `require` to `require-dev`
+- Added `suggest` section for recommended PSR-7 implementations
+- Users can now choose their preferred PSR-7 implementation (reduced dependency footprint)
+- Handler resolver chain now uses priority-based sorting
+- Middleware resolution happens at dispatch time (lazy) for flexibility
+- Branch alias updated to `0.5.x-dev`
+
+### Fixed
+
+- README example for accessing routes from collection now uses `reset()` instead of numeric index
+
 ## [0.4.0] – 2025-08-18
 
 ### Added
