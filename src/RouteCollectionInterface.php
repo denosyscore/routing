@@ -14,4 +14,5 @@ interface RouteCollectionInterface
     public function get(string $method, string $path): ?RouteInterface;
     public function findByName(string $name): ?RouteInterface;
     public function getNamedRoutes(): array;
+    public function findByIdentifier(string $identifier): ?RouteInterface;
 }

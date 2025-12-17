@@ -11,4 +11,6 @@ interface RouteManagerInterface
     public function findRoute(string $method, string $path): ?array;
 
     public function findAllRoutes(string $method, string $path): array;
+
+    public function reset(): void;
 }

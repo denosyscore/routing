@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface RouterInterface
 {
+    public function addRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface;
     public function get(string $pattern, Closure|array|string $handler): RouteInterface;
     public function post(string $pattern, Closure|array|string $handler): RouteInterface;
     public function put(string $pattern, Closure|array|string $handler): RouteInterface;
@@ -22,5 +23,4 @@ interface RouterInterface
     public function dispatch(ServerRequestInterface $request): ResponseInterface;
     public function group(string $prefix, Closure $callback): RouteGroupInterface;
     public function getRouteCollection(): RouteCollectionInterface;
-    public function getUrlGenerator(string $baseUrl = ''): UrlGeneratorInterface;
 }

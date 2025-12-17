@@ -4,31 +4,30 @@ declare(strict_types=1);
 
 namespace Denosys\Routing;
 
-interface RouteInterface
+use Denosys\Routing\Contracts\RouteInfoInterface;
+use Denosys\Routing\Contracts\RouteMatcherInterface;
+use Denosys\Routing\Contracts\RouteMiddlewareInterface;
+use Denosys\Routing\Contracts\RouteNamingInterface;
+use Denosys\Routing\Contracts\RouteConstraintInterface;
+use Denosys\Routing\Contracts\HostMatchingInterface;
+use Denosys\Routing\Contracts\PortMatchingInterface;
+use Denosys\Routing\Contracts\SchemeMatchingInterface;
+
+/**
+ * Complete route interface extending all segregated interfaces.
+ * Provides full route functionality while allowing clients to depend
+ * only on specific aspects through the segregated interfaces.
+ */
+interface RouteInterface extends
+    RouteInfoInterface,
+    RouteMatcherInterface,
+    RouteMiddlewareInterface,
+    RouteNamingInterface,
+    RouteConstraintInterface,
+    HostMatchingInterface,
+    PortMatchingInterface,
+    SchemeMatchingInterface
 {
-    public function getMethods(): array;
-    public function getPattern(): string;
-    public function getHandler(): callable;
-    public function getIdentifier(): string;
-    public function matches(string $method, string $path): bool;
-    public function matchesPattern(string $path): bool;
-    public function getParameters(string $path): array;
-    
-    // Middleware methods
-    public function middleware(string|array $middleware): static;
-    public function getMiddleware(): array;
-    public function hasMiddleware(string $middlewareClass): bool;
-    public function clearMiddleware(): static;
-    
-    // Naming
-    public function name(string $name): static;
-    public function getName(): ?string;
-    
-    // Constraints
-    public function where(string $parameter, string $pattern): static;
-    public function whereIn(string $parameter, array $values): static;
-    public function whereNumber(string $parameter): static;
-    public function whereAlpha(string $parameter): static;
-    public function whereAlphaNumeric(string $parameter): static;
-    public function getConstraints(): array;
+    // This interface now provides all methods through its parent interfaces
+    // Clients can depend on specific capabilities by using the segregated interfaces
 }

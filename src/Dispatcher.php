@@ -8,51 +8,88 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
+use Denosys\Routing\RouteHandlerResolverInterface;
+use Denosys\Routing\RouteHandlerResolver;
+use Denosys\Routing\Exceptions\MethodNotAllowedException;
 use Denosys\Routing\Strategy\DefaultInvocationStrategy;
 use Denosys\Routing\Strategy\InvocationStrategyInterface;
 
 class Dispatcher implements DispatcherInterface, RequestHandlerInterface
 {
     protected bool $isTrieInitialized = false;
+    protected bool $routesDirty = true;
+
+    /** @var callable|null */
     protected $notFoundHandler = null;
+
+    /** @var callable|null */
     protected $methodNotAllowedHandler = null;
+
+    /** @var callable|null */
+    protected $exceptionHandler = null;
+
+    protected InvocationStrategyInterface $invocationStrategy;
+    protected RouteHandlerResolverInterface $routeHandlerResolver;
+    protected RequestContextExtractor $contextExtractor;
+    protected RouteMatcher $routeMatcher;
+    protected MiddlewarePipelineBuilder $middlewarePipelineBuilder;
 
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
         protected RouteManagerInterface $routeManager,
-        protected ?InvocationStrategyInterface $invocationStrategy = null,
-        protected ?ContainerInterface $container = null
+        InvocationStrategyInterface $invocationStrategy,
+        RouteHandlerResolverInterface $routeHandlerResolver,
+        protected ?ContainerInterface $container = null,
+        ?RequestContextExtractor $contextExtractor = null,
+        ?RouteMatcher $routeMatcher = null,
+        ?MiddlewarePipelineBuilder $middlewarePipelineBuilder = null
     ) {
-        $this->invocationStrategy = $invocationStrategy ?? new DefaultInvocationStrategy($this->container);
+        $this->invocationStrategy = $invocationStrategy;
+        $this->routeHandlerResolver = $routeHandlerResolver;
+        $this->contextExtractor = $contextExtractor ?? new RequestContextExtractor();
+        $this->routeMatcher = $routeMatcher ?? new RouteMatcher($this->contextExtractor);
+        $this->middlewarePipelineBuilder = $middlewarePipelineBuilder ?? new MiddlewarePipelineBuilder($this->container);
+    }
+
+    public static function withDefaults(
+        RouteCollectionInterface $routeCollection,
+        RouteManagerInterface $routeManager,
+        ?ContainerInterface $container = null,
+        ?InvocationStrategyInterface $invocationStrategy = null,
+        ?RouteHandlerResolverInterface $routeHandlerResolver = null
+    ): self {
+        $strategy = $invocationStrategy ?? new DefaultInvocationStrategy($container);
+        $resolver = $routeHandlerResolver ?? new RouteHandlerResolver($container);
+
+        return new self($routeCollection, $routeManager, $strategy, $resolver, $container);
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         $this->initializeTrie();
 
-        $method = $request->getMethod();
-        $path = $request->getUri()->getPath();
-        $host = $this->extractHost($request);
-        $scheme = $request->getUri()->getScheme();
-
-        if ($path === '') {
-            $path = '/';
-        } elseif ($path !== '/' && str_ends_with($path, '/')) {
-            $path = rtrim($path, '/');
-        }
-
-        $routeInfo = $this->findMatchingRoute($method, $path, $host, $scheme);
-
-        if ($routeInfo === null) {
+        try {
+            return $this->processRequest($request);
+        } catch (NotFoundException $e) {
             if ($this->notFoundHandler) {
                 return ($this->notFoundHandler)($request);
             }
 
-            throw new NotFoundException(sprintf('No route found for %s %s', $method, $path), 404);
-        }
+            throw $e;
+        } catch (\Throwable $e) {
+            if ($this->exceptionHandler) {
+                return ($this->exceptionHandler)($e, $request);
+            }
 
-        return $this->handleRoute($request, $routeInfo, $host, $scheme);
+            throw $e;
+        }
+    }
+
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->dispatch($request);
     }
 
     public function setNotFoundHandler(callable $handler): void
@@ -70,31 +107,64 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         $this->invocationStrategy = $strategy;
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function setExceptionHandler(callable $handler): void
     {
-        $path = $request->getUri()->getPath();
-        $host = $this->extractHost($request);
-        $scheme = $request->getUri()->getScheme();
+        $this->exceptionHandler = $handler;
+    }
 
-        if ($path === '') {
-            $path = '/';
-        } elseif ($path !== '/' && str_ends_with($path, '/')) {
-            $path = rtrim($path, '/');
+    public function setRouteManager(RouteManagerInterface $routeManager): void
+    {
+        $this->routeManager = $routeManager;
+        $this->markRoutesDirty();
+    }
+
+    public function markRoutesDirty(): void
+    {
+        $this->routesDirty = true;
+        $this->isTrieInitialized = false;
+
+        if (method_exists($this->routeManager, 'reset')) {
+            $this->routeManager->reset();
         }
+    }
 
-        $routeInfo = $this->findMatchingRoute($request->getMethod(), $path, $host, $scheme);
+    protected function processRequest(ServerRequestInterface $request): ResponseInterface
+    {
+        $requestContext = $this->contextExtractor->extractContext($request);
+        $routeInfo = $this->routeMatcher->findMatchingRoute($this->routeManager, $requestContext);
 
         if ($routeInfo === null) {
-            throw new NotFoundException();
+            $allowedMethods = $this->routeMatcher->findAllowedMethods(
+                $this->routeManager,
+                $this->routeCollection,
+                $requestContext
+            );
+
+            if (!empty($allowedMethods)) {
+                if ($this->methodNotAllowedHandler) {
+                    return ($this->methodNotAllowedHandler)($request, $allowedMethods);
+                }
+
+                throw new MethodNotAllowedException($allowedMethods);
+            }
+
+            throw new NotFoundException(
+                sprintf('No route found for %s %s', $requestContext['method'], $requestContext['path']),
+                404
+            );
         }
 
-        return $this->handleRoute($request, $routeInfo, $host, $scheme);
+        return $this->invokeRouteHandler($request, $routeInfo, $requestContext);
     }
 
     protected function initializeTrie(): void
     {
-        if ($this->isTrieInitialized) {
+        if ($this->isTrieInitialized && !$this->routesDirty) {
             return;
+        }
+
+        if ($this->routesDirty && method_exists($this->routeManager, 'reset')) {
+            $this->routeManager->reset();
         }
 
         foreach ($this->routeCollection->all() as $route) {
@@ -104,95 +174,106 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         }
 
         $this->isTrieInitialized = true;
+        $this->routesDirty = false;
     }
 
-    protected function handleRoute(ServerRequestInterface $request, array $routeInfo, ?string $host, ?string $scheme = null): ResponseInterface
-    {
+    protected function invokeRouteHandler(
+        ServerRequestInterface $request,
+        array $routeInfo,
+        array $context
+    ): ResponseInterface {
         /** @var RouteInterface $route */
         [$route, $params] = $routeInfo;
 
-        if ($host !== null && method_exists($route, 'getHostParameters')) {
-            $hostParams = $route->getHostParameters($host);
-            $params = array_merge($hostParams, $params);
+        $params = $this->collectRouteParameters($route, $params, $context);
+        $request = $this->addRequestAttributeParams($request, $params);
+
+        $handler = $this->resolveHandler($route);
+
+        $terminal = function (ServerRequestInterface $req) use ($handler, $params): ResponseInterface {
+            return $this->invocationStrategy->invoke($handler, $req, $params);
+        };
+
+        $middlewarePipeline = $this->middlewarePipelineBuilder->buildMiddlewarePipeline(
+            $route->getMiddleware(),
+            $terminal
+        );
+
+        return $middlewarePipeline($request);
+    }
+
+    protected function collectRouteParameters(
+        RouteInterface $route,
+        array $params,
+        array $context
+    ): array {
+        $collectors = [
+            'getHostParameters' => fn() => $this->collectParameters(
+                $route,
+                'getHostParameters',
+                $context['host']
+            ),
+            'getPortParameters' => fn() => $this->collectParameters(
+                $route,
+                'getPortParameters',
+                $this->contextExtractor->buildHostWithPort($context),
+                $context['scheme']
+            ),
+            'getSchemeParameters' => fn() => $this->collectParameters(
+                $route,
+                'getSchemeParameters',
+                $context['scheme']
+            ),
+        ];
+
+        foreach ($collectors as $collector) {
+            $additionalParams = $collector();
+
+            if (!empty($additionalParams)) {
+                $params = $this->mergeParameters($params, $additionalParams);
+            }
         }
 
-        if ($host !== null && method_exists($route, 'getPortParameters')) {
-            $portParams = $route->getPortParameters($host, $scheme);
-            $params = array_merge($portParams, $params);
+        return $params;
+    }
+
+    protected function collectParameters(RouteInterface $route, string $method, ...$args): array
+    {
+        if (!method_exists($route, $method) || $args[0] === null) {
+            return [];
         }
 
-        if ($scheme !== null && method_exists($route, 'getSchemeParameters')) {
-            $schemeParams = $route->getSchemeParameters($scheme);
-            $params = array_merge($schemeParams, $params);
-        }
+        return $route->$method(...$args);
+    }
 
+    protected function addRequestAttributeParams(
+        ServerRequestInterface $request,
+        array $params
+    ): ServerRequestInterface {
         foreach ($params as $key => $value) {
             $request = $request->withAttribute($key, $value);
         }
 
-        return $this->invocationStrategy->invoke($route->getHandler(), $request, $params);
+        return $request;
     }
 
-    protected function findMatchingRoute(string $method, string $path, ?string $host, ?string $scheme = null): ?array
+    protected function mergeParameters(array $params, array $additionalParams): array
     {
-        $allRoutes = $this->routeManager->findAllRoutes($method, $path);
-
-        if (empty($allRoutes)) {
-            $routeInfo = $this->routeManager->findRoute($method, $path);
-
-            if ($routeInfo === null) {
-                return null;
-            }
-
-            [$route, $params] = $routeInfo;
-
-            if (!$this->routeMatchesConditions($route, $host, $scheme)) {
-                return null;
-            }
-
-            return $routeInfo;
-        }
-
-        foreach ($allRoutes as $routeInfo) {
-            [$route, $params] = $routeInfo;
-
-            if ($this->routeMatchesConditions($route, $host, $scheme)) {
-                return $routeInfo;
+        foreach ($additionalParams as $key => $value) {
+            if (!array_key_exists($key, $params)) {
+                $params[$key] = $value;
             }
         }
 
-        return null;
+        return $params;
     }
 
-    protected function routeMatchesConditions(RouteInterface $route, ?string $host, ?string $scheme): bool
+    protected function resolveHandler(RouteInterface $route): callable
     {
-        if (method_exists($route, 'matchesHost') && !$route->matchesHost($host)) {
-            return false;
-        }
+        $handler = $route->getHandler();
 
-        if (method_exists($route, 'matchesPort') && !$route->matchesPort($host, $scheme)) {
-            return false;
-        }
-
-        if (method_exists($route, 'matchesScheme') && !$route->matchesScheme($scheme)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function extractHost(ServerRequestInterface $request): ?string
-    {
-        $hostHeaders = $request->getHeader('Host');
-
-        if (empty($hostHeaders)) {
-            return null;
-        }
-
-        $host = $hostHeaders[0];
-
-        // The Host header may include port (e.g., "example.com:8080")
-        // We return the full value so routes can match ports if needed
-        return $host;
+        return is_callable($handler)
+            ? $handler
+            : $this->routeHandlerResolver->resolve($handler);
     }
 }

@@ -12,15 +12,30 @@ use Denosys\Routing\RouteMatchers\TrieRouteMatcher;
 class RouteManager implements RouteManagerInterface
 {
     /** @var RouteMatcherInterface[] */
-    private array $matchers = [];
+    private array $matchers;
 
-    public function __construct()
+    /** @var callable */
+    private $matcherFactory;
+
+    /**
+     * @param RouteMatcherInterface[]|null $matchers
+     * @param callable|null $matcherFactory factory that returns an array of RouteMatcherInterface
+     */
+    public function __construct(?array $matchers = null, ?callable $matcherFactory = null)
     {
-        $this->matchers = [
-            new StaticRouteMatcher(),
-            new CompiledRouteMatcher(),
-            new TrieRouteMatcher()
-        ];
+        $this->matcherFactory = $matcherFactory ?? function () use ($matchers) {
+            if ($matchers !== null) {
+                return $matchers;
+            }
+
+            return [
+                new StaticRouteMatcher(),
+                new CompiledRouteMatcher(),
+                new TrieRouteMatcher()
+            ];
+        };
+
+        $this->reset();
     }
 
     public function addRoute(string $method, string $pattern, RouteInterface $route): void
@@ -87,5 +102,11 @@ class RouteManager implements RouteManagerInterface
         }
 
         return $stats;
+    }
+
+    public function reset(): void
+    {
+        $factory = $this->matcherFactory;
+        $this->matchers = $factory();
     }
 }

@@ -6,6 +6,7 @@ namespace Denosys\Routing;
 
 use Closure;
 use Psr\Container\ContainerInterface;
+use Denosys\Routing\RouterInterface;
 
 class RouteGroup implements RouteGroupInterface
 {
@@ -38,7 +39,7 @@ class RouteGroup implements RouteGroupInterface
     
     public function __construct(
         protected string $prefix,
-        protected Router $router,
+        protected RouterInterface $router,
         protected ?ContainerInterface $container = null
     ) {
     }
@@ -74,27 +75,27 @@ class RouteGroup implements RouteGroupInterface
             }
         }
 
-        if ($this->namePrefix && method_exists($route, 'setNamePrefix')) {
+        if (null !== $this->namePrefix) {
             $route->setNamePrefix($this->namePrefix);
         }
 
-        if ($this->host !== null && method_exists($route, 'setHost')) {
+        if (null !== $this->host) {
             $route->setHost($this->host);
 
-            if (method_exists($route, 'setHostConstraints') && !empty($this->hostConstraints)) {
+            if (!empty($this->hostConstraints)) {
                 $route->setHostConstraints($this->hostConstraints);
             }
         }
 
-        if ($this->port !== null && method_exists($route, 'setPort')) {
+        if (null !== $this->port) {
             $route->setPort($this->port);
 
-            if (method_exists($route, 'setPortConstraints') && !empty($this->portConstraints)) {
+            if (!empty($this->portConstraints)) {
                 $route->setPortConstraints($this->portConstraints);
             }
         }
 
-        if ($this->scheme !== null && method_exists($route, 'setScheme')) {
+        if (null !== $this->scheme) {
             $route->setScheme($this->scheme);
         }
 

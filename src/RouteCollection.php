@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Denosys\Routing;
 
 use Closure;
+use Denosys\Routing\Factories\RouteFactory;
 
 class RouteCollection implements RouteCollectionInterface
 {
-    protected int $routeCounter = 0;
-
     protected array $routes = [];
 
-    public function __construct(protected RouteHandlerResolverInterface $routeHandlerResolver)
-    {
+    public function __construct(
+        protected ?RouteFactory $routeFactory = null
+    ) {
+        $this->routeFactory = $routeFactory ?? new RouteFactory();
     }
 
     public function add(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
         $route = $this->createRoute($methods, $pattern, $handler);
-        $this->routes[$route->getIdentifier()] = $route;
 
-        $this->routeCounter++;
+        $this->routes[$route->getIdentifier()] = $route;
 
         return $route;
     }
@@ -36,13 +36,14 @@ class RouteCollection implements RouteCollectionInterface
         return count($this->routes);
     }
 
-    public function get(string $method, string $path): ?RouteInterface
+    public function get(string $method, string $pattern): ?RouteInterface
     {
         foreach ($this->routes as $route) {
-            if ($route->matches($method, $path)) {
+            if ($route->matches($method, $pattern)) {
                 return $route;
             }
         }
+
         return null;
     }
 
@@ -72,20 +73,20 @@ class RouteCollection implements RouteCollectionInterface
         return $namedRoutes;
     }
 
+    public function findByIdentifier(string $identifier): ?RouteInterface
+    {
+        return $this->routes[$identifier] ?? null;
+    }
+
     protected function createRoute(string|array $methods, string $pattern, Closure|array|string $handler): RouteInterface
     {
+        // Normalize pattern
         if ($pattern === '' || $pattern === '/') {
             $pattern = '/';
         } elseif ($pattern !== '/' && str_ends_with($pattern, '/')) {
             $pattern = rtrim($pattern, '/');
         }
-        
-        return new Route(
-            $methods,
-            $pattern,
-            $handler,
-            $this->routeHandlerResolver,
-            $this->routeCounter
-        );
+
+        return $this->routeFactory->create($methods, $pattern, $handler);
     }
 }
