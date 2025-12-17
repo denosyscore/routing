@@ -7,12 +7,12 @@ namespace Denosys\Routing\Attributes;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-class Middleware
+readonly class Middleware
 {
     public function __construct(
-        public readonly string|array $middleware,
-        public readonly array $only = [],
-        public readonly array $except = [],
+        public string|array $middleware,
+        public array $only = [],
+        public array $except = [],
     ) {}
 
     public function getMiddleware(): array

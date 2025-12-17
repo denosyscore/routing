@@ -7,12 +7,12 @@ namespace Denosys\Routing\Attributes;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class RouteGroup
+readonly class RouteGroup
 {
     public function __construct(
-        public readonly string $prefix,
-        public readonly ?string $name = null,
-        public readonly array $middleware = [],
+        public string $prefix,
+        public ?string $name = null,
+        public array $middleware = [],
     ) {}
 
     public function getPrefix(): string

@@ -62,10 +62,11 @@ class Resource
         }
 
         $result = [];
+
         foreach ($actions as $actionName => [$method, $path]) {
             $result[$actionName] = [
                 'method' => $method,
-                'path' => $path
+                'path' => $path,
             ];
         }
 
