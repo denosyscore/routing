@@ -18,7 +18,7 @@ beforeEach(function () {
         
         foreach ($files as $file) {
             $path = $dir . '/' . $file;
-            is_dir($path) ? $this->deleteDirectory($path) : unlink($path);
+            is_dir($path) ? ($this->deleteDirectory)($path) : unlink($path);
         }
 
         rmdir($dir);
@@ -183,53 +183,6 @@ it('throws exception when cache directory cannot be created', function () {
         ->toThrow(RuntimeException::class, 'Failed to create cache directory');
 });
 
-it('Cache class can store and retrieve values', function () {
-    $cacheFile = $this->cacheDir . '/cache-test.php';
-    mkdir($this->cacheDir, 0755, true);
-    $cache = new \Denosys\Routing\Cache($cacheFile);
-
-    expect($cache->isEnabled())->toBeTrue();
-
-    $cache->set('test_key', 'test_value');
-    expect($cache->get('test_key'))->toBe('test_value')
-        ->and($cache->has('test_key'))->toBeTrue()
-        ->and($cache->has('missing'))->toBeFalse();
-
-    if (file_exists($cacheFile)) {
-        unlink($cacheFile);
-    }
-});
-
-it('Cache class returns null when disabled', function () {
-    $cache = new \Denosys\Routing\Cache(null);
-
-    expect($cache->isEnabled())->toBeFalse()
-        ->and($cache->get('key'))->toBeNull()
-        ->and($cache->has('key'))->toBeFalse();
-});
-
-it('Cache class persists data across instances', function () {
-    $cacheFile = $this->cacheDir . '/cache-persist.php';
-    mkdir($this->cacheDir, 0755, true);
-
-    $cache1 = new \Denosys\Routing\Cache($cacheFile);
-    $cache1->set('persisted_key', ['data' => 'value']);
-
-    $cache2 = new \Denosys\Routing\Cache($cacheFile);
-    expect($cache2->get('persisted_key'))->toBe(['data' => 'value']);
-
-    if (file_exists($cacheFile)) {
-        unlink($cacheFile);
-    }
-});
-
-it('Cache class returns cache file path', function () {
-    $cacheFile = '/tmp/test-cache.php';
-    $cache = new \Denosys\Routing\Cache($cacheFile);
-
-    expect($cache->getCacheFile())->toBe($cacheFile);
-});
-
 it('can build route cache', function () {
     $router = new \Denosys\Routing\Router();
 
@@ -279,7 +232,7 @@ it('creates directory if needed', function () {
 
 it('generates example paths for parameterized routes', function () {
     $router = new \Denosys\Routing\Router();
-    
+
     $router->get('/users/{id}/posts/{postId}', fn($id, $postId) => "user $id post $postId");
 
     $cacheFile = $this->cacheDir . '/example-paths.php';
@@ -293,4 +246,130 @@ it('generates example paths for parameterized routes', function () {
     if (file_exists($cacheFile)) {
         unlink($cacheFile);
     }
+});
+
+// TDD: Cache Interface and Implementations Tests
+
+it('FileCache implements CacheInterface', function () {
+    $cacheFile = $this->cacheDir . '/file-cache-test.json';
+    mkdir($this->cacheDir, 0755, true);
+
+    $cache = new \Denosys\Routing\Cache\FileCache($cacheFile);
+
+    expect($cache)->toBeInstanceOf(\Denosys\Routing\Cache\CacheInterface::class);
+});
+
+it('FileCache can store and retrieve values', function () {
+    $cacheFile = $this->cacheDir . '/file-cache-test.json';
+    mkdir($this->cacheDir, 0755, true);
+
+    $cache = new \Denosys\Routing\Cache\FileCache($cacheFile);
+
+    $cache->set('test_key', 'test_value');
+    expect($cache->get('test_key'))->toBe('test_value')
+        ->and($cache->has('test_key'))->toBeTrue()
+        ->and($cache->has('missing_key'))->toBeFalse();
+
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+});
+
+it('FileCache persists data to file', function () {
+    $cacheFile = $this->cacheDir . '/file-cache-persist.json';
+    mkdir($this->cacheDir, 0755, true);
+
+    $cache1 = new \Denosys\Routing\Cache\FileCache($cacheFile);
+    $cache1->set('persisted', ['data' => 'value']);
+
+    // Create new instance - should load from file
+    $cache2 = new \Denosys\Routing\Cache\FileCache($cacheFile);
+    expect($cache2->get('persisted'))->toBe(['data' => 'value']);
+
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+});
+
+it('FileCache can clear all data', function () {
+    $cacheFile = $this->cacheDir . '/file-cache-clear.json';
+    mkdir($this->cacheDir, 0755, true);
+
+    $cache = new \Denosys\Routing\Cache\FileCache($cacheFile);
+    $cache->set('key1', 'value1');
+    $cache->set('key2', 'value2');
+
+    expect($cache->has('key1'))->toBeTrue();
+
+    $cache->clear();
+
+    expect($cache->has('key1'))->toBeFalse()
+        ->and($cache->has('key2'))->toBeFalse();
+
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+});
+
+it('ApcuCache implements CacheInterface', function () {
+    if (!function_exists('apcu_enabled') || !apcu_enabled()) {
+        $this->markTestSkipped('APCu not available');
+    }
+
+    $cache = new \Denosys\Routing\Cache\ApcuCache('test_prefix');
+
+    expect($cache)->toBeInstanceOf(\Denosys\Routing\Cache\CacheInterface::class);
+});
+
+it('ApcuCache can store and retrieve values', function () {
+    if (!function_exists('apcu_enabled') || !apcu_enabled()) {
+        $this->markTestSkipped('APCu not available');
+    }
+
+    $cache = new \Denosys\Routing\Cache\ApcuCache('test_apcu_' . uniqid());
+
+    $cache->set('test_key', 'test_value');
+    expect($cache->get('test_key'))->toBe('test_value')
+        ->and($cache->has('test_key'))->toBeTrue()
+        ->and($cache->has('missing_key'))->toBeFalse();
+
+    $cache->clear();
+});
+
+it('ApcuCache can clear all data with prefix', function () {
+    if (!function_exists('apcu_enabled') || !apcu_enabled()) {
+        $this->markTestSkipped('APCu not available');
+    }
+
+    $prefix = 'test_clear_' . uniqid();
+    $cache = new \Denosys\Routing\Cache\ApcuCache($prefix);
+
+    $cache->set('key1', 'value1');
+    $cache->set('key2', 'value2');
+
+    expect($cache->has('key1'))->toBeTrue();
+
+    $cache->clear();
+
+    expect($cache->has('key1'))->toBeFalse()
+        ->and($cache->has('key2'))->toBeFalse();
+});
+
+it('NullCache implements CacheInterface', function () {
+    $cache = new \Denosys\Routing\Cache\NullCache();
+
+    expect($cache)->toBeInstanceOf(\Denosys\Routing\Cache\CacheInterface::class);
+});
+
+it('NullCache always returns null and never stores', function () {
+    $cache = new \Denosys\Routing\Cache\NullCache();
+
+    $cache->set('test_key', 'test_value');
+
+    expect($cache->get('test_key'))->toBeNull()
+        ->and($cache->has('test_key'))->toBeFalse();
+
+    $cache->clear(); // Should not throw
+
+    expect($cache->get('anything'))->toBeNull();
 });

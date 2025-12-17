@@ -56,6 +56,18 @@ describe('Host, Port and Scheme Routing', function () {
             expect((string) $response->getBody())->toBe('Tenant: acme');
         });
 
+        it('does not match host-restricted routes without Host header', function () {
+            $this->router->group('/panel', function($g) {
+                $g->host('admin.example.com');
+                $g->get('/dashboard', fn() => 'admin');
+            });
+
+            $request = new ServerRequest([], [], '/panel/dashboard', 'GET');
+
+            expect(fn() => $this->router->dispatch($request))
+                ->toThrow(\Denosys\Routing\Exceptions\NotFoundException::class);
+        });
+
         it('ignores port when matching host', function () {
             $this->router->group('/api', function($g) {
                 $g->host('api.example.com');

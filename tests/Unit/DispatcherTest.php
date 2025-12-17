@@ -12,15 +12,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use Denosys\Routing\Exceptions\NotFoundException;
 use Denosys\Routing\Exceptions\HandlerNotFoundException;
 use Denosys\Routing\Strategy\InvocationStrategyInterface;
+use Denosys\Routing\RouteHandlerResolverInterface;
 
 describe('Dispatcher', function () {
 
     beforeEach(function () {
-        $this->routeHandlerResolver = new RouteHandlerResolver();
-        $this->routeCollection = new RouteCollection($this->routeHandlerResolver);
-        $this->routeManager = new RouteManager();
-        $this->dispatcher = new Dispatcher($this->routeCollection, $this->routeManager);
         $this->container = new Container();
+        $this->routeHandlerResolver = new RouteHandlerResolver($this->container);
+        $this->routeCollection = new RouteCollection();
+        $this->routeManager = new RouteManager();
+        $this->dispatcher = Dispatcher::withDefaults(
+            $this->routeCollection,
+            $this->routeManager,
+            $this->container,
+            routeHandlerResolver: $this->routeHandlerResolver
+        );
     });
 
     describe('Route Dispatching', function () {
@@ -248,14 +254,29 @@ describe('Dispatcher', function () {
         it('can set custom method not allowed handler', function () {
             $this->routeCollection->add('GET', '/users', fn() => 'users');
 
-            $this->dispatcher->setMethodNotAllowedHandler(function($request) {
-                return new \Laminas\Diactoros\Response\JsonResponse(['error' => 'Method not allowed'], 405);
+            $this->dispatcher->setMethodNotAllowedHandler(function($request, array $allowed) {
+                sort($allowed);
+
+                return new \Laminas\Diactoros\Response\JsonResponse([
+                    'error' => 'Method not allowed',
+                    'allowed' => $allowed,
+                ], 405);
             });
 
-            // This test depends on the router implementation
-            // For now, we'll just test that the method exists
-            // TODO: Make a real test here
-            expect(method_exists($this->dispatcher, 'setMethodNotAllowedHandler'))->toBe(true);
+            $request = new ServerRequest([], [], '/users', 'POST');
+            $response = $this->dispatcher->dispatch($request);
+
+            expect($response->getStatusCode())->toBe(405);
+            expect((string) $response->getBody())->toBe('{"error":"Method not allowed","allowed":["GET","HEAD"]}');
+        });
+
+        it('throws MethodNotAllowedException when route exists for other methods', function () {
+            $this->routeCollection->add('GET', '/users', fn() => 'users');
+
+            $request = new ServerRequest([], [], '/users', 'PUT');
+
+            expect(fn() => $this->dispatcher->dispatch($request))
+                ->toThrow(\Denosys\Routing\Exceptions\MethodNotAllowedException::class);
         });
 
         it('can set custom invocation strategy', function () {
@@ -306,15 +327,20 @@ describe('Dispatcher', function () {
     describe('Handler Resolution', function () {
 
         it('can resolve string handlers', function () {
-            // This would typically be used with a container for DI
-            // The exception is thrown during route addition when handler is resolved
-            expect(fn() => $this->routeCollection->add('GET', '/string-handler', 'TestController@index'))
+            $this->routeCollection->add('GET', '/string-handler', 'TestController@index');
+
+            $request = new ServerRequest([], [], '/string-handler', 'GET');
+
+            expect(fn() => $this->dispatcher->dispatch($request))
                 ->toThrow(HandlerNotFoundException::class);
         });
 
         it('can resolve array handlers', function () {
-            // The exception is thrown during route addition when handler is resolved
-            expect(fn() => $this->routeCollection->add('GET', '/array-handler', ['TestController', 'index']))
+            $this->routeCollection->add('GET', '/array-handler', ['TestController', 'index']);
+
+            $request = new ServerRequest([], [], '/array-handler', 'GET');
+
+            expect(fn() => $this->dispatcher->dispatch($request))
                 ->toThrow(HandlerNotFoundException::class);
         });
 
@@ -326,6 +352,46 @@ describe('Dispatcher', function () {
             $response = $this->dispatcher->dispatch($request);
 
             expect((string) $response->getBody())->toBe('closure result');
+        });
+    });
+
+    describe('Dependency Injection', function () {
+
+        it('uses injected strategy and resolver from constructor', function () {
+            $customStrategy = new class implements InvocationStrategyInterface {
+                public function invoke(
+                    callable $handler,
+                    ServerRequestInterface $request,
+                    array $routeArguments
+                ): ResponseInterface {
+                    return new Response(body: 'resolved-via-custom');
+                }
+            };
+
+            $customResolver = new class implements RouteHandlerResolverInterface {
+                public int $calls = 0;
+
+                public function resolve(\Closure|array|string $handler): callable
+                {
+                    $this->calls++;
+                    return fn() => 'ignored';
+                }
+            };
+
+            $dispatcher = new Dispatcher(
+                $this->routeCollection,
+                $this->routeManager,
+                $customStrategy,
+                $customResolver,
+                $this->container
+            );
+
+            $this->routeCollection->add('GET', '/custom', 'custom-handler');
+
+            $response = $dispatcher->dispatch(new ServerRequest([], [], '/custom', 'GET'));
+
+            expect((string) $response->getBody())->toBe('resolved-via-custom');
+            expect($customResolver->calls)->toBe(1);
         });
     });
 

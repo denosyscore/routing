@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Denosys\Routing\Router;
+use Denosys\Routing\AttributeRouteLoader;
 use Denosys\Routing\Attributes\Get;
 use Denosys\Routing\Attributes\Post;
 use Denosys\Routing\Attributes\RouteGroup;
@@ -56,67 +57,71 @@ class ProductController
 
 it('can register routes from attributes and dispatch requests', function () {
     $router = new Router();
-    
+    $loader = new AttributeRouteLoader($router);
+
     // Register routes from controller attributes
-    $router->loadAttributeRoutes([ApiUserController::class]);
-    
+    $loader->loadFromClasses([ApiUserController::class]);
+
     // Test GET /api/v1/users
     $request = createRequest('GET', '/api/v1/users');
     $response = $router->dispatch($request);
-    
+
     expect($response->getStatusCode())->toBe(200);
-    
+
     // Test GET /api/v1/users/123
     $request = createRequest('GET', '/api/v1/users/123');
     $response = $router->dispatch($request);
-    
+
     expect($response->getStatusCode())->toBe(200);
-    
+
     // Test POST /api/v1/users
     $request = createRequest('POST', '/api/v1/users');
     $response = $router->dispatch($request);
-    
+
     expect($response->getStatusCode())->toBe(201);
 });
 
 it('can register resource routes and dispatch requests', function () {
     $router = new Router();
-    
+    $loader = new AttributeRouteLoader($router);
+
     // Register resource routes
-    $router->loadAttributeRoutes([ProductController::class]);
-    
+    $loader->loadFromClasses([ProductController::class]);
+
     // Test GET /products (index)
     $request = createRequest('GET', '/products');
     $response = $router->dispatch($request);
-    
+
     expect($response->getStatusCode())->toBe(200);
-    
+
     // Test GET /products/123 (show)
     $request = createRequest('GET', '/products/123');
     $response = $router->dispatch($request);
-    
+
     expect($response->getStatusCode())->toBe(200);
 });
 
 it('can generate URLs from named attribute routes', function () {
     $router = new Router();
-    $router->loadAttributeRoutes([ApiUserController::class]);
-    
+    $loader = new AttributeRouteLoader($router);
+    $loader->loadFromClasses([ApiUserController::class]);
+
     $GLOBALS['router'] = $router;
-    
+
     expect(route('api.v1.users.index'))->toBe('/api/v1/users')
         ->and(route('api.v1.users.show', ['id' => 123]))->toBe('/api/v1/users/123');
 });
 
 it('respects route constraints from attributes', function () {
     $router = new Router();
-    $router->loadAttributeRoutes([ApiUserController::class]);
-    
+    $loader = new AttributeRouteLoader($router);
+    $loader->loadFromClasses([ApiUserController::class]);
+
     // Valid numeric ID should work
     $request = createRequest('GET', '/api/v1/users/123');
     $response = $router->dispatch($request);
     expect($response->getStatusCode())->toBe(200);
-    
+
     // Invalid non-numeric ID should return 404
     $request = createRequest('GET', '/api/v1/users/abc');
     expect(fn() => $router->dispatch($request))
@@ -125,18 +130,19 @@ it('respects route constraints from attributes', function () {
 
 it('can mix attribute routes with traditional routes', function () {
     $router = new Router();
-    
+
     // Traditional route
     $router->get('/traditional', fn() => createJsonResponse(['type' => 'traditional']));
-    
+
     // Attribute routes
-    $router->loadAttributeRoutes([ApiUserController::class]);
-    
+    $loader = new AttributeRouteLoader($router);
+    $loader->loadFromClasses([ApiUserController::class]);
+
     // Test traditional route
     $request = createRequest('GET', '/traditional');
     $response = $router->dispatch($request);
     expect($response->getStatusCode())->toBe(200);
-    
+
     // Test attribute route
     $request = createRequest('GET', '/api/v1/users');
     $response = $router->dispatch($request);
@@ -145,13 +151,14 @@ it('can mix attribute routes with traditional routes', function () {
 
 it('can scan directory for controllers and register routes', function () {
     $router = new Router();
-    
+    $loader = new AttributeRouteLoader($router);
+
     // Scan directory for controller classes with attributes
-    $router->loadAttributeRoutesFromDirectory(__DIR__ . '/../fixtures/controllers');
-    
+    $loader->loadFromDirectory(__DIR__ . '/../fixtures/controllers');
+
     // Test that routes were registered
     expect($router->getRouteCollection()->count())->toBe(2);
-    
+
     // Test that we can dispatch to the discovered routes
     $request = createRequest('GET', '/test');
     $response = $router->dispatch($request);

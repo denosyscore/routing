@@ -223,8 +223,11 @@ describe('Integration Tests', function () {
         });
 
         it('handles missing dependencies gracefully', function () {
-            // Exception is thrown during route registration when handler is resolved
-            expect(fn() => $this->router->get('/missing', ['\NonExistentController', 'index']))
+            $this->router->get('/missing', ['\NonExistentController', 'index']);
+
+            $request = new ServerRequest([], [], '/missing', 'GET');
+
+            expect(fn() => $this->router->dispatch($request))
                 ->toThrow(Denosys\Routing\Exceptions\HandlerNotFoundException::class);
         });
     });

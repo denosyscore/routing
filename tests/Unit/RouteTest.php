@@ -2,7 +2,6 @@
 
 use Denosys\Routing\Route;
 use Denosys\Routing\RouteHandlerResolver;
-use Denosys\Routing\Exceptions\HandlerNotFoundException;
 
 describe('Route', function () {
     
@@ -13,21 +12,21 @@ describe('Route', function () {
     describe('Route Creation', function () {
         
         it('can create a route with single method', function () {
-            $route = new Route('GET', '/users', fn() => 'users', $this->resolver);
+            $route = new Route('GET', '/users', fn() => 'users');
             
             expect($route->getMethods())->toBe(['GET', 'HEAD']);
             expect($route->getPattern())->toBe('/users');
         });
 
         it('can create a route with multiple methods', function () {
-            $route = new Route(['GET', 'POST'], '/users', fn() => 'users', $this->resolver);
+            $route = new Route(['GET', 'POST'], '/users', fn() => 'users');
             
             expect($route->getMethods())->toBe(['GET', 'POST', 'HEAD']);
         });
 
         it('generates unique identifiers for routes', function () {
-            $route1 = new Route('GET', '/users', fn() => 'users', $this->resolver, 1);
-            $route2 = new Route('GET', '/posts', fn() => 'posts', $this->resolver, 2);
+            $route1 = new Route('GET', '/users', fn() => 'users', 1);
+            $route2 = new Route('GET', '/posts', fn() => 'posts', 2);
             
             expect($route1->getIdentifier())->not->toBe($route2->getIdentifier());
             expect($route1->getIdentifier())->toBe('_route_1');
@@ -35,14 +34,13 @@ describe('Route', function () {
         });
 
         it('accepts different handler types', function () {
-            $closureRoute = new Route('GET', '/closure', fn() => 'closure', $this->resolver);
+            $closureRoute = new Route('GET', '/closure', fn() => 'closure');
             
-            // String and array handlers will throw exceptions for non-existent controllers
-            expect(fn() => new Route('GET', '/string', 'Controller@method', $this->resolver))
-                ->toThrow(HandlerNotFoundException::class);
+            $stringRoute = new Route('GET', '/string', 'Controller@method');
+            expect($stringRoute->getHandler())->toBe('Controller@method');
             
-            expect(fn() => new Route('GET', '/array', ['Controller', 'method'], $this->resolver))
-                ->toThrow(HandlerNotFoundException::class);
+            $arrayRoute = new Route('GET', '/array', ['Controller', 'method']);
+            expect($arrayRoute->getHandler())->toBe(['Controller', 'method']);
             
             expect($closureRoute)->toBeInstanceOf(Route::class);
         });
@@ -51,7 +49,7 @@ describe('Route', function () {
     describe('Route Matching', function () {
         
         it('matches exact paths', function () {
-            $route = new Route('GET', '/users', fn() => 'users', $this->resolver);
+            $route = new Route('GET', '/users', fn() => 'users');
             
             expect($route->matches('GET', '/users'))->toBe(true);
             expect($route->matches('GET', '/users/'))->toBe(false);
@@ -60,7 +58,7 @@ describe('Route', function () {
         });
 
         it('matches paths with parameters', function () {
-            $route = new Route('GET', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('GET', '/users/{id}', fn($id) => "user $id");
             
             expect($route->matches('GET', '/users/123'))->toBe(true);
             expect($route->matches('GET', '/users/abc'))->toBe(true);
@@ -70,7 +68,7 @@ describe('Route', function () {
 
         it('matches paths with multiple parameters', function () {
             $route = new Route('GET', '/users/{userId}/posts/{postId}', 
-                fn($userId, $postId) => "user $userId post $postId", $this->resolver);
+                fn($userId, $postId) => "user $userId post $postId");
             
             expect($route->matches('GET', '/users/123/posts/456'))->toBe(true);
             expect($route->matches('GET', '/users/123/posts'))->toBe(false);
@@ -79,21 +77,21 @@ describe('Route', function () {
 
         it('extracts parameters correctly', function () {
             $route = new Route('GET', '/users/{userId}/posts/{postId}', 
-                fn($userId, $postId) => "user $userId post $postId", $this->resolver);
+                fn($userId, $postId) => "user $userId post $postId");
             
             $params = $route->getParameters('/users/123/posts/456');
             expect($params)->toBe(['userId' => '123', 'postId' => '456']);
         });
 
         it('handles encoded parameters', function () {
-            $route = new Route('GET', '/search/{query}', fn($query) => "search: $query", $this->resolver);
+            $route = new Route('GET', '/search/{query}', fn($query) => "search: $query");
 
             $params = $route->getParameters('/search/hello%20world');
             expect($params)->toBe(['query' => 'hello%20world']);
         });
 
         it('matchesPattern method checks path without HTTP method', function () {
-            $route = new Route('POST', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('POST', '/users/{id}', fn($id) => "user $id");
 
             expect($route->matchesPattern('/users/123'))->toBe(true);
             expect($route->matchesPattern('/users/abc'))->toBe(true);
@@ -105,7 +103,7 @@ describe('Route', function () {
     describe('Route Constraints', function () {
         
         it('can apply where constraints', function () {
-            $route = new Route('GET', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('GET', '/users/{id}', fn($id) => "user $id");
             $route->where('id', '\d+');
             
             expect($route->matches('GET', '/users/123'))->toBe(true);
@@ -113,7 +111,7 @@ describe('Route', function () {
         });
 
         it('can apply whereNumber constraints', function () {
-            $route = new Route('GET', '/posts/{id}', fn($id) => "post $id", $this->resolver);
+            $route = new Route('GET', '/posts/{id}', fn($id) => "post $id");
             $route->whereNumber('id');
             
             expect($route->matches('GET', '/posts/123'))->toBe(true);
@@ -121,7 +119,7 @@ describe('Route', function () {
         });
 
         it('can apply whereAlpha constraints', function () {
-            $route = new Route('GET', '/categories/{name}', fn($name) => "category $name", $this->resolver);
+            $route = new Route('GET', '/categories/{name}', fn($name) => "category $name");
             $route->whereAlpha('name');
             
             expect($route->matches('GET', '/categories/books'))->toBe(true);
@@ -130,7 +128,7 @@ describe('Route', function () {
         });
 
         it('can apply whereAlphaNumeric constraints', function () {
-            $route = new Route('GET', '/slugs/{slug}', fn($slug) => "slug $slug", $this->resolver);
+            $route = new Route('GET', '/slugs/{slug}', fn($slug) => "slug $slug");
             $route->whereAlphaNumeric('slug');
             
             expect($route->matches('GET', '/slugs/abc123'))->toBe(true);
@@ -140,7 +138,7 @@ describe('Route', function () {
         });
 
         it('can apply whereIn constraints', function () {
-            $route = new Route('GET', '/status/{type}', fn($type) => "status $type", $this->resolver);
+            $route = new Route('GET', '/status/{type}', fn($type) => "status $type");
             $route->whereIn('type', ['active', 'inactive', 'pending']);
             
             expect($route->matches('GET', '/status/active'))->toBe(true);
@@ -151,7 +149,7 @@ describe('Route', function () {
 
         it('can apply multiple constraints', function () {
             $route = new Route('GET', '/users/{id}/posts/{slug}', 
-                fn($id, $slug) => "user $id post $slug", $this->resolver);
+                fn($id, $slug) => "user $id post $slug");
             $route->whereNumber('id')->whereAlphaNumeric('slug');
             
             expect($route->matches('GET', '/users/123/posts/hello'))->toBe(true);
@@ -160,7 +158,7 @@ describe('Route', function () {
         });
 
         it('returns constraints', function () {
-            $route = new Route('GET', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('GET', '/users/{id}', fn($id) => "user $id");
             $route->where('id', '\d+');
             
             $constraints = $route->getConstraints();
@@ -171,14 +169,14 @@ describe('Route', function () {
     describe('Route Naming', function () {
         
         it('can name routes', function () {
-            $route = new Route('GET', '/users', fn() => 'users', $this->resolver);
+            $route = new Route('GET', '/users', fn() => 'users');
             $route->name('users.index');
             
             expect($route->getName())->toBe('users.index');
         });
 
         it('can chain naming with other methods', function () {
-            $route = new Route('GET', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('GET', '/users/{id}', fn($id) => "user $id");
             $result = $route->name('users.show')->whereNumber('id');
             
             expect($result)->toBe($route); // Fluent interface
@@ -190,7 +188,7 @@ describe('Route', function () {
     describe('Route Method Chaining', function () {
         
         it('supports full fluent interface', function () {
-            $route = new Route('GET', '/users/{id}', fn($id) => "user $id", $this->resolver);
+            $route = new Route('GET', '/users/{id}', fn($id) => "user $id");
             
             $result = $route
                 ->name('users.show')
@@ -202,7 +200,7 @@ describe('Route', function () {
         });
 
         it('can chain in any order', function () {
-            $route = new Route('GET', '/posts/{id}', fn($id) => "post $id", $this->resolver);
+            $route = new Route('GET', '/posts/{id}', fn($id) => "post $id");
             
             $result = $route
                 ->whereNumber('id')
@@ -217,28 +215,28 @@ describe('Route', function () {
     describe('Edge Cases', function () {
         
         it('handles empty path', function () {
-            $route = new Route('GET', '', fn() => 'root', $this->resolver);
+            $route = new Route('GET', '', fn() => 'root');
             
             expect($route->matches('GET', ''))->toBe(true);
             expect($route->matches('GET', '/'))->toBe(false);
         });
 
         it('handles root path', function () {
-            $route = new Route('GET', '/', fn() => 'root', $this->resolver);
+            $route = new Route('GET', '/', fn() => 'root');
             
             expect($route->matches('GET', '/'))->toBe(true);
             expect($route->matches('GET', ''))->toBe(false);
         });
 
         it('handles paths with trailing slashes', function () {
-            $route = new Route('GET', '/users/', fn() => 'users', $this->resolver);
+            $route = new Route('GET', '/users/', fn() => 'users');
             
             expect($route->matches('GET', '/users/'))->toBe(true);
             expect($route->matches('GET', '/users'))->toBe(false);
         });
 
         it('handles special characters in parameters', function () {
-            $route = new Route('GET', '/files/{filename}', fn($filename) => "file $filename", $this->resolver);
+            $route = new Route('GET', '/files/{filename}', fn($filename) => "file $filename");
             
             expect($route->matches('GET', '/files/test.txt'))->toBe(true);
             expect($route->matches('GET', '/files/my-file_v2.pdf'))->toBe(true);
@@ -248,7 +246,7 @@ describe('Route', function () {
         });
 
         it('handles case sensitivity', function () {
-            $route = new Route('GET', '/Users', fn() => 'users', $this->resolver);
+            $route = new Route('GET', '/Users', fn() => 'users');
             
             expect($route->matches('GET', '/Users'))->toBe(true);
             expect($route->matches('GET', '/users'))->toBe(false);
@@ -257,7 +255,7 @@ describe('Route', function () {
 
         it('handles complex parameter patterns', function () {
             $route = new Route('GET', '/api/{version}/{type}/{id}', 
-                fn($version, $type, $id) => "api $version $type $id", $this->resolver);
+                fn($version, $type, $id) => "api $version $type $id");
             
             expect($route->matches('GET', '/api/v1/users/123'))->toBe(true);
             

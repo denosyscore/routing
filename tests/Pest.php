@@ -11,6 +11,29 @@
 |
 */
 
+// Force error reporting in test environment
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+// Register a custom error handler that ensures errors are visible
+set_error_handler(function ($severity, $message, $file, $line) {
+    if (error_reporting() & $severity) {
+        echo "\n\033[31m[ERROR]\033[0m $message\n";
+        echo "  File: $file:$line\n\n";
+    }
+    return false; // Continue with normal error handler
+});
+
+// Register shutdown function to catch fatal errors
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && ($error['type'] === E_ERROR || $error['type'] === E_PARSE)) {
+        echo "\n\033[31m[FATAL ERROR]\033[0m {$error['message']}\n";
+        echo "  File: {$error['file']}:{$error['line']}\n\n";
+    }
+});
+
 pest()->extend(Tests\TestCase::class)->in('Unit', 'Feature');
 
 /*
