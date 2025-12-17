@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\Attributes;
 
+use Throwable;
 use RuntimeException;
 
 class RouteCache implements RouteCacheInterface
@@ -11,24 +12,25 @@ class RouteCache implements RouteCacheInterface
     public function cacheRoutes(array $routes, string $cacheFilePath): bool
     {
         $cacheDir = dirname($cacheFilePath);
+
         if (!is_dir($cacheDir)) {
             // Recursively check if we can create the directory path
             $pathParts = explode('/', trim($cacheDir, '/'));
             $currentPath = '';
-            
+
             foreach ($pathParts as $part) {
                 $currentPath .= '/' . $part;
-                
+
                 if (!is_dir($currentPath)) {
                     $parentPath = dirname($currentPath);
-                    
+
                     // Check if parent exists and is writable
                     if (!is_dir($parentPath) || !is_writable($parentPath)) {
                         throw new RuntimeException("Failed to create cache directory: {$cacheDir}");
                     }
                 }
             }
-            
+
             if (!mkdir($cacheDir, 0755, true)) {
                 throw new RuntimeException("Failed to create cache directory: {$cacheDir}");
             }
@@ -44,7 +46,7 @@ class RouteCache implements RouteCacheInterface
         $cacheContent = "<?php\n\n// Auto-generated route cache file\n// Generated at: " . date('Y-m-d H:i:s') . "\n\nreturn " . var_export($cacheData, true) . ";\n";
 
         $result = file_put_contents($cacheFilePath, $cacheContent, LOCK_EX);
-        
+
         if ($result === false) {
             throw new RuntimeException("Failed to write route cache to: {$cacheFilePath}");
         }
@@ -60,13 +62,13 @@ class RouteCache implements RouteCacheInterface
 
         try {
             $cacheData = include $cacheFilePath;
-            
+
             if (!is_array($cacheData) || !isset($cacheData['routes']) || !isset($cacheData['timestamp'])) {
                 return null;
             }
 
             return $cacheData['routes'];
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             // Cache file is corrupted or invalid
             return null;
         }

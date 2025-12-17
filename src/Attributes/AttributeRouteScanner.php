@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\Attributes;
 
+use ReflectionException;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
 
 class AttributeRouteScanner
 {
-    private ?RouteCacheInterface $cache = null;
-
-    public function __construct(?RouteCacheInterface $cache = null)
+    public function __construct(private ?RouteCacheInterface $cache = null)
     {
         $this->cache = $cache ?? new RouteCache();
     }
@@ -48,7 +47,7 @@ class AttributeRouteScanner
     public function scanClasses(array $classNames): array
     {
         $allRoutes = [];
-        
+
         foreach ($classNames as $className) {
             $routes = $this->scanClass($className);
             $allRoutes = array_merge($allRoutes, $routes);
@@ -108,13 +107,13 @@ class AttributeRouteScanner
     {
         $content = file_get_contents($filePath);
         $classes = [];
-        
+
         // Extract namespace
         $namespace = '';
         if (preg_match('/namespace\s+([^;]+);/', $content, $matches)) {
             $namespace = trim($matches[1]) . '\\';
         }
-        
+
         // Extract class names
         if (preg_match_all('/class\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/i', $content, $matches)) {
             foreach ($matches[1] as $className) {
@@ -124,21 +123,24 @@ class AttributeRouteScanner
                 }
             }
         }
-        
+
         return $classes;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function isControllerClass(string $className): bool
     {
         $reflectionClass = new ReflectionClass($className);
-        
+
         // Check if class has any route attributes
         if (!empty($reflectionClass->getAttributes(RouteGroup::class)) ||
             !empty($reflectionClass->getAttributes(Resource::class)) ||
             !empty($reflectionClass->getAttributes(ApiResource::class))) {
             return true;
         }
-        
+
         // Check if any methods have route attributes
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             foreach ($method->getAttributes() as $attribute) {
@@ -148,7 +150,7 @@ class AttributeRouteScanner
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -194,7 +196,7 @@ class AttributeRouteScanner
     {
         $middleware = [];
         $middlewareExcept = [];
-        
+
         foreach ($attributes as $attribute) {
             $middlewareInstance = $attribute->newInstance();
             $middleware = array_merge($middleware, $middlewareInstance->getMiddleware());
@@ -208,7 +210,7 @@ class AttributeRouteScanner
 
     private function getResourceFromClass(ReflectionClass $class): ?Resource
     {
-        return $this->getFirstAttributeInstance($class, Resource::class) 
+        return $this->getFirstAttributeInstance($class, Resource::class)
             ?? $this->getFirstAttributeInstance($class, ApiResource::class);
     }
 
@@ -225,12 +227,12 @@ class AttributeRouteScanner
 
         foreach ($actions as $actionName => $actionConfig) {
             $path = '/' . $resource->getName() . $actionConfig['path'];
-            
+
             $methods = [$actionConfig['method']];
             if ($actionConfig['method'] === 'GET') {
                 $methods[] = 'HEAD';
             }
-            
+
             $routes[] = [
                 'methods' => $methods,
                 'path' => $path,
@@ -269,7 +271,7 @@ class AttributeRouteScanner
         if (!$classRouteGroup) {
             return $path;
         }
-        
+
         return rtrim($classRouteGroup->getPrefix(), '/') . '/' . ltrim($path, '/');
     }
 
@@ -278,7 +280,7 @@ class AttributeRouteScanner
         if (!$classRouteGroup || !$classRouteGroup->getName() || !$name) {
             return $name;
         }
-        
+
         return rtrim($classRouteGroup->getName(), '.') . '.' . $name;
     }
 
