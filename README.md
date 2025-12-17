@@ -4,17 +4,18 @@ A highly efficient and flexible routing package for PHP, designed to support mod
 
 ## Features
 
-- **Fast Route Matching**: Utilizes a trie data structure for efficient route matching.
-- **Flexible Handlers**: Supports various types of handlers (closures, arrays, strings).
-- **PSR-7 Compliant**: Compatible with PSR-7 HTTP message interfaces.
-- **PSR-15 Middleware Support**: Allows middleware to be attached to routes.
-- **Customizable Invocation Strategies**: Define how route handlers are invoked.
-- **Dependency Injection**: Integrates with PSR-11 containers for automatic dependency resolution.
-- **Dynamic and Static Routes**: Easily define and handle both dynamic and static routes.
+-   **Fast Route Matching**: Utilizes a trie data structure for efficient route matching.
+-   **Flexible Handlers**: Supports various types of handlers (closures, arrays, strings).
+-   **PSR-7 Compliant**: Compatible with PSR-7 HTTP message interfaces.
+-   **Middleware Metadata**: Store middleware requirements as route metadata.
+-   **Customizable Invocation Strategies**: Define how route handlers are invoked.
+-   **Dependency Injection**: Integrates with PSR-11 containers for automatic dependency resolution.
+-   **Dynamic and Static Routes**: Easily define and handle both dynamic and static routes.
+-   **Attribute-Based Routing**: Define routes using PHP 8 attributes on controller methods.
 
 ## Requirements
 
-- PHP 8.2 or later
+-   PHP 8.2 or later
 
 ## Usage
 
@@ -52,6 +53,70 @@ $response = $router->dispatch($request);
 // Output the response
 echo $response->getBody();
 ```
+
+## Middleware as Metadata
+
+**Important**: The Router stores middleware as **metadata only** and does not execute middleware. Middleware execution should be handled by your HTTP kernel or application layer.
+
+### Adding Middleware to Routes
+
+```php
+// Store middleware metadata on route
+$router->get('/protected', 'ProtectedController@index')
+       ->middleware('auth'); // Stored as metadata: ['auth']
+
+// Or use fluent syntax
+$router->middleware('auth')
+       ->get('/dashboard', 'DashboardController@index');
+
+// Multiple middleware
+$router->get('/api/users', 'UserController@index')
+       ->middleware(['auth', 'cors', 'throttle']);
+```
+
+### Retrieving Middleware Metadata
+
+```php
+$routes = $router->getRouteCollection()->all();
+$route = reset($routes); // First route (keys are like '_route_0', not numeric)
+$middleware = $route->getMiddleware(); // ['auth', 'cors', 'throttle']
+```
+
+### Executing Middleware (Your Responsibility)
+
+The Router does not execute middleware. You should implement an HTTP kernel:
+
+```php
+class HttpKernel
+{
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        // 1. Match route
+        $route = $this->router->match($request);
+
+        // 2. Get middleware from route metadata
+        $middlewareNames = $route->getMiddleware();
+
+        // 3. Resolve middleware (your implementation)
+        $middlewareStack = $this->resolveMiddleware($middlewareNames);
+
+        // 4. Execute middleware pipeline (your implementation)
+        $pipeline = new MiddlewarePipeline($middlewareStack);
+        return $pipeline->handle($request, fn() => $this->invokeHandler($route));
+    }
+
+    private function resolveMiddleware(array $names): array
+    {
+        // Your middleware resolution logic
+        return array_map(
+            fn($name) => $this->container->get($this->aliases[$name] ?? $name),
+            $names
+        );
+    }
+}
+```
+
+See `DESIGN.md` and `MIGRATION.md` for more details.
 
 ## Adding Routes
 
