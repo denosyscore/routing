@@ -9,12 +9,12 @@ use Denosys\Routing\Priority;
 
 class CallableResolver implements HandlerResolverInterface
 {
-    public function canResolve(mixed $handler): bool
+    public function canResolve(Closure|array|string $handler): bool
     {
         return $handler instanceof Closure || is_callable($handler);
     }
 
-    public function resolve(mixed $handler): callable
+    public function resolve(Closure|array|string $handler): callable
     {
         return $handler;
     }

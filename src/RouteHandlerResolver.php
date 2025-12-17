@@ -7,14 +7,17 @@ namespace Denosys\Routing;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Denosys\Routing\HandlerResolvers\HandlerResolverChain;
+use Denosys\Routing\Exceptions\InvalidHandlerException;
 
 class RouteHandlerResolver implements RouteHandlerResolverInterface
 {
     private HandlerResolverChain $resolverChain;
 
-    public function __construct(protected ?ContainerInterface $container = null)
-    {
-        $this->resolverChain = new HandlerResolverChain($container);
+    public function __construct(
+        protected ?ContainerInterface $container = null,
+        ?HandlerResolverChain $resolverChain = null
+    ) {
+        $this->resolverChain = $resolverChain ?? new HandlerResolverChain($container);
     }
 
     /**

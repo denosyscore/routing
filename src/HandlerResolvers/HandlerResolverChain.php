@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\HandlerResolvers;
 
-use Denosys\Routing\Exceptions\InvalidHandlerException;
+use Closure;
 use Psr\Container\ContainerInterface;
+use Denosys\Routing\Exceptions\InvalidHandlerException;
 
 class HandlerResolverChain
 {
     /** @var HandlerResolverInterface[] */
     private array $resolvers = [];
 
-    public function __construct(?ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null, ?array $resolvers = null)
     {
-        $this->initializeResolvers($container);
+        $this->initializeResolvers($container, $resolvers);
     }
 
-    private function initializeResolvers(?ContainerInterface $container): void
+    private function initializeResolvers(?ContainerInterface $container, ?array $customResolvers): void
     {
+        if ($customResolvers !== null) {
+            $this->resolvers = $this->sortResolvers($customResolvers);
+            $this->attachChainToStringResolvers();
+
+            return;
+        }
+
         $stringResolver = new StringHandlerResolver($container);
 
         $this->resolvers = [
@@ -27,21 +35,19 @@ class HandlerResolverChain
             new ArrayHandlerResolver($container),
         ];
 
-        // Set back-reference for recursive resolution
         $stringResolver->setChain($this);
 
-        // Sort by priority (highest first)
-        usort($this->resolvers, fn($a, $b) => $b->getPriority() - $a->getPriority());
+        $this->resolvers = $this->sortResolvers($this->resolvers);
     }
 
     /**
      * Resolve a handler using the chain
      *
-     * @param mixed $handler The handler to resolve
+     * @param Closure|array|string $handler The handler to resolve
      * @return callable The resolved callable
      * @throws InvalidHandlerException If no resolver can handle the handler
      */
-    public function resolve(mixed $handler): callable
+    public function resolve(Closure|array|string $handler): callable
     {
         foreach ($this->resolvers as $resolver) {
             if ($resolver->canResolve($handler)) {
@@ -62,6 +68,23 @@ class HandlerResolverChain
         $this->resolvers[] = $resolver;
 
         // Re-sort by priority
-        usort($this->resolvers, fn($a, $b) => $b->getPriority() - $a->getPriority());
+        $this->resolvers = $this->sortResolvers($this->resolvers);
+        $this->attachChainToStringResolvers();
+    }
+
+    private function sortResolvers(array $resolvers): array
+    {
+        usort($resolvers, fn($a, $b) => $b->getPriority() - $a->getPriority());
+
+        return $resolvers;
+    }
+
+    private function attachChainToStringResolvers(): void
+    {
+        foreach ($this->resolvers as $resolver) {
+            if ($resolver instanceof StringHandlerResolver) {
+                $resolver->setChain($this);
+            }
+        }
     }
 }

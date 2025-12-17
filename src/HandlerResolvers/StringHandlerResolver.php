@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\HandlerResolvers;
 
-use Denosys\Routing\Exceptions\HandlerNotFoundException;
-use Denosys\Routing\Exceptions\InvalidHandlerException;
+use Closure;
 use Denosys\Routing\Priority;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Denosys\Routing\Exceptions\InvalidHandlerException;
+use Denosys\Routing\Exceptions\HandlerNotFoundException;
 
 
 class StringHandlerResolver implements HandlerResolverInterface
 {
     public function __construct(
-        private ?ContainerInterface $container = null,
+        private readonly ?ContainerInterface $container = null,
         private ?HandlerResolverChain $chain = null
     ) {
     }
@@ -24,12 +25,12 @@ class StringHandlerResolver implements HandlerResolverInterface
         $this->chain = $chain;
     }
 
-    public function canResolve(mixed $handler): bool
+    public function canResolve(Closure|array|string $handler): bool
     {
         return is_string($handler);
     }
 
-    public function resolve(mixed $handler): callable
+    public function resolve(Closure|array|string $handler): callable
     {
         if (!is_string($handler)) {
             throw new InvalidHandlerException("Expected string handler, got " . gettype($handler));
@@ -37,7 +38,7 @@ class StringHandlerResolver implements HandlerResolverInterface
 
         if (str_contains($handler, '::')) {
             $parts = explode('::', $handler, 2);
-            
+
             return $this->resolveArray($parts);
         }
 
@@ -93,7 +94,7 @@ class StringHandlerResolver implements HandlerResolverInterface
             try {
                 if ($this->container->has($class)) {
                     $resolved = $this->container->get($class);
-                    
+
                     if (is_object($resolved)) {
                         return $resolved;
                     }
