@@ -1,70 +1,70 @@
 {
-  "name": "denosyscore/routing",
-  "description": "DenosysCore: Fast PSR-7 Router and Dispatcher PHP package with PSR-15 Middleware support",
-  "license": "MIT",
-  "homepage": "https://github.com/denosyscore/routing",
-  "authors": [
-    {
-      "name": "Deon Okonkwo",
-      "email": "deon@denosys.com"
-    }
-  ],
-  "require": {
-    "php": "^8.2",
-    "psr/container": "^2.0",
-    "psr/http-factory": "^1.1",
-    "psr/http-message": "^2.0",
-    "psr/http-server-handler": "^1.0",
-    "psr/http-server-middleware": "^1.0"
-  },
-  "require-dev": {
-    "illuminate/events": "^12.28",
-    "illuminate/routing": "^12.28",
-    "laminas/laminas-diactoros": "^3.3",
-    "nikic/fast-route": "^1.3",
-    "nyholm/psr7": "^1.8",
-    "pestphp/pest": "^3.8",
-    "php-di/php-di": "^7.0",
-    "phpstan/phpstan": "^2.1",
-    "symfony/event-dispatcher": "^7.3",
-    "symfony/http-foundation": "^7.3",
-    "symfony/http-kernel": "^7.3",
-    "symfony/routing": "^7.3",
-    "symfony/var-dumper": "^7.0"
-  },
-  "suggest": {
-    "laminas/laminas-diactoros": "PSR-7 implementation for response creation fallback",
-    "nyholm/psr7": "Lightweight PSR-7 implementation for response creation fallback",
-    "guzzlehttp/psr7": "PSR-7 implementation for response creation fallback"
-  },
-  "autoload": {
-    "psr-4": {
-      "Denosys\\Routing\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
-    }
-  },
-  "scripts": {
-    "test": "pest -c phpunit.xml",
-    "test:unit": "pest -c phpunit.xml tests/Unit",
-    "test:feature": "pest -c phpunit.xml tests/Feature",
-    "test:list": "pest --list-tests",
-    "test:file": "pest -c phpunit.xml"
-  },
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "pestphp/pest-plugin": true
-    }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-main": "0.4.x-dev"
-    }
-  },
-  "prefer-stable": true,
-  "minimum-stability": "dev"
+    "name": "denosyscore/routing",
+    "description": "DenosysCore: Fast PSR-7 Router and Dispatcher PHP package with PSR-15 Middleware support",
+    "license": "MIT",
+    "homepage": "https://github.com/denosyscore/routing",
+    "authors": [
+        {
+            "name": "Deon Okonkwo",
+            "email": "deon@denosys.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "psr/container": "^2.0",
+        "psr/http-factory": "^1.1",
+        "psr/http-message": "^2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0"
+    },
+    "require-dev": {
+        "illuminate/events": "^12.28",
+        "illuminate/routing": "^12.28",
+        "laminas/laminas-diactoros": "^3.3",
+        "nikic/fast-route": "^1.3",
+        "nyholm/psr7": "^1.8",
+        "pestphp/pest": "^3.8",
+        "php-di/php-di": "^7.0",
+        "phpstan/phpstan": "^2.1",
+        "symfony/event-dispatcher": "^7.3",
+        "symfony/http-foundation": "^7.3",
+        "symfony/http-kernel": "^7.3",
+        "symfony/routing": "^7.3",
+        "symfony/var-dumper": "^7.0"
+    },
+    "suggest": {
+        "laminas/laminas-diactoros": "PSR-7 implementation for response creation fallback",
+        "nyholm/psr7": "Lightweight PSR-7 implementation for response creation fallback",
+        "guzzlehttp/psr7": "PSR-7 implementation for response creation fallback"
+    },
+    "autoload": {
+        "psr-4": {
+            "Denosys\\Routing\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest -c phpunit.xml",
+        "test:unit": "pest -c phpunit.xml tests/Unit",
+        "test:feature": "pest -c phpunit.xml tests/Feature",
+        "test:list": "pest --list-tests",
+        "test:file": "pest -c phpunit.xml"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.5.x-dev"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
 }
