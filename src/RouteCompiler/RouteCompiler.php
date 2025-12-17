@@ -27,7 +27,7 @@ class RouteCompiler
         $regexParts = [];
 
         foreach ($parts as $part) {
-            if (preg_match('/\{([^}]+)\}/', $part, $matches)) {
+            if (preg_match('/\{([^}]+)}/', $part, $matches)) {
                 $paramDetails = $this->parser->parseParameterDetails($part);
                 $paramName = $paramDetails['name'];
                 $isOptional = $paramDetails['optional'];
@@ -66,7 +66,7 @@ class RouteCompiler
 
         // Escape forward slashes in the constraint
         $escaped = str_replace('/', '\/', $constraint);
-     
+
         return "($escaped)";
     }
 
@@ -76,7 +76,7 @@ class RouteCompiler
     public function compileConstraint(string $constraint): string
     {
         $escapedConstraint = str_replace('/', '\/', $constraint);
-        
+
         return '/^' . $escapedConstraint . '$/';
     }
 
@@ -89,7 +89,7 @@ class RouteCompiler
 
         for ($i = 1; $i < count($matches); $i++) {
             $paramIndex = $i - 1;
-            
+
             if (isset($matches[$i]) && $matches[$i] !== '' && isset($paramNames[$paramIndex])) {
                 $params[$paramNames[$paramIndex]] = $matches[$i];
             }

@@ -77,7 +77,7 @@ class RouteParser
      */
     public function isStaticRoute(string $pattern): bool
     {
-        return strpos($pattern, '{') === false && strpos($pattern, '*') === false;
+        return !str_contains($pattern, '{') && !str_contains($pattern, '*');
     }
 
     /**
@@ -86,7 +86,7 @@ class RouteParser
     public function isSimpleParameterRoute(string $pattern): bool
     {
         return preg_match('/^[^{]*(\{[^{}*]+\??}[^{]*)+$/', $pattern) === 1
-            && strpos($pattern, '*') === false;
+            && !str_contains($pattern, '*');
     }
 
     /**
@@ -94,11 +94,12 @@ class RouteParser
      */
     public function extractParameterNames(string $pattern): array
     {
-        preg_match_all('/\{([^}]+)\}/', $pattern, $matches);
+        preg_match_all('/\{([^}]+)}/', $pattern, $matches);
 
         return array_map(function ($param) {
             // Remove optional marker and constraint if present
             $param = rtrim($param, '?*');
+
             if (str_contains($param, ':')) {
                 [$name] = explode(':', $param, 2);
 

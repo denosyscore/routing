@@ -19,18 +19,18 @@ interface RouteMatcherInterface
     public function addRoute(string $method, string $pattern, RouteInterface $route): void;
 
     /**
-     * Find a matching route for the given method and path
+     * Find a matching route for the given method and pattern
      *
      * @return array{0: RouteInterface, 1: array<string, string>}|null Returns [route, params] or null
      */
-    public function findRoute(string $method, string $path): ?array;
+    public function findRoute(string $method, string $pattern): ?array;
 
     /**
-     * Find all matching routes for the given method and path
+     * Find all matching routes for the given method and pattern
      *
      * @return array<array{0: RouteInterface, 1: array<string, string>}> Returns array of [route, params]
      */
-    public function findAllRoutes(string $method, string $path): array;
+    public function findAllRoutes(string $method, string $pattern): array;
 
     /**
      * Get the type identifier for this matcher

@@ -12,11 +12,11 @@ class CompiledRouteMatcher implements RouteMatcherInterface
 {
     private array $compiledRoutes = [];
     private int $hits = 0;
-    private RouteParser $parser;
-    private RouteCompiler $compiler;
 
-    public function __construct(?RouteParser $parser = null, ?RouteCompiler $compiler = null)
-    {
+    public function __construct(
+        private ?RouteParser $parser = null,
+        private ?RouteCompiler $compiler = null
+    ) {
         $this->parser = $parser ?? new RouteParser();
         $this->compiler = $compiler ?? new RouteCompiler($this->parser);
     }

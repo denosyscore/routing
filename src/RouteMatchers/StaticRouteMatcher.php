@@ -11,9 +11,8 @@ class StaticRouteMatcher implements RouteMatcherInterface
 {
     private array $routes = [];
     private int $hits = 0;
-    private RouteParser $parser;
 
-    public function __construct(?RouteParser $parser = null)
+    public function __construct(private ?RouteParser $parser = null)
     {
         $this->parser = $parser ?? new RouteParser();
     }
@@ -28,16 +27,16 @@ class StaticRouteMatcher implements RouteMatcherInterface
         if (!isset($this->routes[$method][$pattern])) {
             $this->routes[$method][$pattern] = [];
         }
-        
+
         $this->routes[$method][$pattern][] = $route;
     }
 
-    public function findRoute(string $method, string $path): ?array
+    public function findRoute(string $method, string $pattern): ?array
     {
-        if (isset($this->routes[$method][$path])) {
+        if (isset($this->routes[$method][$pattern])) {
             $this->hits++;
 
-            $routes = $this->routes[$method][$path];
+            $routes = $this->routes[$method][$pattern];
 
             return [$routes[count($routes) - 1], []];
         }
@@ -45,12 +44,12 @@ class StaticRouteMatcher implements RouteMatcherInterface
         return null;
     }
 
-    public function findAllRoutes(string $method, string $path): array
+    public function findAllRoutes(string $method, string $pattern): array
     {
-        if (isset($this->routes[$method][$path])) {
+        if (isset($this->routes[$method][$pattern])) {
             $this->hits++;
 
-            $routes = array_reverse($this->routes[$method][$path]);
+            $routes = array_reverse($this->routes[$method][$pattern]);
 
             return array_map(fn($route) => [$route, []], $routes);
         }
