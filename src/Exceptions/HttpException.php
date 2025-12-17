@@ -6,7 +6,6 @@ namespace Denosys\Routing\Exceptions;
 
 use Throwable;
 use RuntimeException;
-use Denosys\Routing\Exceptions\HttpExceptionInterface;
 
 abstract class HttpException extends RuntimeException implements HttpExceptionInterface
 {
@@ -17,6 +16,7 @@ abstract class HttpException extends RuntimeException implements HttpExceptionIn
         ?Throwable $previous = null
     ) {
         $reasonPhrase = $status->getReasonPhrase();
+
         parent::__construct($message ?: $reasonPhrase, $code, $previous);
     }
 
