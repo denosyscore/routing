@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Applied at dispatch time (works for routes defined before or after the `use()` call)
     -   Executes before route-specific middleware (outermost layer)
     -   Supports strings, arrays, and middleware instances
+-   **Middleware Exclusion**: New `withoutMiddleware()` method for routes
+    -   `$route->withoutMiddleware('auth')` - exclude specific middleware from a route
+    -   Works with inherited group middleware
+    -   Supports aliases and class names (resolved before filtering)
 -   **New Cache Architecture**: `FileCache`, `ApcuCache`, `NullCache` implementations with `CacheInterface`
 -   **Contracts Namespace**: Route interfaces following Interface Segregation Principle
     -   `RouteInfoInterface`, `RouteMatcherInterface`, `RouteNamingInterface`
