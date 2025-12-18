@@ -135,6 +135,27 @@ $router->middleware('auth')->group('/admin', function ($group) {
 });
 ```
 
+### Excluding Middleware
+
+Use `withoutMiddleware()` to exclude specific middleware from a route:
+
+```php
+// Exclude from route middleware
+$router->get('/test', 'TestController@index')
+       ->middleware(['auth', 'logging', 'throttle'])
+       ->withoutMiddleware('logging');
+
+// Exclude inherited group middleware
+$router->middleware(['auth', 'admin'])->group('/admin', function ($group) {
+    $group->get('/dashboard', 'AdminController@dashboard');  // Has auth + admin
+    $group->get('/public', 'AdminController@public')
+          ->withoutMiddleware('auth');                       // Only has admin
+});
+
+// Exclude multiple middleware
+$route->withoutMiddleware(['logging', 'throttle']);
+```
+
 ### Retrieving Middleware Metadata
 
 ```php
