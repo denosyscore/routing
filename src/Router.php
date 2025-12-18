@@ -21,6 +21,8 @@ class Router implements RouterInterface
 
     protected array $pendingMiddleware = [];
 
+    protected array $globalMiddleware = [];
+
     public function __construct(
         protected ?ContainerInterface $container = null,
         protected ?RouteCollectionInterface $routeCollection = null,
@@ -55,7 +57,9 @@ class Router implements RouterInterface
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
-    {   
+    {
+        $this->dispatcher->setGlobalMiddleware($this->globalMiddleware);
+
         return $this->dispatcher->dispatch($request);
     }
 
@@ -82,6 +86,25 @@ class Router implements RouterInterface
 
         foreach ($middlewares as $middlewareItem) {
             $this->pendingMiddleware[] = $middlewareItem;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add global middleware that applies to all requests.
+     *
+     * Global middleware runs on every request, wrapping the entire
+     * application. It executes before any route-specific middleware.
+     *
+     * @param string|array|object $middleware Middleware class name(s), alias(es), or instance(s)
+     */
+    public function use(string|array|object $middleware): static
+    {
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+
+        foreach ($middlewares as $middlewareItem) {
+            $this->globalMiddleware[] = $middlewareItem;
         }
 
         return $this;
