@@ -29,15 +29,25 @@ class MiddlewarePipelineBuilder
      *  - callables with signature fn(ServerRequestInterface $req, callable $next): ResponseInterface
      *  - Named middleware aliases or groups (resolved via registry)
      *  - class-strings resolved via the container or direct instantiation
+     *
+     * @param array $middlewares The middleware to include in the pipeline
+     * @param callable $terminal The final handler to invoke
+     * @param array $exclude Middleware to exclude from the pipeline (aliases or class names)
      */
-    public function buildMiddlewarePipeline(array $middlewares, callable $terminal): callable
+    public function buildMiddlewarePipeline(array $middlewares, callable $terminal, array $exclude = []): callable
     {
         // First, expand any named groups/aliases through the registry
         $expandedMiddlewares = $this->expandMiddleware($middlewares);
 
+        // Expand excluded middleware as well (resolve aliases to class names)
+        $expandedExclude = $this->expandMiddleware($exclude);
+
+        // Filter out excluded middleware
+        $filteredMiddlewares = $this->filterExcluded($expandedMiddlewares, $expandedExclude);
+
         $next = $terminal;
 
-        foreach (array_reverse($expandedMiddlewares) as $middleware) {
+        foreach (array_reverse($filteredMiddlewares) as $middleware) {
             $resolved = $this->resolveMiddleware($middleware);
 
             $next = function (ServerRequestInterface $request) use ($resolved, $next): ResponseInterface {
@@ -50,6 +60,20 @@ class MiddlewarePipelineBuilder
         }
 
         return $next;
+    }
+
+    /**
+     * Filter out excluded middleware from the list.
+     */
+    protected function filterExcluded(array $middlewares, array $exclude): array
+    {
+        if (empty($exclude)) {
+            return $middlewares;
+        }
+
+        return array_values(array_filter($middlewares, function ($middleware) use ($exclude) {
+            return !in_array($middleware, $exclude, true);
+        }));
     }
 
     /**

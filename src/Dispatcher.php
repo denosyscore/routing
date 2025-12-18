@@ -234,9 +234,12 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
             return $this->invocationStrategy->invoke($handler, $req, $params);
         };
 
+        $exclude = method_exists($route, 'getWithoutMiddleware') ? $route->getWithoutMiddleware() : [];
+
         $middlewarePipeline = $this->middlewarePipelineBuilder->buildMiddlewarePipeline(
             $route->getMiddleware(),
-            $terminal
+            $terminal,
+            $exclude
         );
 
         return $middlewarePipeline($request);

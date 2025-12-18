@@ -16,9 +16,19 @@ interface RouteMiddlewareInterface
     public function middleware(string|array|object $middleware): static;
 
     /**
+     * Exclude middleware from the route.
+     */
+    public function withoutMiddleware(string|array $middleware): static;
+
+    /**
      * Get all middleware attached to this route.
      */
     public function getMiddleware(): array;
+
+    /**
+     * Get all excluded middleware for this route.
+     */
+    public function getWithoutMiddleware(): array;
 
     /**
      * Check if route has specific middleware.

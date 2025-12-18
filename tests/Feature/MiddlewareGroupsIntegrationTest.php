@@ -401,4 +401,90 @@ describe('Middleware Groups Integration', function () {
             expect($order)->toBe(['global', 'route']);
         });
     });
+
+    describe('Without Middleware', function () {
+        it('can exclude middleware from a route', function () {
+            $this->router->aliasMiddleware('first', FirstMiddleware::class);
+            $this->router->aliasMiddleware('second', SecondMiddleware::class);
+
+            $this->router->get('/test', fn() => 'Test')
+                ->middleware(['first', 'second'])
+                ->withoutMiddleware('first');
+
+            $request = new ServerRequest([], [], '/test', 'GET');
+            $response = $this->router->dispatch($request);
+
+            // First middleware should be excluded
+            expect($response->getHeader('X-First'))->toBe([]);
+            expect($response->getHeader('X-Second'))->toBe(['true']);
+        });
+
+        it('can exclude multiple middleware from a route', function () {
+            $this->router->aliasMiddleware('first', FirstMiddleware::class);
+            $this->router->aliasMiddleware('second', SecondMiddleware::class);
+            $this->router->aliasMiddleware('third', ThirdMiddleware::class);
+
+            $this->router->get('/test', fn() => 'Test')
+                ->middleware(['first', 'second', 'third'])
+                ->withoutMiddleware(['first', 'third']);
+
+            $request = new ServerRequest([], [], '/test', 'GET');
+            $response = $this->router->dispatch($request);
+
+            expect($response->getHeader('X-First'))->toBe([]);
+            expect($response->getHeader('X-Second'))->toBe(['true']);
+            expect($response->getHeader('X-Third'))->toBe([]);
+        });
+
+        it('can exclude inherited group middleware from a route', function () {
+            $this->router->aliasMiddleware('auth', AuthMiddleware::class);
+            $this->router->aliasMiddleware('admin', AdminMiddleware::class);
+
+            $this->router->middleware(['auth', 'admin'])->group('/admin', function ($group) {
+                $group->get('/dashboard', fn() => 'Dashboard');
+                $group->get('/public', fn() => 'Public')->withoutMiddleware('auth');
+            });
+
+            // Dashboard should have both middleware
+            $request1 = new ServerRequest([], [], '/admin/dashboard', 'GET');
+            $response1 = $this->router->dispatch($request1);
+            expect($response1->getHeader('X-Auth'))->toBe(['authenticated']);
+            expect($response1->getHeader('X-Admin'))->toBe(['admin']);
+
+            // Public should only have admin middleware
+            $request2 = new ServerRequest([], [], '/admin/public', 'GET');
+            $response2 = $this->router->dispatch($request2);
+            expect($response2->getHeader('X-Auth'))->toBe([]);
+            expect($response2->getHeader('X-Admin'))->toBe(['admin']);
+        });
+
+        it('can exclude middleware by class name', function () {
+            $this->router->get('/test', fn() => 'Test')
+                ->middleware([FirstMiddleware::class, SecondMiddleware::class])
+                ->withoutMiddleware(FirstMiddleware::class);
+
+            $request = new ServerRequest([], [], '/test', 'GET');
+            $response = $this->router->dispatch($request);
+
+            expect($response->getHeader('X-First'))->toBe([]);
+            expect($response->getHeader('X-Second'))->toBe(['true']);
+        });
+
+        it('can check if route has excluded middleware', function () {
+            $route = $this->router->get('/test', fn() => 'Test')
+                ->middleware(['auth', 'admin'])
+                ->withoutMiddleware('auth');
+
+            expect($route->getWithoutMiddleware())->toBe(['auth']);
+        });
+
+        it('supports chaining withoutMiddleware calls', function () {
+            $route = $this->router->get('/test', fn() => 'Test')
+                ->middleware(['first', 'second', 'third'])
+                ->withoutMiddleware('first')
+                ->withoutMiddleware('second');
+
+            expect($route->getWithoutMiddleware())->toBe(['first', 'second']);
+        });
+    });
 });

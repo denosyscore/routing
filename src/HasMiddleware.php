@@ -8,6 +8,8 @@ trait HasMiddleware
 {
     protected array $middleware = [];
 
+    protected array $withoutMiddleware = [];
+
     public function middleware(string|array|object $middleware): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
@@ -19,9 +21,25 @@ trait HasMiddleware
         return $this;
     }
 
+    public function withoutMiddleware(string|array $middleware): static
+    {
+        $middlewares = is_array($middleware) ? $middleware : [$middleware];
+
+        foreach ($middlewares as $middlewareItem) {
+            $this->withoutMiddleware[] = $middlewareItem;
+        }
+
+        return $this;
+    }
+
     public function getMiddleware(): array
     {
         return $this->middleware;
+    }
+
+    public function getWithoutMiddleware(): array
+    {
+        return $this->withoutMiddleware;
     }
 
     public function hasMiddleware(string $middlewareClass): bool
@@ -32,7 +50,7 @@ trait HasMiddleware
     public function clearMiddleware(): static
     {
         $this->middleware = [];
-        
+
         return $this;
     }
 }
