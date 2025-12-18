@@ -8,7 +8,7 @@ trait HasMiddleware
 {
     protected array $middleware = [];
 
-    public function middleware(string|array $middleware): static
+    public function middleware(string|array|object $middleware): static
     {
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
 

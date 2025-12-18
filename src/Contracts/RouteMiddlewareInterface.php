@@ -13,7 +13,7 @@ interface RouteMiddlewareInterface
     /**
      * Add middleware to the route.
      */
-    public function middleware(string|array $middleware): static;
+    public function middleware(string|array|object $middleware): static;
 
     /**
      * Get all middleware attached to this route.

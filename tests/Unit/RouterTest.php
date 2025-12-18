@@ -243,6 +243,7 @@ describe('Router', function () {
                 public function setRouteManager(RouteManagerInterface $routeManager): void {}
                 public function setExceptionHandler(callable $handler): void {}
                 public function markRoutesDirty(): void {}
+                public function setGlobalMiddleware(array $middleware): void {}
             };
 
             $router = new Router(

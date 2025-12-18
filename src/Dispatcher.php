@@ -35,6 +35,10 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
     protected RequestContextExtractor $contextExtractor;
     protected RouteMatcher $routeMatcher;
     protected MiddlewarePipelineBuilder $middlewarePipelineBuilder;
+    protected MiddlewareRegistryInterface $middlewareRegistry;
+
+    /** @var array<string> */
+    protected array $globalMiddleware = [];
 
     public function __construct(
         protected RouteCollectionInterface $routeCollection,
@@ -44,13 +48,18 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         protected ?ContainerInterface $container = null,
         ?RequestContextExtractor $contextExtractor = null,
         ?RouteMatcher $routeMatcher = null,
-        ?MiddlewarePipelineBuilder $middlewarePipelineBuilder = null
+        ?MiddlewarePipelineBuilder $middlewarePipelineBuilder = null,
+        ?MiddlewareRegistryInterface $middlewareRegistry = null
     ) {
         $this->invocationStrategy = $invocationStrategy;
         $this->routeHandlerResolver = $routeHandlerResolver;
         $this->contextExtractor = $contextExtractor ?? new RequestContextExtractor();
         $this->routeMatcher = $routeMatcher ?? new RouteMatcher($this->contextExtractor);
-        $this->middlewarePipelineBuilder = $middlewarePipelineBuilder ?? new MiddlewarePipelineBuilder($this->container);
+        $this->middlewareRegistry = $middlewareRegistry ?? new MiddlewareRegistry();
+        $this->middlewarePipelineBuilder = $middlewarePipelineBuilder ?? new MiddlewarePipelineBuilder(
+            $this->container,
+            $this->middlewareRegistry
+        );
     }
 
     public static function withDefaults(
@@ -58,33 +67,59 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         RouteManagerInterface $routeManager,
         ?ContainerInterface $container = null,
         ?InvocationStrategyInterface $invocationStrategy = null,
-        ?RouteHandlerResolverInterface $routeHandlerResolver = null
+        ?RouteHandlerResolverInterface $routeHandlerResolver = null,
+        ?MiddlewareRegistryInterface $middlewareRegistry = null
     ): self {
         $strategy = $invocationStrategy ?? new DefaultInvocationStrategy($container);
         $resolver = $routeHandlerResolver ?? new RouteHandlerResolver($container);
 
-        return new self($routeCollection, $routeManager, $strategy, $resolver, $container);
+        return new self(
+            $routeCollection,
+            $routeManager,
+            $strategy,
+            $resolver,
+            $container,
+            null,
+            null,
+            null,
+            $middlewareRegistry
+        );
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         $this->initializeTrie();
 
-        try {
-            return $this->processRequest($request);
-        } catch (NotFoundException $e) {
-            if ($this->notFoundHandler) {
-                return ($this->notFoundHandler)($request);
-            }
+        // Build the core request handler
+        $coreHandler = function (ServerRequestInterface $req): ResponseInterface {
+            try {
+                return $this->processRequest($req);
+            } catch (NotFoundException $e) {
+                if ($this->notFoundHandler) {
+                    return ($this->notFoundHandler)($req);
+                }
 
-            throw $e;
-        } catch (\Throwable $e) {
-            if ($this->exceptionHandler) {
-                return ($this->exceptionHandler)($e, $request);
-            }
+                throw $e;
+            } catch (\Throwable $e) {
+                if ($this->exceptionHandler) {
+                    return ($this->exceptionHandler)($e, $req);
+                }
 
-            throw $e;
+                throw $e;
+            }
+        };
+
+        // Wrap with global middleware if any
+        if (!empty($this->globalMiddleware)) {
+            $pipeline = $this->middlewarePipelineBuilder->buildMiddlewarePipeline(
+                $this->globalMiddleware,
+                $coreHandler
+            );
+
+            return $pipeline($request);
         }
+
+        return $coreHandler($request);
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -126,6 +161,11 @@ class Dispatcher implements DispatcherInterface, RequestHandlerInterface
         if (method_exists($this->routeManager, 'reset')) {
             $this->routeManager->reset();
         }
+    }
+
+    public function setGlobalMiddleware(array $middleware): void
+    {
+        $this->globalMiddleware = $middleware;
     }
 
     protected function processRequest(ServerRequestInterface $request): ResponseInterface

@@ -17,7 +17,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 class MiddlewarePipelineBuilder
 {
     public function __construct(
-        private ?ContainerInterface $container = null
+        private ?ContainerInterface $container = null,
+        private ?MiddlewareRegistryInterface $middlewareRegistry = null
     ) {}
 
     /**
@@ -26,13 +27,17 @@ class MiddlewarePipelineBuilder
      * Middleware can be:
      *  - PSR-15 MiddlewareInterface instances
      *  - callables with signature fn(ServerRequestInterface $req, callable $next): ResponseInterface
+     *  - Named middleware aliases or groups (resolved via registry)
      *  - class-strings resolved via the container or direct instantiation
      */
     public function buildMiddlewarePipeline(array $middlewares, callable $terminal): callable
     {
+        // First, expand any named groups/aliases through the registry
+        $expandedMiddlewares = $this->expandMiddleware($middlewares);
+
         $next = $terminal;
 
-        foreach (array_reverse($middlewares) as $middleware) {
+        foreach (array_reverse($expandedMiddlewares) as $middleware) {
             $resolved = $this->resolveMiddleware($middleware);
 
             $next = function (ServerRequestInterface $request) use ($resolved, $next): ResponseInterface {
@@ -45,6 +50,33 @@ class MiddlewarePipelineBuilder
         }
 
         return $next;
+    }
+
+    /**
+     * Expand middleware names through the registry.
+     * 
+     * @param array<mixed> $middlewares
+     * @return array<mixed>
+     */
+    protected function expandMiddleware(array $middlewares): array
+    {
+        if ($this->middlewareRegistry === null) {
+            return $middlewares;
+        }
+
+        $expanded = [];
+
+        foreach ($middlewares as $middleware) {
+            // Only expand string middleware (not objects or callables)
+            if (is_string($middleware)) {
+                $resolved = $this->middlewareRegistry->resolve($middleware);
+                $expanded = array_merge($expanded, $resolved);
+            } else {
+                $expanded[] = $middleware;
+            }
+        }
+
+        return $expanded;
     }
 
     /**
