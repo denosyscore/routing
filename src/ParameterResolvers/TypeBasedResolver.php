@@ -22,8 +22,7 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
     public function __construct(
         private ?ContainerInterface $container = null,
         private ?ResponseFactoryInterface $responseFactory = null
-    ) {
-    }
+    ) {}
 
     public function canResolve(ReflectionParameter $parameter, array $routeArguments): bool
     {
@@ -70,11 +69,13 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
 
             $typeName = $namedType->getName();
 
-            if ($typeName === ServerRequestInterface::class) {
+            // Check if type is or implements ServerRequestInterface
+            if ($this->isServerRequest($typeName)) {
                 return $request;
             }
 
-            if ($typeName === ResponseInterface::class) {
+            // Check if type is or implements ResponseInterface
+            if ($this->isResponse($typeName)) {
                 return $this->createResponse();
             }
 
@@ -86,8 +87,10 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
                 $classInfo = new ReflectionClass($typeName);
                 $constructor = $classInfo->getConstructor();
 
-                if (!$classInfo->isAbstract() &&
-                    ($constructor === null || $constructor->getNumberOfRequiredParameters() === 0)) {
+                if (
+                    !$classInfo->isAbstract() &&
+                    ($constructor === null || $constructor->getNumberOfRequiredParameters() === 0)
+                ) {
                     return $classInfo->newInstance();
                 }
             }
@@ -103,10 +106,36 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
 
     private function canResolveType(string $typeName): bool
     {
-        return $typeName === ServerRequestInterface::class
-            || $typeName === ResponseInterface::class
+        return $this->isServerRequest($typeName)
+            || $this->isResponse($typeName)
             || ($this->container && $this->container->has($typeName))
             || $this->canInstantiate($typeName);
+    }
+
+    private function isServerRequest(string $typeName): bool
+    {
+        if ($typeName === ServerRequestInterface::class) {
+            return true;
+        }
+
+        if (!class_exists($typeName) && !interface_exists($typeName)) {
+            return false;
+        }
+
+        return is_a($typeName, ServerRequestInterface::class, allow_string: true);
+    }
+
+    private function isResponse(string $typeName): bool
+    {
+        if ($typeName === ResponseInterface::class) {
+            return true;
+        }
+
+        if (!class_exists($typeName) && !interface_exists($typeName)) {
+            return false;
+        }
+
+        return is_a($typeName, ResponseInterface::class, allow_string: true);
     }
 
     private function canInstantiate(string $typeName): bool
@@ -119,7 +148,7 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
         $constructor = $classInfo->getConstructor();
 
         return !$classInfo->isAbstract() &&
-               ($constructor === null || $constructor->getNumberOfRequiredParameters() === 0);
+            ($constructor === null || $constructor->getNumberOfRequiredParameters() === 0);
     }
 
     private function createResponse(int $status = 200): ResponseInterface
