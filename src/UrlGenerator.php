@@ -173,25 +173,32 @@ class UrlGenerator implements UrlGeneratorInterface
         return (string) $this->request->getUri();
     }
 
-    public function signedRoute(BackedEnum|string $name, array $parameters = [], DateTimeInterface|DateInterval|int|null $expiration = null, bool $absolute = true): string
-    {
+    public function signedRoute(
+        BackedEnum|string $name, 
+        array $parameters = [], 
+        DateTimeInterface|DateInterval|int|null $expiration = null, 
+        bool $absolute = true
+    ): string {
         $this->preventUseOfReservedParameters($parameters);
 
         $routeName = $this->resolveRouteName($name);
         $url = $this->route($routeName, $parameters, $absolute);
         $signingKey = $this->getSigningKey();
         
-        $separator = str_contains($url, '?') ? '&' : '?';
-        
+        // Add expiration if provided
         if ($expiration !== null) {
             $expirationTimestamp = $this->resolveExpiration($expiration);
-            $urlWithExpiry = $url . $separator . 'expires=' . $expirationTimestamp;
-            $signature = $this->generateSignature($urlWithExpiry, $signingKey);
-            $finalUrl = $urlWithExpiry . '&signature=' . $signature;
-        } else {
-            $signature = $this->generateSignature($url, $signingKey);
-            $finalUrl = $url . $separator . 'signature=' . $signature;
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url = $url . $separator . 'expires=' . $expirationTimestamp;
         }
+        
+        // Normalize the URL before signing
+        $normalizedUrl = $this->normalizeUrlForSigning($url);
+        $signature = $this->generateSignature($normalizedUrl, $signingKey);
+        
+        // Add signature to the original URL (not the normalized one)
+        $separator = str_contains($url, '?') ? '&' : '?';
+        $finalUrl = $url . $separator . 'signature=' . urlencode($signature);
         
         $this->validateUrl($finalUrl);
         return $this->formatUrl($finalUrl);
@@ -199,6 +206,12 @@ class UrlGenerator implements UrlGeneratorInterface
 
     public function hasValidSignature(string $url): bool
     {
+        // Quick check for signature parameter existence
+        if (!str_contains($url, 'signature=')) {
+            return false;
+        }
+        
+        // Parse to check expiration
         $urlParts = parse_url($url);
         parse_str($urlParts['query'] ?? '', $queryParams);
         
@@ -206,29 +219,112 @@ class UrlGenerator implements UrlGeneratorInterface
             return false;
         }
         
-        $providedSignature = $queryParams['signature'];
-        unset($queryParams['signature']);
-        
+        // Check expiration first (before expensive signature calculation)
         if (isset($queryParams['expires'])) {
             if (time() > (int) $queryParams['expires']) {
                 return false;
             }
         }
         
-        $cleanUrl = '';
-        if (isset($urlParts['scheme']) && isset($urlParts['host'])) {
-            $cleanUrl = $urlParts['scheme'] . '://' . $urlParts['host'];
-        }
-        $cleanUrl .= $urlParts['path'] ?? '';
+        // Store the provided signature
+        $providedSignature = $queryParams['signature'];
         
-        if (!empty($queryParams)) {
-            $cleanUrl .= '?' . $this->buildQueryString($queryParams);
-        }
+        // Normalize the URL for signature verification
+        // This will automatically remove the signature parameter
+        $normalizedUrl = $this->normalizeUrlForSigning($url);
         
+        // Generate expected signature from normalized URL
         $signingKey = $this->getSigningKey();
-        $expectedSignature = $this->generateSignature($cleanUrl, $signingKey);
+        $expectedSignature = $this->generateSignature($normalizedUrl, $signingKey);
         
+        // Use timing-safe comparison
         return hash_equals($expectedSignature, $providedSignature);
+    }
+
+    public function temporarySignedRoute(
+        BackedEnum|string $name, 
+        DateTimeInterface|DateInterval|int $expiration, 
+        array $parameters = [], 
+        bool $absolute = true
+    ): string {
+        // This is just a convenience method that enforces expiration
+        return $this->signedRoute($name, $parameters, $expiration, $absolute);
+    }
+
+    public function hasValidSignatureWhileIgnoringExpiry(string $url): bool
+    {
+        // Parse the URL to get components
+        $urlParts = parse_url($url);
+        parse_str($urlParts['query'] ?? '', $queryParams);
+        
+        if (!isset($queryParams['signature'])) {
+            return false;
+        }
+        
+        // Store the provided signature
+        $providedSignature = $queryParams['signature'];
+        
+        // Normalize the URL for signature verification
+        $normalizedUrl = $this->normalizeUrlForSigning($url);
+        
+        // Generate expected signature from normalized URL
+        $signingKey = $this->getSigningKey();
+        $expectedSignature = $this->generateSignature($normalizedUrl, $signingKey);
+        
+        // Use timing-safe comparison
+        return hash_equals($expectedSignature, $providedSignature);
+    }
+
+    public function hasCorrectSignature(string $url): bool
+    {
+        // Alias for backward compatibility or semantic clarity
+        return $this->hasValidSignatureWhileIgnoringExpiry($url);
+    }
+
+    public function signatureHasNotExpired(string $url): bool
+    {
+        $urlParts = parse_url($url);
+        parse_str($urlParts['query'] ?? '', $queryParams);
+        
+        if (!isset($queryParams['expires'])) {
+            // No expiration means it never expires
+            return true;
+        }
+        
+        return time() <= (int) $queryParams['expires'];
+    }
+
+    protected function normalizeUrlForSigning(string $url): string
+    {
+        $parts = parse_url($url);
+        $normalized = '';
+        
+        if (isset($parts['scheme'], $parts['host'])) {
+            $normalized = $parts['scheme'] . '://' . $parts['host'];
+            if (isset($parts['port'])) {
+                $normalized .= ':' . $parts['port'];
+            }
+        }
+        
+        if (isset($parts['path'])) {
+            $segments = explode('/', $parts['path']);
+            $encodedSegments = array_map(function($segment) {
+                return $segment === '' ? $segment : rawurlencode(rawurldecode($segment));
+            }, $segments);
+            $normalized .= implode('/', $encodedSegments);
+        }
+        
+        if (isset($parts['query'])) {
+            parse_str($parts['query'], $params);
+            unset($params['signature']); // Remove signature if present
+            
+            if (!empty($params)) {
+                ksort($params);
+                $normalized .= '?' . $this->buildQueryString($params);
+            }
+        }
+        
+        return $this->formatUrl($normalized);
     }
 
     public function setKeyResolver(?callable $keyResolver): static
@@ -410,5 +506,25 @@ class UrlGenerator implements UrlGeneratorInterface
         }
 
         return $url;
+    }
+
+    public function debugSignature(string $url): array
+    {
+        $parts = parse_url($url);
+        parse_str($parts['query'] ?? '', $queryParams);
+        
+        $normalizedUrl = $this->normalizeUrlForSigning($url);
+        $signingKey = $this->getSigningKey();
+        $expectedSignature = $this->generateSignature($normalizedUrl, $signingKey);
+        
+        return [
+            'original_url' => $url,
+            'normalized_url' => $normalizedUrl,
+            'provided_signature' => $queryParams['signature'] ?? null,
+            'expected_signature' => $expectedSignature,
+            'signatures_match' => hash_equals($expectedSignature, $queryParams['signature'] ?? ''),
+            'expires' => $queryParams['expires'] ?? null,
+            'is_expired' => isset($queryParams['expires']) ? time() > (int)$queryParams['expires'] : false,
+        ];
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Denosys\Routing\ParameterResolvers;
 
 use ReflectionException;
-use Denosys\Routing\Priority;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -99,9 +98,19 @@ readonly class TypeBasedResolver implements ParameterResolverInterface
         return null;
     }
 
-    public function getPriority(): int
+    /**
+     * TypeBasedResolver is the base container/type resolver.
+     * Other resolvers that want to intercept before container resolution
+     * should declare runsBefore: [TypeBasedResolver::class]
+     */
+    public function runsBefore(): array
     {
-        return Priority::HIGHEST->value;
+        return [];
+    }
+
+    public function runsAfter(): array
+    {
+        return [];
     }
 
     private function canResolveType(string $typeName): bool

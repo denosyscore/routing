@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\ParameterResolvers;
 
-use Denosys\Routing\Priority;
 use LogicException;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -35,9 +34,19 @@ class DefaultValueResolver implements ParameterResolverInterface
         );
     }
 
-    public function getPriority(): int
+    public function runsBefore(): array
     {
-        return Priority::FALLBACK->value;
+        return [];
+    }
+
+    public function runsAfter(): array
+    {
+        // DefaultValueResolver should always be last - runs after all others
+        return [
+            TypeBasedResolver::class,
+            RouteParameterResolver::class,
+            UntypedRequestResolver::class,
+        ];
     }
 
     private function allowsNull(ReflectionParameter $parameter): bool
