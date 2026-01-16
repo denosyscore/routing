@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0-alpha.1] – 2026-01-16
+
+### Changed
+
+-   **BREAKING**: Parameter resolvers now use dependency-based ordering instead of numeric priorities
+    -   Replaced `getPriority(): int` with `runsBefore(): array` and `runsAfter(): array` methods in `ParameterResolverInterface`
+    -   Resolvers now explicitly declare their dependencies for deterministic ordering
+    -   Added new `ResolverDependencySorter` class for topological sorting of resolvers
+-   **UrlGenerator**: Enhanced signed URL system with normalization and improved verification
+    -   Added `normalizeUrlForSigning()` for consistent URL normalization before signing
+    -   Added `temporarySignedRoute()` convenience method for expiring signed URLs
+    -   Added `hasValidSignatureWhileIgnoringExpiry()` for signature-only validation
+    -   Added `hasCorrectSignature()` alias for semantic clarity
+    -   Added `signatureHasNotExpired()` for expiration-only checks
+    -   Added `debugSignature()` for troubleshooting signature verification issues
+    -   Improved `signedRoute()` to use normalized URL for consistent signatures
+    -   Improved `hasValidSignature()` with early exit optimizations
+
+### Migration Guide
+
+To update your custom parameter resolvers from numeric priorities to dependency-based ordering:
+
+```php
+// Before (v0.5.x)
+class MyResolver implements ParameterResolverInterface
+{
+    public function getPriority(): int
+    {
+        return 50; // Numeric priority
+    }
+}
+
+// After (v0.6.x)
+class MyResolver implements ParameterResolverInterface
+{
+    public function runsBefore(): array
+    {
+        return [DefaultValueResolver::class]; // This resolver runs before DefaultValueResolver
+    }
+
+    public function runsAfter(): array
+    {
+        return [TypeBasedResolver::class]; // This resolver runs after TypeBasedResolver
+    }
+}
+```
+
 ## [0.5.0-alpha.4] – 2025-12-23
 
 ### Changed
