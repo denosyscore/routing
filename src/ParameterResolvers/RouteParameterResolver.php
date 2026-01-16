@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Denosys\Routing\ParameterResolvers;
 
 use Denosys\Routing\Attributes\FromRoute;
-use Denosys\Routing\Priority;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionParameter;
 
@@ -41,9 +40,14 @@ class RouteParameterResolver implements ParameterResolverInterface
         return $routeArguments[$parameter->getName()] ?? null;
     }
 
-    public function getPriority(): int
+    public function runsBefore(): array
     {
-        return Priority::NORMAL->value;
+        return [];
+    }
+
+    public function runsAfter(): array
+    {
+        return [TypeBasedResolver::class];
     }
 
     private function getFromRouteAttribute(ReflectionParameter $parameter): ?FromRoute

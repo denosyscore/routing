@@ -29,7 +29,18 @@ interface ParameterResolverInterface
     ): mixed;
 
     /**
-     * Get the priority of this resolver (higher = checked first)
+     * Get the list of resolver classes this resolver should run BEFORE.
+     * This resolver will be placed earlier in the chain than the specified resolvers.
+     * 
+     * @return class-string<ParameterResolverInterface>[]
      */
-    public function getPriority(): int;
+    public function runsBefore(): array;
+
+    /**
+     * Get the list of resolver classes this resolver should run AFTER.
+     * This resolver will be placed later in the chain than the specified resolvers.
+     * 
+     * @return class-string<ParameterResolverInterface>[]
+     */
+    public function runsAfter(): array;
 }

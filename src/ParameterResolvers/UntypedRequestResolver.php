@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Denosys\Routing\ParameterResolvers;
 
-use Denosys\Routing\Priority;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionParameter;
 
@@ -27,8 +26,13 @@ class UntypedRequestResolver implements ParameterResolverInterface
         return null;
     }
 
-    public function getPriority(): int
+    public function runsBefore(): array
     {
-        return Priority::LOW->value;
+        return [];
+    }
+
+    public function runsAfter(): array
+    {
+        return [RouteParameterResolver::class];
     }
 }

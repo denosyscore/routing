@@ -17,6 +17,7 @@ use Denosys\Routing\Exceptions\InvalidHandlerException;
 use Denosys\Routing\ParameterResolvers\UntypedRequestResolver;
 use Denosys\Routing\ParameterResolvers\DefaultValueResolver;
 use Denosys\Routing\ParameterResolvers\ParameterResolverInterface;
+use Denosys\Routing\ParameterResolvers\ResolverDependencySorter;
 use Denosys\Routing\ParameterResolvers\RouteParameterResolver;
 use Denosys\Routing\ParameterResolvers\TypeBasedResolver;
 use Denosys\Routing\ResponseConverters\JsonResponseConverter;
@@ -44,15 +45,16 @@ final class DefaultInvocationStrategy implements InvocationStrategyInterface
 
     private function initializeResolvers(): void
     {
-        $this->parameterResolvers = [
+        $resolvers = [
             new TypeBasedResolver($this->container, $this->responseFactory),
             new RouteParameterResolver(),
             new UntypedRequestResolver(),
             new DefaultValueResolver(),
         ];
 
-        // Sort by priority (highest first)
-        usort($this->parameterResolvers, fn($a, $b) => $b->getPriority() - $a->getPriority());
+        // Sort by dependency declarations (topological sort)
+        $sorter = new ResolverDependencySorter();
+        $this->parameterResolvers = $sorter->sort($resolvers);
 
         $this->responseConverters = [
             new PsrResponseConverter(),
