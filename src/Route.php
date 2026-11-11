@@ -90,10 +90,19 @@ class Route implements RouteInterface
 
     public function name(string $name): static
     {
-        if ($this->namePrefix) {
-            $this->name = $this->namePrefix . '.' . $name;
-        } else {
-            $this->name = $name;
+        $this->name = RouteGroup::joinNames($this->namePrefix, $name);
+
+        return $this;
+    }
+
+    public function prependNamePrefix(string $prefix): static
+    {
+        $this->namePrefix = $this->namePrefix === null || $this->namePrefix === ''
+            ? $prefix
+            : RouteGroup::joinNames($prefix, $this->namePrefix);
+
+        if ($this->name !== null) {
+            $this->name = RouteGroup::joinNames($prefix, $this->name);
         }
 
         return $this;

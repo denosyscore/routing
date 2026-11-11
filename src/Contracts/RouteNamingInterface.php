@@ -16,6 +16,11 @@ interface RouteNamingInterface
     public function name(string $name): static;
 
     /**
+     * Prefix the route's name and name prefix, for group names declared after the route.
+     */
+    public function prependNamePrefix(string $prefix): static;
+
+    /**
      * Get the route name.
      */
     public function getName(): ?string;
