@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { php: '8.2', dependencies: 'locked' }
+          - { php: '8.5', dependencies: 'locked' }
+          - { php: '8.2', dependencies: 'lowest' }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install locked dependencies
+        if: matrix.dependencies == 'locked'
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install lowest supported dependencies
+        if: matrix.dependencies == 'lowest'
+        run: composer update --prefer-lowest --no-interaction --prefer-dist --no-progress
+
+      - name: PHP syntax check
+        run: find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Tests
+        run: composer test
+
+      - name: Audit dependencies
+        run: composer audit

@@ -24,79 +24,65 @@ final class ResolverDependencySorter
      */
     public function sort(array $resolvers): array
     {
+        $resolvers = array_values($resolvers);
         if (count($resolvers) <= 1) {
             return $resolvers;
         }
 
-        // Build class name to resolver mapping
-        $classToResolver = [];
-        foreach ($resolvers as $resolver) {
-            $classToResolver[get_class($resolver)] = $resolver;
+        // Nodes are positions, so several instances of one class stay distinct.
+        // Dependencies name classes, so an edge applies to every instance of it.
+        $positionsByClass = [];
+        foreach ($resolvers as $position => $resolver) {
+            $positionsByClass[$resolver::class][] = $position;
         }
 
-        // Build adjacency list and in-degree count
-        // Edge A -> B means "A must come before B"
-        $adjacency = [];   // class => [classes that must come after]
-        $inDegree = [];    // class => number of dependencies
-        
-        foreach ($resolvers as $resolver) {
-            $class = get_class($resolver);
-            if (!isset($adjacency[$class])) {
-                $adjacency[$class] = [];
+        // Edge A -> B means "A must come before B".
+        $adjacency = array_fill(0, count($resolvers), []);
+        $inDegree = array_fill(0, count($resolvers), 0);
+        $addEdge = static function (int $from, int $to) use (&$adjacency, &$inDegree): void {
+            if ($from !== $to && !in_array($to, $adjacency[$from], true)) {
+                $adjacency[$from][] = $to;
+                $inDegree[$to]++;
             }
-            if (!isset($inDegree[$class])) {
-                $inDegree[$class] = 0;
-            }
-        }
+        };
 
-        // Process runsBefore: "this resolver runs before X" means edge: this -> X
-        foreach ($resolvers as $resolver) {
-            $class = get_class($resolver);
-            foreach ($resolver->runsBefore() as $beforeClass) {
-                if (isset($classToResolver[$beforeClass])) {
-                    $adjacency[$class][] = $beforeClass;
-                    $inDegree[$beforeClass]++;
+        foreach ($resolvers as $position => $resolver) {
+            foreach ($resolver->runsBefore() as $class) {
+                foreach ($positionsByClass[$class] ?? [] as $other) {
+                    $addEdge($position, $other);
+                }
+            }
+            foreach ($resolver->runsAfter() as $class) {
+                foreach ($positionsByClass[$class] ?? [] as $other) {
+                    $addEdge($other, $position);
                 }
             }
         }
 
-        // Process runsAfter: "this resolver runs after X" means edge: X -> this
-        foreach ($resolvers as $resolver) {
-            $class = get_class($resolver);
-            foreach ($resolver->runsAfter() as $afterClass) {
-                if (isset($classToResolver[$afterClass])) {
-                    $adjacency[$afterClass][] = $class;
-                    $inDegree[$class]++;
-                }
-            }
-        }
-
-        // Kahn's algorithm: start with nodes with no incoming edges
-        $queue = [];
-        foreach ($inDegree as $class => $degree) {
-            if ($degree === 0) {
-                $queue[] = $class;
-            }
-        }
-
+        // Kahn's algorithm, always taking the earliest ready position so that
+        // unconstrained resolvers keep their registration order.
+        $ready = array_keys(array_filter($inDegree, static fn (int $degree): bool => $degree === 0));
         $sorted = [];
-        while (!empty($queue)) {
-            $current = array_shift($queue);
-            $sorted[] = $classToResolver[$current];
+        while ($ready !== []) {
+            sort($ready);
+            $current = array_shift($ready);
+            $sorted[] = $resolvers[$current];
 
-            foreach ($adjacency[$current] as $neighbor) {
-                $inDegree[$neighbor]--;
-                if ($inDegree[$neighbor] === 0) {
-                    $queue[] = $neighbor;
+            foreach ($adjacency[$current] as $next) {
+                if (--$inDegree[$next] === 0) {
+                    $ready[] = $next;
                 }
             }
         }
 
-        // If we haven't sorted all nodes, there's a cycle
         if (count($sorted) !== count($resolvers)) {
-            // Find the cycle for error reporting
-            $remaining = array_filter($inDegree, fn($d) => $d > 0);
-            throw new CircularDependencyException(array_keys($remaining));
+            $remaining = [];
+            foreach ($inDegree as $position => $degree) {
+                if ($degree > 0) {
+                    $remaining[] = $resolvers[$position]::class;
+                }
+            }
+            throw new CircularDependencyException(array_values(array_unique($remaining)));
         }
 
         return $sorted;
