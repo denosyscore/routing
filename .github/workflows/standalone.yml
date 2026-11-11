@@ -53,6 +53,7 @@ jobs:
           }' > "$work/composer.json"
           cd "$work"
           # Packages the README tells users to install alongside this one.
+          extra=()
           read -r -a extra < extra.txt || true
-          composer require --no-interaction --no-progress "$name:dev-main" "${extra[@]}"
+          composer require --no-interaction --no-progress "$name:dev-main" ${extra[@]+"${extra[@]}"}
           php quickstart.php
