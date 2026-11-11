@@ -36,12 +36,13 @@ final class ResolverDependencySorter
             $positionsByClass[$resolver::class][] = $position;
         }
 
-        // Edge A -> B means "A must come before B".
+        // Edge A -> B means "A must come before B". Targets are keys, so a
+        // repeated constraint is detected in constant time.
         $adjacency = array_fill(0, count($resolvers), []);
         $inDegree = array_fill(0, count($resolvers), 0);
         $addEdge = static function (int $from, int $to) use (&$adjacency, &$inDegree): void {
-            if ($from !== $to && !in_array($to, $adjacency[$from], true)) {
-                $adjacency[$from][] = $to;
+            if ($from !== $to && !isset($adjacency[$from][$to])) {
+                $adjacency[$from][$to] = true;
                 $inDegree[$to]++;
             }
         };
@@ -68,7 +69,7 @@ final class ResolverDependencySorter
             $current = array_shift($ready);
             $sorted[] = $resolvers[$current];
 
-            foreach ($adjacency[$current] as $next) {
+            foreach (array_keys($adjacency[$current]) as $next) {
                 if (--$inDegree[$next] === 0) {
                     $ready[] = $next;
                 }

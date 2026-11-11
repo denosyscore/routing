@@ -154,7 +154,7 @@ it('can scan directory for controllers and register routes', function () {
     $loader = new AttributeRouteLoader($router);
 
     // Scan directory for controller classes with attributes
-    $loader->loadFromDirectory(__DIR__ . '/../fixtures/controllers');
+    $loader->loadFromDirectory(__DIR__ . '/../Fixtures/Controllers');
 
     // Test that routes were registered
     expect($router->getRouteCollection()->count())->toBe(2);

@@ -126,7 +126,7 @@ it('can load routes using default cache path', function () {
 it('can load directory routes with cache via loader', function () {
     $router = new Router();
     $loader = new AttributeRouteLoader($router);
-    $testDir = __DIR__ . '/../fixtures/controllers';
+    $testDir = __DIR__ . '/../Fixtures/Controllers';
 
     // First manually cache the routes
     $loader->cacheDirectory($testDir, $this->cacheFile);
@@ -201,7 +201,7 @@ it('throws exception when clearing cache without cache path', function () {
 it('throws exception when caching directory without cache path', function () {
     $router = new Router();
     $loader = new AttributeRouteLoader($router);
-    $testDir = __DIR__ . '/../fixtures/controllers';
+    $testDir = __DIR__ . '/../Fixtures/Controllers';
 
     expect(fn() => $loader->cacheDirectory($testDir))
         ->toThrow(\InvalidArgumentException::class, 'Cache file path must be provided');
