@@ -34,25 +34,38 @@ composer require laminas/laminas-diactoros
 
 Here's a simple example of how to define routes and handle requests:
 
+<!-- quickstart requires: laminas/laminas-diactoros -->
 ```php
-// Create a new router instance
-$router = new Denosys\Routing\Router();
+<?php
 
-// Define a route
+require __DIR__ . '/vendor/autoload.php';
+
+use Denosys\Routing\Router;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\ServerRequest;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router = new Router();
+
 $router->get('/', function (): ResponseInterface {
-    $response = new Laminas\Diactoros\Response();
+    $response = new Response();
     $response->getBody()->write('Hello, World!');
     return $response;
 });
 
-// Create Request
-$request = Laminas\Diactoros\ServerRequestFactory::fromGlobals();
+// Route parameters are passed to the handler by name.
+$router->get('/books/{id}', function (ServerRequestInterface $request, string $id): ResponseInterface {
+    $response = new Response();
+    $response->getBody()->write("Book {$id}");
+    return $response;
+})->name('books.show');
 
-// Dispatch the request
-$response = $router->dispatch($request);
-
-// Output the response
-echo $response->getBody();
+// In a web server, build the request with ServerRequestFactory::fromGlobals().
+echo $router->dispatch(new ServerRequest([], [], 'https://example.test/', 'GET'))->getBody(), "\n";
+// Hello, World!
+echo $router->dispatch(new ServerRequest([], [], 'https://example.test/books/42', 'GET'))->getBody(), "\n";
+// Book 42
 ```
 
 ## Middleware
