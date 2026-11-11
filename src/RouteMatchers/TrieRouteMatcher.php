@@ -190,7 +190,7 @@ class TrieRouteMatcher implements RouteMatcherInterface
     private function getOrCreateParameterNode(
         TrieNode $node,
         array $paramDetails,
-        string $constraint
+        ?string $constraint
     ): TrieNode {
         if ($paramDetails['wildcard']) {
             return $node->wildcardNode ??= $this->createNode(
@@ -211,7 +211,7 @@ class TrieRouteMatcher implements RouteMatcherInterface
 
     private function createNode(
         string $name,
-        string $constraint,
+        ?string $constraint,
         bool $optional,
         bool $isWildcard
     ): TrieNode {

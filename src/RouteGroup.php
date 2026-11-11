@@ -29,13 +29,10 @@ class RouteGroup implements RouteGroupInterface
 
     protected array $portConstraints = [];
 
+    /** @var list<RouteInterface> Routes declared directly in this group and in nested groups. */
     protected array $groupRoutes = [];
 
-    protected array $pendingMiddleware = [];
-
-    protected bool $callbackFinished = false;
-
-    protected ?RouteGroup $lastNestedGroup = null;
+    protected ?RouteGroup $parent = null;
     
     public function __construct(
         protected string $prefix,
@@ -56,17 +53,11 @@ class RouteGroup implements RouteGroupInterface
 
         $route = $this->router->addRoute($methods, $pattern, $handler);
 
-        $this->groupRoutes[] = $route;
+        $this->registerRoute($route);
 
         foreach ($this->getMiddleware() as $middlewareItem) {
             $route->middleware($middlewareItem);
         }
-
-        foreach ($this->pendingMiddleware as $middlewareItem) {
-            $route->middleware($middlewareItem);
-        }
-
-        $this->pendingMiddleware = [];
 
         // Apply group constraints to route parameters
         foreach ($this->constraints as $param => $constraint) {
@@ -102,11 +93,16 @@ class RouteGroup implements RouteGroupInterface
         return $route;
     }
 
+    /**
+     * Create a nested group and return it, so options chained after the call
+     * (->middleware(), ->name()) apply to the nested group.
+     */
     public function group(string $prefix, Closure $callback): self
     {
         $newPrefix = rtrim($this->prefix, '/') . '/' . ltrim($prefix, '/');
 
         $routeGroup = new self($newPrefix, $this->router, $this->container);
+        $routeGroup->parent = $this;
 
         $routeGroup->middleware = $this->middleware;
         $routeGroup->constraints = $this->constraints;
@@ -118,26 +114,32 @@ class RouteGroup implements RouteGroupInterface
         $routeGroup->hostConstraints = $this->hostConstraints;
         $routeGroup->portConstraints = $this->portConstraints;
 
-        foreach ($this->pendingMiddleware as $middlewareItem) {
-            $routeGroup->middleware($middlewareItem);
-        }
-
-        $this->pendingMiddleware = [];
-
         $callback($routeGroup);
 
-        $routeGroup->markCallbackFinished();
-
-        $this->lastNestedGroup = $routeGroup;
-
-        return $this;
+        return $routeGroup;
     }
 
     public function name(string $name): static
     {
-        $this->namePrefix = $this->namePrefix ? $this->namePrefix . '.' . $name : $name;
+        $this->namePrefix = self::joinNames($this->namePrefix, $name);
+
+        foreach ($this->groupRoutes as $route) {
+            $route->prependNamePrefix($name);
+        }
 
         return $this;
+    }
+
+    /**
+     * Join name segments with a single dot, whether or not segments already end in one.
+     */
+    public static function joinNames(?string $prefix, string $name): string
+    {
+        if ($prefix === null || $prefix === '') {
+            return $name;
+        }
+
+        return str_ends_with($prefix, '.') ? $prefix . $name : $prefix . '.' . $name;
     }
 
     public function namespace(string $namespace): static
@@ -245,30 +247,30 @@ class RouteGroup implements RouteGroupInterface
         return $this;
     }
 
+    /**
+     * Add middleware to every route in the group, including nested groups,
+     * whether the routes were declared before or after this call.
+     */
     public function middleware(string|array $middleware): static
     {
-        if ($this->callbackFinished) {
-            return $this->addGroupMiddleware($middleware);
-        }
-
-        if ($this->lastNestedGroup !== null) {
-            $this->lastNestedGroup->addGroupMiddleware($middleware);
-            $this->lastNestedGroup = null;
-            
-            return $this;
-        }
-
-        $middlewares = is_array($middleware) ? $middleware : [$middleware];
-        foreach ($middlewares as $mw) {
-            $this->pendingMiddleware[] = $mw;
-        }
-
-        return $this;
+        return $this->addGroupMiddleware($middleware);
     }
 
+    /**
+     * Kept for callers that signal the end of the group callback. Group options
+     * no longer depend on when they are declared, so there is nothing to do.
+     */
     public function markCallbackFinished(): void
     {
-        $this->callbackFinished = true;
+    }
+
+    /**
+     * Record a route declared in this group or a nested group.
+     */
+    protected function registerRoute(RouteInterface $route): void
+    {
+        $this->groupRoutes[] = $route;
+        $this->parent?->registerRoute($route);
     }
 
     public function addGroupMiddleware(string|array $middleware): static

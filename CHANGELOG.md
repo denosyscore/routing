@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+-   **BREAKING**: Group middleware applies to every route in the group, including nested groups, whether it is declared before, inside or after the group callback. Previously `$group->middleware()` inside a callback applied only to the next route, so later routes were left unprotected. Use `$group->get(...)->middleware(...)` for route-specific middleware.
+-   **BREAKING**: `RouteGroup::group()` returns the nested group, so options chained after it apply to the nested group.
+-   **BREAKING**: `RouteNamingInterface` adds `prependNamePrefix()`.
+-   Name prefixes chained after a group (`->name('admin.')`) apply to routes already declared in it and its nested groups. Previously they were ignored.
+-   Name segments are joined with a single dot whether or not a prefix already ends in one (`admin.` + `users` → `admin.users`, not `admin..users`).
+
+### Fixed
+
+-   A route with an unconstrained parameter and a wildcard (`/files/{disk}/*`) no longer throws a `TypeError` when routes are registered, which made every request to the application fail.
+
 ## [0.6.0-alpha.1] – 2026-01-16
 
 ### Changed
