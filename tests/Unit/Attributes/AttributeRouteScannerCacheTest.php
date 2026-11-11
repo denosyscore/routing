@@ -73,7 +73,7 @@ it('can load cached routes from scanner', function () {
 
 it('can manually cache directory routes', function () {
     $scanner = new AttributeRouteScanner();
-    $testDir = __DIR__ . '/../../fixtures/controllers';
+    $testDir = __DIR__ . '/../../Fixtures/Controllers';
     
     // Scan directory manually
     $routes = $scanner->scanDirectory($testDir);

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0-alpha.2] – 2026-11-12
+
+### Fixed
+
+-   `ResolverDependencySorter` keeps several instances of one resolver class instead of collapsing them and reporting a false circular dependency. Ordering constraints name classes and apply to every instance; unconstrained resolvers keep their registration order.
+-   The attribute-route controller fixture moved to `tests/Fixtures/Controllers`, its PSR-4 path; directory-scan tests failed on case-sensitive filesystems.
+
+### Added
+
+-   CI on PHP 8.2 and 8.5 with locked and lowest dependencies and a read-only token, and a release workflow that uses the GitHub CLI. The lock file resolves for PHP 8.2 so it installs on every supported version.
+
 ## [0.7.0-alpha.1] – 2026-11-11
 
 ### Changed

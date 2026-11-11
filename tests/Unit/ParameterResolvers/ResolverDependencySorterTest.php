@@ -95,7 +95,7 @@ class ResolverDependencySorterTest extends TestCase
         $this->expectException(CircularDependencyException::class);
 
         // A depends on B, B depends on A = circular
-        $resolverA = $this->createMockResolver('A', runsAfter: ['B']);
+        $resolverA = $this->createMockResolver('A', runsAfter: [FakeResolverB::class]);
         $resolverB = $this->createMockResolver('B', runsAfter: [get_class($resolverA)]);
 
         $sorter = new ResolverDependencySorter();
@@ -167,42 +167,84 @@ class ResolverDependencySorterTest extends TestCase
     }
 
     /**
-     * Helper: Create a mock resolver with specified dependencies
+     * Test: Two instances of one resolver class are both kept, in order
+     */
+    public function testInstancesOfTheSameClassAreNotTreatedAsACycle(): void
+    {
+        $first = new FakeResolverA();
+        $second = new FakeResolverA();
+        $before = new FakeResolverB(runsBefore: [FakeResolverA::class]);
+
+        $sorted = (new ResolverDependencySorter())->sort([$first, $second, $before]);
+
+        $this->assertSame([$before, $first, $second], $sorted);
+    }
+
+    /**
+     * Helper: Create a resolver whose class is unique to its name
+     *
+     * @param list<string> $runsBefore
+     * @param list<string> $runsAfter
      */
     private function createMockResolver(
         string $name,
         array $runsBefore = [],
         array $runsAfter = []
     ): ParameterResolverInterface {
-        return new class($name, $runsBefore, $runsAfter) implements ParameterResolverInterface {
-            public function __construct(
-                private string $name,
-                private array $runsBefore,
-                private array $runsAfter
-            ) {}
-
-            public function canResolve(ReflectionParameter $parameter, array $routeArguments): bool
-            {
-                return false;
-            }
-
-            public function resolve(
-                ReflectionParameter $parameter,
-                ServerRequestInterface $request,
-                array $routeArguments
-            ): mixed {
-                return null;
-            }
-
-            public function runsBefore(): array
-            {
-                return $this->runsBefore;
-            }
-
-            public function runsAfter(): array
-            {
-                return $this->runsAfter;
-            }
+        return match ($name) {
+            'A' => new FakeResolverA($runsBefore, $runsAfter),
+            'B' => new FakeResolverB($runsBefore, $runsAfter),
+            'C' => new FakeResolverC($runsBefore, $runsAfter),
         };
     }
+}
+
+trait FakeResolverBehaviour
+{
+    /**
+     * @param list<string> $runsBefore
+     * @param list<string> $runsAfter
+     */
+    public function __construct(
+        private array $runsBefore = [],
+        private array $runsAfter = []
+    ) {}
+
+    public function canResolve(ReflectionParameter $parameter, array $routeArguments): bool
+    {
+        return false;
+    }
+
+    public function resolve(
+        ReflectionParameter $parameter,
+        ServerRequestInterface $request,
+        array $routeArguments
+    ): mixed {
+        return null;
+    }
+
+    public function runsBefore(): array
+    {
+        return $this->runsBefore;
+    }
+
+    public function runsAfter(): array
+    {
+        return $this->runsAfter;
+    }
+}
+
+final class FakeResolverA implements ParameterResolverInterface
+{
+    use FakeResolverBehaviour;
+}
+
+final class FakeResolverB implements ParameterResolverInterface
+{
+    use FakeResolverBehaviour;
+}
+
+final class FakeResolverC implements ParameterResolverInterface
+{
+    use FakeResolverBehaviour;
 }

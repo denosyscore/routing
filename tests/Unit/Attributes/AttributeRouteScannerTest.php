@@ -133,7 +133,7 @@ it('can scan multiple controllers', function () {
 it('can scan directory for controllers', function () {
     $scanner = new AttributeRouteScanner();
     
-    $routes = $scanner->scanDirectory(__DIR__ . '/../../fixtures/controllers');
+    $routes = $scanner->scanDirectory(__DIR__ . '/../../Fixtures/Controllers');
     
     expect($routes)->toBeArray()
         ->and($routes)->toHaveCount(2); // Should find 2 routes from TestController
