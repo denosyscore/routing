@@ -52,7 +52,8 @@
         "test:unit": "pest -c phpunit.xml tests/Unit",
         "test:feature": "pest -c phpunit.xml tests/Feature",
         "test:list": "pest --list-tests",
-        "test:file": "pest -c phpunit.xml"
+        "test:file": "pest -c phpunit.xml",
+        "analyse": "phpstan analyse --no-progress --memory-limit=1G"
     },
     "config": {
         "sort-packages": true,

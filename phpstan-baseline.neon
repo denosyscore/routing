@@ -1,0 +1,3397 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''action'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''methods'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''middleware'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''path'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot access offset ''where'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot call method cacheRoutes\(\) on Denosys\\Routing\\Attributes\\AttributeRouteScanner\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot call method clearCache\(\) on Denosys\\Routing\\Attributes\\AttributeRouteScanner\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot call method loadCachedRoutes\(\) on Denosys\\Routing\\Attributes\\AttributeRouteScanner\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot call method scanClass\(\) on Denosys\\Routing\\Attributes\\AttributeRouteScanner\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Cannot call method scanDirectory\(\) on Denosys\\Routing\\Attributes\\AttributeRouteScanner\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Method Denosys\\Routing\\AttributeRouteLoader\:\:cacheClasses\(\) has parameter \$classes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Method Denosys\\Routing\\AttributeRouteLoader\:\:loadFromClasses\(\) has parameter \$classes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Method Denosys\\Routing\\AttributeRouteLoader\:\:registerRoutes\(\) has parameter \$routes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#1 \$methods of method Denosys\\Routing\\Router\:\:addRoute\(\) expects array\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#1 \$middleware of method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:middleware\(\) expects array\|object\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#1 \$name of method Denosys\\Routing\\Contracts\\RouteNamingInterface\:\:name\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#1 \$parameter of method Denosys\\Routing\\Contracts\\RouteConstraintInterface\:\:where\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#2 \$pattern of method Denosys\\Routing\\Contracts\\RouteConstraintInterface\:\:where\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#2 \$pattern of method Denosys\\Routing\\Router\:\:addRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Parameter \#3 \$handler of method Denosys\\Routing\\Router\:\:addRoute\(\) expects array\|Closure\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AttributeRouteLoader.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Any\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Any.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\ApiResource\:\:getDefaultActions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/ApiResource.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot access offset ''method'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot access offset ''path'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method cacheRoutes\(\) on Denosys\\Routing\\Attributes\\RouteCacheInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method clearCache\(\) on Denosys\\Routing\\Attributes\\RouteCacheInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method getExcept\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method getExtension\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method getMiddleware\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method getPathname\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method isCacheValid\(\) on Denosys\\Routing\\Attributes\\RouteCacheInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method loadCachedRoutes\(\) on Denosys\\Routing\\Attributes\\RouteCacheInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Cannot call method newInstance\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:cacheRoutes\(\) has parameter \$routes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:combineMiddleware\(\) has parameter \$classMiddleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:combineMiddleware\(\) has parameter \$methodMiddleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:combineMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:createRouteFromAttribute\(\) has parameter \$classMiddleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:createRouteFromAttribute\(\) has parameter \$methodMiddleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:createRouteFromAttribute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:extractClassesFromFile\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:extractMiddleware\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:extractMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:generateResourceRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getFirstAttributeInstance\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getMiddlewareFromClass\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getMiddlewareFromClass\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getMiddlewareFromClass\(\) should return array but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getMiddlewareFromMethod\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getResourceFromClass\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getResourceFromClass\(\) should return Denosys\\Routing\\Attributes\\Resource\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getRouteGroupFromClass\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getRouteGroupFromClass\(\) should return Denosys\\Routing\\Attributes\\RouteGroup\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getSourceFiles\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:getSourceFiles\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:isCacheValid\(\) has parameter \$sourceFiles with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:loadCachedRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanClass\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanClasses\(\) has parameter \$classNames with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanClasses\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanDirectory\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanMethod\(\) has parameter \$classMiddleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanMethod\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_unique expects an array of values castable to string, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#1 \$className of method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:isControllerClass\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#1 \$className of method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:scanClass\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#1 \$filePath of method Denosys\\Routing\\Attributes\\AttributeRouteScanner\:\:extractClassesFromFile\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#2 \$subject of function preg_match expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#2 \$subject of function preg_match_all expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$arrays of function array_merge expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Parameter \#4 \.\.\.\$arrays of function array_merge expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/AttributeRouteScanner.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Delete\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Delete.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Get\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Get.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\HttpMethodRoute\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/HttpMethodRoute.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\HttpMethodRoute\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/HttpMethodRoute.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:__construct\(\) has parameter \$except with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:__construct\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:__construct\(\) has parameter \$only with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:getExcept\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Middleware\:\:getOnly\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Middleware.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Options\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Options.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Patch\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Patch.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Post\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Post.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Attributes\\Put\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Put.php
+
+		-
+			message: '#^Cannot use array destructuring on mixed\.$#'
+			identifier: offsetAccess.nonArray
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:__construct\(\) has parameter \$except with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:__construct\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:__construct\(\) has parameter \$only with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:getActions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:getDefaultActions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:getExcept\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Resource\:\:getOnly\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_flip expects array\<int\|string\>, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Attributes/Resource.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Route\:\:__construct\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Route\:\:__construct\(\) has parameter \$where with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Route\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Route\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\Route\:\:getWhere\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCache\:\:cacheRoutes\(\) has parameter \$routes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCache\:\:isCacheValid\(\) has parameter \$sourceFiles with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCache\:\:loadCachedRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCache\:\:loadCachedRoutes\(\) should return array\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Parameter \#1 \$filename of function file_exists expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Parameter \#1 \$filename of function filemtime expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Attributes/RouteCache.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCacheInterface\:\:cacheRoutes\(\) has parameter \$routes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCacheInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCacheInterface\:\:isCacheValid\(\) has parameter \$sourceFiles with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCacheInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteCacheInterface\:\:loadCachedRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteCacheInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteGroup\:\:__construct\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteGroup\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteMatch\:\:__construct\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteMatch.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteMatch\:\:__construct\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteMatch.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteMatch\:\:__construct\(\) has parameter \$where with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteMatch.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Attributes\\RouteMatch\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Attributes/RouteMatch.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Cache/ApcuCache.php
+
+		-
+			message: '#^Cannot access offset ''info'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Cache/ApcuCache.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_starts_with expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Cache/ApcuCache.php
+
+		-
+			message: '#^Parameter \#1 \$key of function apcu_delete expects APCUIterator\|array\<string\>\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Cache/ApcuCache.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Cache\\FileCache\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Cache/FileCache.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Cannot call method getMethods\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Cannot call method getPattern\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:extractRouteData\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:extractRouteData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:generateExamplePaths\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:getCommonPaths\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:serializeHandler\(\) has parameter \$handler with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:serializeHandler\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CacheBuilder\:\:writePHPCache\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_contains expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$method of method Denosys\\Routing\\RouteManager\:\:addRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$pattern of method Denosys\\Routing\\CacheBuilder\:\:generateExamplePaths\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$route of method Denosys\\Routing\\CacheBuilder\:\:extractRouteData\(\) expects Denosys\\Routing\\RouteInterface, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#2 \$params of method Denosys\\Routing\\CacheBuilder\:\:extractRouteData\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Parameter \#2 \$path of method Denosys\\Routing\\RouteManager\:\:findRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Part \$path \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 5
+			path: src/CacheBuilder.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Denosys\\Routing\\RouteManagerInterface and ''reset'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Cannot call method getIdentifier\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:dehydrateRoute\(\) has parameter \$routeInfo with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:dehydrateRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:dehydrateRouteList\(\) has parameter \$routes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:dehydrateRouteList\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:findAllRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:findRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRoute\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRouteList\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRouteList\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$identifier of method Denosys\\Routing\\RouteCollectionInterface\:\:findByIdentifier\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$payload of method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRoute\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$payload of method Denosys\\Routing\\CachedRouteMatcher\:\:rehydrateRouteList\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CachedRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\HostMatchingInterface\:\:getHostParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/HostMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\HostMatchingInterface\:\:setHostConstraints\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/HostMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\PortMatchingInterface\:\:getPort\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/PortMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\PortMatchingInterface\:\:getPortParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/PortMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\PortMatchingInterface\:\:setPort\(\) has parameter \$port with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/PortMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\PortMatchingInterface\:\:setPortConstraints\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/PortMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteConstraintInterface\:\:getConstraints\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteConstraintInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteConstraintInterface\:\:whereIn\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteConstraintInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteInfoInterface\:\:getHandler\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteInfoInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteInfoInterface\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteInfoInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteMatcherInterface\:\:getParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteMatcherInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteMiddlewareInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:getWithoutMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteMiddlewareInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteMiddlewareInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:withoutMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/RouteMiddlewareInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\SchemeMatchingInterface\:\:getScheme\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/SchemeMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\SchemeMatchingInterface\:\:getSchemeParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/SchemeMatchingInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Contracts\\SchemeMatchingInterface\:\:setScheme\(\) has parameter \$scheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Contracts/SchemeMatchingInterface.php
+
+		-
+			message: '#^Anonymous function should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 2
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Denosys\\Routing\\RouteInterface and ''getWithoutMiddleware'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Denosys\\Routing\\RouteManagerInterface and ''reset'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Cannot call method getMethods\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Cannot call method getPattern\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:addRequestAttributeParams\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectParameters\(\) has parameter \$args with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectParameters\(\) should return array but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectRouteParameters\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectRouteParameters\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:collectRouteParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:invokeRouteHandler\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:invokeRouteHandler\(\) has parameter \$routeInfo with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:invokeRouteHandler\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:mergeParameters\(\) has parameter \$additionalParams with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:mergeParameters\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:mergeParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:processRequest\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Dispatcher\:\:setGlobalMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#1 \$method of method Denosys\\Routing\\RouteManagerInterface\:\:addRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#2 \$params of method Denosys\\Routing\\Dispatcher\:\:collectRouteParameters\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#2 \$pattern of method Denosys\\Routing\\RouteManagerInterface\:\:addRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#3 \$route of method Denosys\\Routing\\RouteManagerInterface\:\:addRoute\(\) expects Denosys\\Routing\\RouteInterface, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Dispatcher\:\:\$globalMiddleware \(array\<string\>\) does not accept array\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Dispatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\DispatcherInterface\:\:setGlobalMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/DispatcherInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Exceptions\\MethodNotAllowedException\:\:__construct\(\) has parameter \$allowedMethods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Exceptions/MethodNotAllowedException.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Exceptions\\MethodNotAllowedException\:\:getAllowedMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Exceptions/MethodNotAllowedException.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Factories\\CacheFactory\:\:createFromConfig\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Factories/CacheFactory.php
+
+		-
+			message: '#^Parameter \#1 \$cacheFile of method Denosys\\Routing\\Factories\\CacheFactory\:\:createFileCache\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Factories/CacheFactory.php
+
+		-
+			message: '#^Parameter \#1 \$prefix of method Denosys\\Routing\\Factories\\CacheFactory\:\:createApcuCache\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Factories/CacheFactory.php
+
+		-
+			message: '#^Part \$type \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Factories/CacheFactory.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Factories\\RouteFactory\:\:create\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Factories/RouteFactory.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Factories\\RouteFactory\:\:create\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Factories/RouteFactory.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\ArrayHandlerResolver\:\:canResolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/ArrayHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\ArrayHandlerResolver\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/ArrayHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\ArrayHandlerResolver\:\:resolve\(\) should return callable\(\)\: mixed but returns array\{object, string\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/HandlerResolvers/ArrayHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\CallableResolver\:\:canResolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/CallableResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\CallableResolver\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/CallableResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\CallableResolver\:\:resolve\(\) should return callable\(\)\: mixed but returns array\|Closure\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/HandlerResolvers/CallableResolver.php
+
+		-
+			message: '#^Binary operation "\-" between mixed and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Cannot call method getPriority\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:__construct\(\) has parameter \$resolvers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:initializeResolvers\(\) has parameter \$customResolvers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:sortResolvers\(\) has parameter \$resolvers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:sortResolvers\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Property Denosys\\Routing\\HandlerResolvers\\HandlerResolverChain\:\:\$resolvers \(array\<Denosys\\Routing\\HandlerResolvers\\HandlerResolverInterface\>\) does not accept array\.$#'
+			identifier: assign.propertyType
+			count: 3
+			path: src/HandlerResolvers/HandlerResolverChain.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverInterface\:\:canResolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\HandlerResolverInterface\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/HandlerResolverInterface.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:canResolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:resolveArray\(\) has parameter \$parts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:resolveArray\(\) should return callable\(\)\: mixed but returns array\{object, mixed\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:resolveFromContainer\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Parameter \#2 \$method of function method_exists expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Property Denosys\\Routing\\HandlerResolvers\\StringHandlerResolver\:\:\$chain is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/HandlerResolvers/StringHandlerResolver.php
+
+		-
+			message: '#^Anonymous function should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 2
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\MiddlewarePipelineBuilder\:\:buildMiddlewarePipeline\(\) has parameter \$exclude with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\MiddlewarePipelineBuilder\:\:buildMiddlewarePipeline\(\) has parameter \$middlewares with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\MiddlewarePipelineBuilder\:\:filterExcluded\(\) has parameter \$exclude with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\MiddlewarePipelineBuilder\:\:filterExcluded\(\) has parameter \$middlewares with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\MiddlewarePipelineBuilder\:\:filterExcluded\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Psr\\Http\\Server\\RequestHandlerInterface@anonymous/MiddlewarePipelineBuilder\.php\:141\:\:__construct\(\) has parameter \$next with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Psr\\Http\\Server\\RequestHandlerInterface@anonymous/MiddlewarePipelineBuilder\.php\:141\:\:handle\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Trying to invoke mixed but it''s not a callable\.$#'
+			identifier: callable.nonCallable
+			count: 1
+			path: src/MiddlewarePipelineBuilder.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ParameterResolvers\\DefaultValueResolver\:\:canResolve\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/ParameterResolvers/DefaultValueResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ParameterResolvers\\ParameterResolverInterface\:\:canResolve\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/ParameterResolvers/ParameterResolverInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ParameterResolvers\\RouteParameterResolver\:\:canResolve\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/ParameterResolvers/RouteParameterResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ParameterResolvers\\TypeBasedResolver\:\:canResolve\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/ParameterResolvers/TypeBasedResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ParameterResolvers\\UntypedRequestResolver\:\:canResolve\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/ParameterResolvers/UntypedRequestResolver.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RegexHelper.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RegexHelper\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RegexHelper.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RegexHelper\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RegexHelper.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RegexHelper\:\:patternToRegex\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RegexHelper.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''\:'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RequestContextExtractor\:\:buildHostWithPort\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RequestContextExtractor\:\:buildHostWithPort\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RequestContextExtractor\:\:extractContext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RequestContextExtractor\:\:extractHostFromHeader\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Parameter \#1 \$port of method Denosys\\Routing\\RequestContextExtractor\:\:isStandardPort\(\) expects int\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Parameter \#2 \$scheme of method Denosys\\Routing\\RequestContextExtractor\:\:isStandardPort\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RequestContextExtractor.php
+
+		-
+			message: '#^Method Denosys\\Routing\\ResponseConverters\\PsrResponseConverter\:\:convert\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/ResponseConverters/PsrResponseConverter.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: src/ResponseConverters/StringResponseConverter.php
+
+		-
+			message: '#^Cannot call method extractParameters\(\) on Denosys\\Routing\\Strategies\\HostMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method extractParameters\(\) on Denosys\\Routing\\Strategies\\PatternMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method extractParameters\(\) on Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method extractParameters\(\) on Denosys\\Routing\\Strategies\\SchemeMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method matches\(\) on Denosys\\Routing\\Strategies\\HostMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method matches\(\) on Denosys\\Routing\\Strategies\\PatternMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method matches\(\) on Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method matches\(\) on Denosys\\Routing\\Strategies\\SchemeMatchingStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:__construct\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:__construct\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getConstraints\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getHandler\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getHostParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getMethods\(\) should return array but returns array\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getPort\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getPortParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getScheme\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getSchemeParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:getWithoutMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:setHostConstraints\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:setPort\(\) has parameter \$port with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:setPortConstraints\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:setScheme\(\) has parameter \$scheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:whereIn\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Route\:\:withoutMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''preg_quote'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of function in_array expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$constraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$hostConstraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$middleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$port type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$portConstraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$scheme type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Route\:\:\$withoutMiddleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Route.php
+
+		-
+			message: '#^Cannot call method create\(\) on Denosys\\Routing\\Factories\\RouteFactory\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Cannot call method getName\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Cannot call method matches\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:add\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:add\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:all\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:createRoute\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:createRoute\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:findByIdentifier\(\) should return Denosys\\Routing\\RouteInterface\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:findByName\(\) should return Denosys\\Routing\\RouteInterface\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:get\(\) should return Denosys\\Routing\\RouteInterface\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollection\:\:getNamedRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteCollection\:\:\$routes type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollection.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollectionInterface\:\:add\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollectionInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollectionInterface\:\:add\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollectionInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollectionInterface\:\:all\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollectionInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCollectionInterface\:\:getNamedRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCollectionInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCompiler\\RouteCompiler\:\:compileSimpleRoute\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCompiler\\RouteCompiler\:\:extractParameters\(\) has parameter \$matches with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCompiler\\RouteCompiler\:\:extractParameters\(\) has parameter \$paramNames with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteCompiler\\RouteCompiler\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Parameter \#1 \$constraint of method Denosys\\Routing\\RouteCompiler\\RouteCompiler\:\:buildConstraintPattern\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/RouteCompiler/RouteCompiler.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:addGroupMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:addRoute\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:addRoute\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:any\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:delete\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:get\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:getWithoutMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:head\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:match\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:match\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:options\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:patch\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:port\(\) has parameter \$port with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:portIn\(\) has parameter \$ports with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:post\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:put\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:scheme\(\) has parameter \$scheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:whereIn\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroup\:\:withoutMiddleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''preg_quote'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''strtoupper'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Parameter \#1 \$middleware of method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:middleware\(\) expects array\|object\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Parameter \#2 \$pattern of method Denosys\\Routing\\Contracts\\RouteConstraintInterface\:\:where\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$constraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$hostConstraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$middleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$port type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$portConstraints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$scheme type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteGroup\:\:\$withoutMiddleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroup.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:any\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:delete\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:get\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:getMiddleware\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:match\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:match\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:options\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:patch\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:post\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:put\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteGroupInterface\:\:whereIn\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteGroupInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteHandlerResolver\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteHandlerResolver.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteHandlerResolverInterface\:\:resolve\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteHandlerResolverInterface.php
+
+		-
+			message: '#^Binary operation "\+\=" between \(float\|int\) and mixed results in an error\.$#'
+			identifier: assignOp.invalid
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''_hits'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''_percentage'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Binary operation "/" between mixed and float\|int\<1, max\> results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteManager\:\:findAllRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteManager\:\:findRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteManager\:\:getPerformanceStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteManager\:\:\$matchers \(array\<Denosys\\Routing\\RouteMatchers\\RouteMatcherInterface\>\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/RouteManager.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteManagerInterface\:\:findAllRoutes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteManagerInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteManagerInterface\:\:findRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteManagerInterface.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Cannot call method getMethods\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Cannot use array destructuring on mixed\.$#'
+			identifier: offsetAccess.nonArray
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:findAllowedMethods\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:findAllowedMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:findMatchingRoute\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:findMatchingRoute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:findMatchingRoute\(\) should return array\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:getKnownHttpMethods\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:isRouteMatching\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:matchesCondition\(\) has parameter \$args with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatcher\:\:matchesCondition\(\) should return bool but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$method of method Denosys\\Routing\\RouteManagerInterface\:\:findAllRoutes\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$method of method Denosys\\Routing\\RouteManagerInterface\:\:findRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$route of method Denosys\\Routing\\RouteMatcher\:\:isRouteMatching\(\) expects Denosys\\Routing\\RouteInterface, mixed given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Parameter \#2 \$path of method Denosys\\Routing\\RouteManagerInterface\:\:findAllRoutes\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Parameter \#2 \$path of method Denosys\\Routing\\RouteManagerInterface\:\:findRoute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 2
+			path: src/RouteMatcher.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot access an offset on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset ''params'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset ''pattern'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset ''route'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot call method compileSimpleRoute\(\) on Denosys\\Routing\\RouteCompiler\\RouteCompiler\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot call method extractParameters\(\) on Denosys\\Routing\\RouteCompiler\\RouteCompiler\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isSimpleParameterRoute\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\CompiledRouteMatcher\:\:findAllRoutes\(\) should return array\<array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\> but returns list\<array\{mixed, array\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\CompiledRouteMatcher\:\:findRoute\(\) should return array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\|null but returns array\{mixed, array\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\CompiledRouteMatcher\:\:getStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''count'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$pattern of function preg_match expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteMatchers\\CompiledRouteMatcher\:\:\$compiledRoutes type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/CompiledRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\RouteMatcherInterface\:\:getStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/RouteMatcherInterface.php
+
+		-
+			message: '#^Cannot access an offset on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset int\<\-1, max\> on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isStaticRoute\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\StaticRouteMatcher\:\:findAllRoutes\(\) should return array\<array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\> but returns array\<array\{mixed, array\{\}\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\StaticRouteMatcher\:\:findRoute\(\) should return array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\|null but returns array\{mixed, array\{\}\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\StaticRouteMatcher\:\:getStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_reverse expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''count'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteMatchers\\StaticRouteMatcher\:\:\$routes type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/StaticRouteMatcher.php
+
+		-
+			message: '#^Cannot access offset int\<\-1, max\> on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot access property \$routes on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isDynamicPart\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isSimpleParameterRoute\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isStaticRoute\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method isWildcardPart\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method parseParameterDetails\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Cannot call method parsePath\(\) on Denosys\\Routing\\RouteParser\\RouteParser\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:doMatch\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:extractWildcardParams\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:extractWildcardParams\(\) has parameter \$parts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:extractWildcardParams\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:findAllRoutes\(\) should return array\<array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:findRoute\(\) should return array\{Denosys\\Routing\\RouteInterface, array\<string, string\>\}\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateChildNode\(\) has parameter \$routeConstraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateChildNode\(\) should return Denosys\\Routing\\TrieNode but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateParameterNode\(\) has parameter \$paramDetails with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateRootNode\(\) should return Denosys\\Routing\\TrieNode but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:traversePath\(\) has parameter \$parts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:traversePath\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_reverse expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$name of method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:createNode\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$node of method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:traversePath\(\) expects Denosys\\Routing\\TrieNode, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$segment of method Denosys\\Routing\\TrieNode\:\:findChild\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#2 \$part of method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateChildNode\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#3 \$constraint of method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:getOrCreateParameterNode\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Parameter \#3 \$optional of method Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:createNode\(\) expects bool, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Property Denosys\\Routing\\RouteMatchers\\TrieRouteMatcher\:\:\$root type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteMatchers/TrieRouteMatcher.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteParser\\RouteParser\:\:extractParameterNames\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteParser/RouteParser.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouteParser\\RouteParser\:\:parsePath\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouteParser/RouteParser.php
+
+		-
+			message: '#^Cannot call method add\(\) on Denosys\\Routing\\RouteCollectionInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:addRoute\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:addRoute\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:any\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:appendMiddlewareToGroup\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:delete\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:get\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:getRouteCollection\(\) should return Denosys\\Routing\\RouteCollectionInterface but returns Denosys\\Routing\\RouteCollectionInterface\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:head\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:match\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:match\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:options\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:patch\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:post\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:prependMiddlewareToGroup\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:put\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Router\:\:use\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''strtoupper'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Parameter \#1 \$middleware of method Denosys\\Routing\\Contracts\\RouteMiddlewareInterface\:\:middleware\(\) expects array\|object\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Parameter \#1 \$middleware of method Denosys\\Routing\\RouteGroup\:\:addGroupMiddleware\(\) expects array\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Parameter \#2 \$middleware of method Denosys\\Routing\\MiddlewareRegistryInterface\:\:appendToGroup\(\) expects array\<string\>\|string, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Parameter \#2 \$middleware of method Denosys\\Routing\\MiddlewareRegistryInterface\:\:prependToGroup\(\) expects array\<string\>\|string, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Router\:\:\$globalMiddleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Router\:\:\$methods type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Router\:\:\$pendingMiddleware type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Router.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:addRoute\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:addRoute\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:any\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:delete\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:get\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:match\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:match\(\) has parameter \$methods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:middleware\(\) has parameter \$middleware with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:options\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:patch\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:post\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\RouterInterface\:\:put\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/RouterInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultHostMatchingStrategy\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultHostMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultHostMatchingStrategy\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultHostMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultHostMatchingStrategy\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultHostMatchingStrategy.php
+
+		-
+			message: '#^Binary operation "\." between ''\#\^'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultPortMatchingStrategy\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultPortMatchingStrategy\:\:extractParameters\(\) has parameter \$routePort with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultPortMatchingStrategy\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultPortMatchingStrategy\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultPortMatchingStrategy\:\:matches\(\) has parameter \$routePort with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''intval'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Strategies/DefaultPortMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultSchemeMatchingStrategy\:\:extractParameters\(\) has parameter \$routeScheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultSchemeMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultSchemeMatchingStrategy\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultSchemeMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\DefaultSchemeMatchingStrategy\:\:matches\(\) has parameter \$routeScheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/DefaultSchemeMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\HostMatchingStrategyInterface\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/HostMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\HostMatchingStrategyInterface\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/HostMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\HostMatchingStrategyInterface\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/HostMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PatternMatchingStrategyInterface\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PatternMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PatternMatchingStrategyInterface\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PatternMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PatternMatchingStrategyInterface\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PatternMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PortMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\:\:extractParameters\(\) has parameter \$routePort with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PortMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PortMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PortMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\PortMatchingStrategyInterface\:\:matches\(\) has parameter \$routePort with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/PortMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\RegexPatternMatchingStrategy\:\:extractParameters\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/RegexPatternMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\RegexPatternMatchingStrategy\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/RegexPatternMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\RegexPatternMatchingStrategy\:\:matches\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/RegexPatternMatchingStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\SchemeMatchingStrategyInterface\:\:extractParameters\(\) has parameter \$routeScheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/SchemeMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\SchemeMatchingStrategyInterface\:\:extractParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/SchemeMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategies\\SchemeMatchingStrategyInterface\:\:matches\(\) has parameter \$routeScheme with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategies/SchemeMatchingStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategy\\DefaultInvocationStrategy\:\:buildParameterResolvers\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategy\\DefaultInvocationStrategy\:\:buildParameterResolvers\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategy\\DefaultInvocationStrategy\:\:createResolverForParameter\(\) has parameter \$placeholderOrder with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategy\\DefaultInvocationStrategy\:\:invoke\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrMethod of class ReflectionMethod constructor expects object\|string, callable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Parameter \#3 \$routeArguments of method Denosys\\Routing\\ParameterResolvers\\ParameterResolverInterface\:\:resolve\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Property Denosys\\Routing\\Strategy\\DefaultInvocationStrategy\:\:\$parameterResolversCache type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/DefaultInvocationStrategy.php
+
+		-
+			message: '#^Method Denosys\\Routing\\Strategy\\InvocationStrategyInterface\:\:invoke\(\) has parameter \$routeArguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Strategy/InvocationStrategyInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\TrieNode\:\:compileConstraint\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/TrieNode.php
+
+		-
+			message: '#^Method Denosys\\Routing\\TrieNode\:\:findChild\(\) should return Denosys\\Routing\\TrieNode\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/TrieNode.php
+
+		-
+			message: '#^Property Denosys\\Routing\\TrieNode\:\:\$constraintCache type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/TrieNode.php
+
+		-
+			message: '#^Property Denosys\\Routing\\TrieNode\:\:\$staticChildren type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/TrieNode.php
+
+		-
+			message: '#^Cannot call method getUri\(\) on Psr\\Http\\Message\\ServerRequestInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 4
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:buildQueryString\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:buildUrl\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:debugSignature\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:extractRequiredParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:getSigningKey\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:preventUseOfReservedParameters\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:replaceParameters\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:replaceParameters\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:resolveRouteName\(\) should return string but returns int\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:route\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:signedRoute\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:temporarySignedRoute\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGenerator\:\:to\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Parameter \#2 \$user_string of function hash_equals expects string, array\<mixed\>\|string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Part \$param \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Property Denosys\\Routing\\UrlGenerator\:\:\$keyResolver has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Trying to invoke mixed but it''s not a callable\.$#'
+			identifier: callable.nonCallable
+			count: 1
+			path: src/UrlGenerator.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGeneratorInterface\:\:route\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGeneratorInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGeneratorInterface\:\:signedRoute\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGeneratorInterface.php
+
+		-
+			message: '#^Method Denosys\\Routing\\UrlGeneratorInterface\:\:to\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/UrlGeneratorInterface.php
