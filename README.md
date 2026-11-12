@@ -1,5 +1,7 @@
 # Denosys Routing
 
+> **Read-only split.** This package is developed in [denosyscore/framework](https://github.com/denosyscore/framework) under `packages/routing`. Open issues and pull requests there.
+
 A highly efficient and flexible routing package for PHP, designed to support modern web applications with minimal overhead.
 
 ## Features

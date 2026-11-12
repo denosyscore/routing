@@ -1,0 +1,23 @@
+name: Close pull request
+
+# This repository is a read-only split of denosyscore/framework.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+
+permissions:
+  pull-requests: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      # Uses only the pull request number; no pull request code is checked out.
+      - name: Close with a pointer to the monorepo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY" --comment "Thank you for the contribution. This repository is a read-only split of [denosyscore/framework](https://github.com/denosyscore/framework), where every DenoSys package is developed. Please open the pull request there, against \`packages/${GITHUB_REPOSITORY#*/}\`."

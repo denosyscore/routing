@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.10.0 – 2026-11-12
+
+### Changed
+
+- Released from the [denosyscore/framework](https://github.com/denosyscore/framework)
+  monorepo, where this package now lives under `packages/routing`. All DenoSys
+  packages share one version line, so the version moves from v0.7.0-alpha.2 to
+  0.10.0. There are no API changes in this release.
+- Requirements on other DenoSys packages are `^0.10`.
+- Routing leaves the alpha series. Its API can still change between
+  0.x minor releases, like every DenoSys package.
+
 ## [0.7.0-alpha.2] – 2026-11-12
 
 ### Fixed
