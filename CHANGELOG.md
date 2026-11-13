@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.0 – 2026-11-13
+
+- Released with the framework's 0.19 line. Requires its DenoSys dependencies
+  at `^0.19`; no other changes.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
