@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.0 – 2026-11-13
+
+- Released with the framework's 0.20 line. This package has no DenoSys
+  dependencies; no other changes.
+
 ## 0.19.0 – 2026-11-13
 
 - Released with the framework's 0.19 line. Requires its DenoSys dependencies
